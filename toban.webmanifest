@@ -1,0 +1,12 @@
+{
+  "name": "当番（スカイメディカルクリニック）",
+  "short_name": "当番",
+  "display": "standalone",
+  "scope": "./toban",
+  "background_color": "#EAF5FC",
+  "theme_color": "#B5E1F8",
+  "icons": [
+    {"src": "toban-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "toban-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}
