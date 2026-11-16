@@ -1,7 +1,7 @@
-/* スマホアプリ「当番」のサービスワーカー（Ver8.5.2）
+/* スマホアプリ「当番」のサービスワーカー（Ver9.0.1）
    ・画面（toban.html）は、毎回ネットから新しいものを取りに行き、つながらないときだけ前のものを出す
    ・当番や希望のデータ（Apps Script）にはさわらない */
-const CACHE = 'toban-8.5.2';
+const CACHE = 'toban-9.0.1';
 const FILES = ['toban.html', 'toban.webmanifest', 'toban-icon-192.png', 'toban-icon-512.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).catch(() => {})); self.skipWaiting(); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('toban-') && k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });

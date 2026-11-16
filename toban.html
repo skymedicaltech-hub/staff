@@ -525,11 +525,41 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 #rWrap .mc.past{opacity:.45}
 #rWrap .mt{font-size:10px;font-weight:700;color:#fff;border-radius:5px;padding:1px 4px;line-height:1.4;white-space:nowrap}
 #rWrap .mt.E{background:#B76839} #rWrap .mt.C{background:#287FB8}
+/* ---- Ver8.6.0 希望の色分け：△避けたい＝黄色、×入れない＝赤。早出／CSは文字で ---- */
+#wWrap .pens{grid-template-columns:1fr 1fr;gap:6px;padding:8px}
+#wWrap .pens .ph{text-align:center;font-size:12px;font-weight:700;color:#fff;border-radius:7px;padding:3px 0}
+#wWrap .pens .ph.E{background:#B76839} #wWrap .pens .ph.C{background:#287FB8}
+#wWrap .pens button{flex-direction:row;justify-content:center;gap:6px;min-height:46px;font-size:14px;border:1.5px solid #E3ECF3;background:#fff;color:#55708A}
+#wWrap .pens button b{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:13px;color:#fff}
+#wWrap .pens .pa b{background:#E0A030} #wWrap .pens .pn b{background:#D2484A}
+#wWrap .pens .pa.on{background:#FFF3D6;border-color:#E0A030;color:#8A5A00}
+#wWrap .pens .pn.on{background:#FDE4E4;border-color:#D2484A;color:#A32A2C}
+#wWrap .d.avoid{background:#FFF6E0;border:1.5px solid #E0A030;color:#27475F;box-shadow:none}
+#wWrap .d.no{background:#FDE8E8;border:1.5px solid #D2484A;color:#27475F;box-shadow:none}
+#wWrap .d.no .n{color:#27475F}
+#wWrap .d .ks{flex-direction:column;align-items:center;gap:2px;margin-top:2px}
+#wWrap .d .k{font-size:9.5px;font-weight:700;border-radius:4px;padding:0 3px;line-height:1.35;color:#fff;letter-spacing:0}
+#wWrap .d .k b{margin-left:1px}
+#wWrap .d .k.ka{background:#E0A030;color:#fff}
+#wWrap .d .k.kn{background:#D2484A;color:#fff}
+#wWrap .d.no .k.ka,#wWrap .d.avoid .k.kn{color:#fff}
+#wWrap .d.no .b{background:var(--burden)}
+#wWrap .lk{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;color:#fff;font-size:10px;font-weight:700}
+#wWrap .lk.a{background:#E0A030} #wWrap .lk.n{background:#D2484A}
+/* ---- Ver9.0.0 内視鏡カレンダーの「この日のコメント」 ---- */
+#rWrap .day .dcm{grid-column:1/-1;border-top:1px dashed #E3ECF3;padding-top:6px;margin-top:2px}
+#rWrap .dcm .cmi{font-size:13px;font-weight:700;line-height:1.5}
+#rWrap .dcm .cmn{font-size:12.5px;color:#55708A;line-height:1.5}
+#rWrap .mcm{width:7px;height:7px;border-radius:50%;margin-top:1px}
+#rWrap .cmrow{display:grid;grid-template-columns:78px 1fr;gap:6px;padding:7px 0;border-bottom:1px dashed #E3ECF3}
+#rWrap .cmrow:last-child{border-bottom:none}
+#rWrap .cmrow .cmd{font-size:12.5px;font-weight:700;color:#55708A}
+#rWrap .cmrow .dcm{border:none;padding:0;margin:0}
 
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver8.5.2（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver9.0.1（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div class="toast" id="toast"></div>
@@ -552,23 +582,26 @@ function sh(name){ return {
     clearContent(){ const d=load(); const a=d[name]||[]; a.splice(r-1,nr); d[name]=a; save(d); return this; },
     setNumberFormat(){ return this; } }; } }; }
 const SpreadsheetApp={getActiveSpreadsheet(){ return { getSheetByName(n){ return load()[n]?sh(n):null; }, insertSheet(n){ const d=load(); d[n]=[]; save(d); return sh(n); } }; }};
-const PropertiesService={getScriptProperties(){ return { getProperty(k){ return SS.get('toban_demo_'+k); }, setProperty(k,v){ SS.set('toban_demo_'+k,v); } }; }};
+const PropertiesService={getScriptProperties(){ return { getProperty(k){ return SS.get('toban_demo_'+k); }, setProperty(k,v){ SS.set('toban_demo_'+k,v); }, deleteProperty(k){ localStorage.removeItem('prop_'+k); } }; }};
 const LockService={getScriptLock(){ return {waitLock(){}, releaseLock(){}}; }};
 const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); return f==='yyyy-MM-dd'?ds:ds+' '+p(d.getHours())+':'+p(d.getMinutes()); }};
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver8.5.2（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver9.0.1（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '8.5.2';
-const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更'};
+const VER = '9.0.1';
+const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日','特別に入れる日'],
   wishes: ['月','看護師id','名前','日付','種類','送った日時'],
   months: ['月','しめきり','設定'],
   roster: ['月','確定日時','当番表'],
+  frames: ['月','更新日時','中身（休診・EGD枠・CS枠のあるなし）'],
+  calstaff: ['月','更新日時','中身（担当者_YYYY-MM.json と同じ形）'],
+  duty: ['月','確定日時','中身（当番表_YYYY-MM.json と同じ形）'],
   changes: ['番号','月','種類','申し込んだ人id','申し込んだ人','相手id','相手','日付','枠','相手の日付','相手の枠','ひとこと','状態','申し込んだ日時','返事の日時','理由'],
   survey: ['看護師id','名前','入りたくない早出（1位から）','入りたくないCS（1位から）','早出とCS','答えた日時','そのほか（自由記入）','連日の当番']
 };
@@ -731,7 +764,8 @@ function doPost(e){
   let res;
   try {
     const b = JSON.parse(e.postData.contents);
-    if (b.fn){
+    if (b.action === 'endoscSync') res = endoscSync_(b);   /* 内視鏡カレンダーから（ログインなし） */
+    else if (b.fn){
       const f = NURSE_FN[b.fn];
       res = f ? f.apply(null, Array.isArray(b.args) ? b.args : []) : {ok:false, error:'わからない操作です：'+b.fn};
     } else res = admin_(b);
@@ -769,6 +803,30 @@ function admin_(b){
       const survey = {}; read_('survey').forEach(r => { survey[r[0]] = surveyRow_(r); });
       return {ok:true, wishes:wishes, sent:sent, survey:survey};
     }
+    if (b.action === 'endoscKey'){   /* 内視鏡カレンダーとの合言葉を保存（PCアプリの設定から）。空なら消す */
+      const k = String(b.endoscKey || '').trim(), P2 = PropertiesService.getScriptProperties();
+      if (b.check) return {ok:true, set:!!P2.getProperty('ENDOSC_KEY')};
+      if (!k){ P2.deleteProperty('ENDOSC_KEY'); return {ok:true, set:false}; }
+      if (!/^[\x21-\x7e]{8,64}$/.test(k)) return {ok:false, error:'合言葉は半角の英数字・記号で8〜64文字です。'};
+      P2.setProperty('ENDOSC_KEY', k);
+      return {ok:true, set:true};
+    }
+    if (b.action === 'getFrames'){   /* カレンダーから届いた枠のあるなし（院外のPCでも当番を組めるように） */
+      const want = Array.isArray(b.months) ? b.months : null;
+      return {ok:true, comments:commentsOf_(want), frames:read_('frames').filter(r => !want || want.indexOf(r[0]) >= 0).map(r => { try { return JSON.parse(r[2]); } catch(e){ return null; } }).filter(Boolean)};
+    }
+    if (b.action === 'duty'){   /* 確定した当番表（カレンダー用。当番表_YYYY-MM.json と同じ中身・同じ confirmedAt） */
+      const d = b.duty;
+      if (!d || !/^\d{4}-\d{2}$/.test(d.month) || !d.days) return {ok:false, error:'当番表の中身がわかりません。'};
+      upsert_('duty', d.month, [d.month, String(d.confirmedAt || ''), JSON.stringify({month:d.month, confirmedAt:d.confirmedAt, days:d.days})]);
+      return {ok:true};
+    }
+    if (b.action === 'staff'){   /* 看護師名簿（カレンダー用。看護師名簿.json と同じ中身・同じ updatedAt） */
+      const st = b.staff;
+      if (!st || !Array.isArray(st.nurses)) return {ok:false, error:'名簿の中身がわかりません。'};
+      PropertiesService.getScriptProperties().setProperty('STAFF', JSON.stringify({updatedAt:st.updatedAt, nurses:st.nurses.map(n => ({id:String(n.id), name:String(n.name), early:n.early !== false, cs:n.cs !== false, active:n.active !== false}))}));
+      return {ok:true};
+    }
     if (b.action === 'getChanges'){
       /* 成立した交換・代わりを返す（PCアプリが取り込んで、回数とカレンダーを直す） */
       return {ok:true, changes:read_('changes').map(chgObj_).filter(c => c.state === 'done')};
@@ -786,13 +844,131 @@ function saveNurses_(list){
   write_('nurses', list.map(n => [n.id, n.name, n.key, n.active ? '1' : '0', n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', (Array.isArray(n.ngDow) ? n.ngDow : []).join(','), (Array.isArray(n.okDays) ? n.okDays : []).join(',')]));
 }
 
+/* ================= 内視鏡カレンダーとのやりとり（endoscSync） =================
+   カレンダー → 枠のあるなし（休診・EGD枠・CS枠。患者の情報や数は来ない）を月ごとに保存
+   カレンダー ← 看護師名簿と、確定した当番表（from の月から先）を返す
+   院内のPCの台数分、同じ内容が重なって届いてもよい作り */
+function isoNow_(){ return Utilities.formatDate(new Date(), 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ssXXX"); }
+function endoscSync_(b){
+  /* 合言葉：保存されていれば必ず確かめる（まだ保存されていない間だけ、合言葉なしでも受け付ける） */
+  const want = PropertiesService.getScriptProperties().getProperty('ENDOSC_KEY') || '';
+  if (want && String(b.key || '') !== want) return {ok:false, error:'合言葉が違います'};
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    (Array.isArray(b.slots) ? b.slots : []).slice(0, 6).forEach(m => {
+      if (!m || !/^\d{4}-\d{2}$/.test(m.month) || !m.days || typeof m.days !== 'object') return;
+      const days = {};
+      Object.keys(m.days).forEach(ds => {
+        if (ds.slice(0,7) !== m.month || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return;
+        const x = m.days[ds] || {}, off = x.off === true;
+        days[ds] = {off:off, egd:!off && x.egd === true, cs:!off && x.cs === true};
+      });
+      const old = read_('frames').find(r => r[0] === m.month);
+      const t = Date.parse(m.updatedAt), to = old ? Date.parse(old[1]) : NaN;
+      if (old && !isNaN(to) && !isNaN(t) && t < to) return;   /* 古い内容があとから届いたときは置きかえない */
+      upsert_('frames', m.month, [m.month, String(m.updatedAt || ''), JSON.stringify({month:m.month, updatedAt:m.updatedAt || '', days:days})]);
+    });
+    /* カレンダーで交代した担当者（manual が true の役割）を、スマホの当番表・カレンダー用当番表に反映し、
+       「当番の変更」に「カレンダーで交代」として残す（PCアプリはこれを取り込んで、回数も直す） */
+    (Array.isArray(b.staff) ? b.staff : []).slice(0, 6).forEach(m => {
+      if (!m || !/^\d{4}-\d{2}$/.test(m.month) || !m.days || typeof m.days !== 'object') return;
+      const old = read_('calstaff').find(r => r[0] === m.month);
+      const t = Date.parse(m.updatedAt), to = old ? Date.parse(old[1]) : NaN;
+      if (old && !isNaN(to) && !isNaN(t) && t < to) return;
+      upsert_('calstaff', m.month, [m.month, String(m.updatedAt || ''), JSON.stringify({month:m.month, updatedAt:m.updatedAt || '', days:m.days})]);
+      calApply_(m);
+    });
+    const st = PropertiesService.getScriptProperties().getProperty('STAFF');
+    const from = /^\d{4}-\d{2}$/.test(b.from) ? b.from : '';
+    const duties = read_('duty').filter(r => r[0] >= from).sort((a, c) => a[0] < c[0] ? -1 : 1).map(r => { try { return JSON.parse(r[2]); } catch(e){ return null; } }).filter(Boolean);
+    return {ok:true, ver:1, kind:'当番連携', roster: st ? JSON.parse(st) : null, duties:duties};
+  } finally {
+    lock.releaseLock();
+  }
+}
+/* カレンダーで交代した役割を当番表に反映する。
+   同じ内容が何度届いても1回だけ反映する（役割ごとに「最後に反映したカレンダーの名前」を覚える）。
+   そのあとスマホで交換した当番を、古いカレンダーの内容で戻してしまわないため */
+function calApply_(m){
+  const R = rosterMap_(); if (!R[m.month]) return;
+  const N = nurseMap_(), byName = {}; Object.keys(N).forEach(id => { byName[N[id].name] = N[id]; });
+  const P = PropertiesService.getScriptProperties();
+  let applied = {}; try { applied = JSON.parse(P.getProperty('CAL_APPLIED') || '{}'); } catch(e){}
+  const ROLE = {early:'E', cs:'C', cs2:'C2'};
+  const rows = read_('changes'), list = rows.map(chgObj_);
+  let changed = false;
+  Object.keys(m.days).sort().forEach(ds => {
+    const x = m.days[ds] || {}, man = x.manual || {};
+    const d = R[m.month].data.days && R[m.month].data.days[ds]; if (!d) return;
+    Object.keys(ROLE).forEach(role => {
+      const isMan = role === 'cs2' ? (man.cs2 === true || man.cs === true) : man[role === 'early' ? 'early' : 'cs'] === true;
+      const t = ROLE[role], name = String(x[role] || ''), key = ds+'|'+t;
+      /* Ver9.0.1：カレンダーで「手で変えた」印が消えたら、覚えていた名前も消す。
+         （覚えたままだと、あとでもう一度同じ人に交代したときに反映されない） */
+      if (!isMan){ if (key in applied) delete applied[key]; return; }
+      if (applied[key] === name) return;              /* もう反映した */
+      const curId = d[SLOT_KEY[t][0]] || '', curName = d[SLOT_KEY[t][1]] || '';
+      applied[key] = name;
+      if (curName === name) return;                    /* 当番表と同じ */
+      const n = name ? byName[name] : {id:'', name:''};
+      if (!n) return;                                  /* 名簿にない名前は反映しない */
+      setHolder_(R, ds, t, n);
+      dutyApply_(ds, t, n.name);
+      const c = {id:'k'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36), ym:m.month, kind:'cal', from:curId, fromName:curName, to:n.id, toName:n.name,
+                 ds:ds, slot:t, ds2:'', slot2:'', msg:'', state:'done', at:now_(), ansAt:now_()};
+      /* その当番にかかわる返事待ちの申し込みは無効にする */
+      list.forEach(y => { if (y.state === 'wait' && ((y.ds === ds && y.slot === t) || (y.kind === 'swap' && y.ds2 === ds && y.slot2 === t))){ y.state = 'bad'; y.why = 'カレンダーで当番が交代されました。'; y.ansAt = c.ansAt; } });
+      list.push(c);
+      changed = true;
+    });
+  });
+  if (changed){
+    upsert_('roster', m.month, [m.month, R[m.month].at, JSON.stringify(R[m.month].data)]);
+    write_('changes', list.map(chgRow_));
+  }
+  /* 2か月より前の記録は消す */
+  const lim = Utilities.formatDate(new Date(Date.now() - 62*86400000), 'Asia/Tokyo', 'yyyy-MM-dd');
+  Object.keys(applied).forEach(k => { if (k.slice(0,10) < lim) delete applied[k]; });
+  P.setProperty('CAL_APPLIED', JSON.stringify(applied));
+}
+/* カレンダーの「この日のコメント」（普通・重要）。担当者の送り物（calstaff）の各日の comments から取り出す。
+   秘密コメントはカレンダーが送ってこない。当番アプリでは書きかえない（見るだけ） */
+const CMT_COLOR = {red:1, blue:1, black:1};
+function commentsOf_(months){
+  const out = {};
+  read_('calstaff').forEach(r => {
+    if (months && months.indexOf(r[0]) < 0) return;
+    let j; try { j = JSON.parse(r[2]); } catch(e){ return; }
+    Object.keys(j.days || {}).forEach(ds => {
+      const c = (j.days[ds] || {}).comments || {};
+      const nm = (Array.isArray(c.normal) ? c.normal : []).map(x => String(x && x.text || '').slice(0, 60)).filter(Boolean).slice(0, 10);
+      const im = (Array.isArray(c.important) ? c.important : []).map(x => ({text:String(x && x.text || '').slice(0, 60), color:CMT_COLOR[x && x.color] ? x.color : 'black'})).filter(x => x.text).slice(0, 10);
+      if (nm.length || im.length) out[ds] = {normal:nm, important:im};
+    });
+    out['@'+r[0]] = r[1];   /* その月の更新日時 */
+  });
+  return out;
+}
+/* スマホで交換・代わりが決まったとき、カレンダー用の当番表もすぐ直す */
+function dutyApply_(ds, t, name){
+  const ym = String(ds).slice(0,7), row = read_('duty').find(r => r[0] === ym);
+  if (!row) return;
+  let d; try { d = JSON.parse(row[2]); } catch(e){ return; }
+  if (!d.days) d.days = {};
+  const x = d.days[ds] = d.days[ds] || {early:'', cs:'', cs2:''};
+  x[t === 'E' ? 'early' : t === 'C' ? 'cs' : 'cs2'] = name;
+  d.confirmedAt = isoNow_();
+  upsert_('duty', ym, [ym, d.confirmedAt, JSON.stringify(d)]);
+}
+
 /* ================= 当番表アプリ（roster.html）：当番の交換・代わり =================
    ・交換（swap）：自分の当番と、相手の同じ種類の当番（早出どうし・CSどうし）を入れかえる。回数は変わらない
    ・代わり（give）：自分の当番をだれかに代わってもらう（相手を決めず、みんなに出す。いちばん先に「代わる」を押した人に決まる）。代わった人の回数が1つ増える
    ・代わってあげる（take）：相手の当番に自分が入る。自分の回数が1つ増える（相手が「OK」で決まる）
    ・相手が「OK」を押した時点で決まる（院長の承認はいらない）。決まると当番表がすぐ書きかわる
    ・今日より前の当番は変えられない */
-const CHG_KIND = {swap:'交換', give:'代わり', take:'代わってあげる'};
+const CHG_KIND = {swap:'交換', give:'代わり', take:'代わってあげる', cal:'カレンダーで交代'};
 const CHG_STATE = {wait:'返事待ち', done:'成立', no:'お断り', cancel:'取り消し', bad:'無効'};
 const SLOT_NAME = {E:'早出', C:'CS', C2:'CS'};
 const SLOT_KEY = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -867,7 +1043,8 @@ function getRoster(k){
     if (c.state === 'wait' && (c.ds < td || (c.kind === 'swap' && c.ds2 < td))) c.state = 'bad', c.why = '日にちが過ぎました。';
     return c;
   });
-  return {ok:true, ver:VER, me:{id:n.id, name:n.name, canE:n.canE, canC:n.canC, ng:n.ng, ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, url:appUrl_()};
+  const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
+  return {ok:true, ver:VER, me:{id:n.id, name:n.name, canE:n.canE, canC:n.canC, ng:n.ng, ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
 }
 
 /* 申し込む */
@@ -920,6 +1097,8 @@ function answerChange(k, id, yes){
     const from = N[c.from] || {id:c.from, name:c.fromName}, to = N[c.to];
     setHolder_(R, c.ds, c.slot, c.kind === 'take' ? from : to);
     if (c.kind === 'swap') setHolder_(R, c.ds2, c.slot2, from);
+    dutyApply_(c.ds, c.slot, (c.kind === 'take' ? from : to).name);
+    if (c.kind === 'swap') dutyApply_(c.ds2, c.slot2, from.name);
     [c.ym, String(c.ds2 || '').slice(0,7)].filter((ym,i,a) => ym && a.indexOf(ym) === i).forEach(ym => upsert_('roster', ym, [ym, R[ym].at, JSON.stringify(R[ym].data)]));
     c.state = 'done';
     /* 同じ当番にかかわる、ほかの返事待ちは無効にする */
@@ -970,6 +1149,12 @@ function cancelChange(k, id){
       admin_({admin:'demo', action:'roster', ym, at:ymOf(now.getFullYear(), now.getMonth()+mi-1)+'-20 09:00', data:{days}}); });
     const wy=ymOf(now.getFullYear(), now.getMonth()+2), dl=ymOf(now.getFullYear(), now.getMonth()+1), L2=new Date(+wy.slice(0,4), +wy.slice(5,7), 0).getDate();
     admin_({admin:'demo', action:'publish', ym:wy, deadline:dl+'-20T23:59:59+09:00', cfg:{limits:{no:3}, days:Array.from({length:L2},(_,i)=>{ const d=wy+'-'+('0'+(i+1)).slice(-2), w=new Date(+wy.slice(0,4), +wy.slice(5,7)-1, i+1).getDay(); return {d, off:w===0, e:w!==0, c:w!==0, b:w===6||w===1||w===3}; })}});
+    const cym = ymOf(now.getFullYear(), now.getMonth()), cdays = {};
+    const pick = (o, d) => { const ds = cym+'-'+('0'+d).slice(-2); cdays[ds] = {early:'',early2:'',cs:'',cs2:'',manual:{early:false,cs:false},comments:o}; };
+    pick({normal:[{text:'研修あり'},{text:'午前混雑'}], important:[{text:'スコープ修理中',color:'red'}]}, Math.min(now.getDate()+1, 27));
+    pick({normal:[], important:[{text:'院長不在',color:'blue'}]}, Math.min(now.getDate()+3, 28));
+    pick({normal:[{text:'業者点検 午後'}], important:[]}, Math.min(now.getDate()+5, 26));
+    endoscSync_({staff:[{month:cym, updatedAt:new Date().toISOString(), days:cdays}], slots:[]});
   }
   return NURSE_FN;
 }
@@ -1050,7 +1235,7 @@ demoBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '8.5.2';
+const APP_VER = '9.0.1';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -1149,7 +1334,7 @@ function rosterBody(){
     };
     const gE = slots.filter(t => t === 'E'), gC = slots.filter(t => t !== 'E');
     h += '<div class="gE">'+gE.map(chip).join('')+'</div><div class="gC">'+gC.map(chip).join('')+'</div>';
-    h += '</div></div>';
+    h += '</div>'+cmtHtml(ds)+'</div>';
   });
   if (!shown) h += '<div class="none">'+(onlyMe?'この月は、あなたの当番はありません。':'この月の当番はありません。')+'</div>';
   h += '<p class="hint"><b>交換</b>：自分の当番と相手の当番を、1回ずつ押す<br><b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す</p></div>';
@@ -1166,20 +1351,31 @@ function calBody(){
     const ds = ym+'-'+('0'+d).slice(-2), w = pd(ds).getDay(), day = dayOf(ds);
     const e = day && holder(ds,'E') === D.me.id, c = day && (holder(ds,'C') === D.me.id || holder(ds,'C2') === D.me.id);
     if (e || c) n++;
+    const cm = cmtOf(ds), dot = cm ? '<span class="mcm" style="background:'+(cm.important && cm.important.length ? (CM_COLOR[cm.important[0].color]||CM_COLOR.black) : '#9FB3C2')+'"></span>' : '';
     h += '<div class="mc s'+w+(day?'':' none')+(e||c?' on':'')+(ds<D.today?' past':'')+(ds===D.today?' today':'')+'"><span class="mn">'+d+'</span>'
-      + (e ? '<span class="mt E">早出</span>' : '') + (c ? '<span class="mt C">CS</span>' : '') + '</div>';
+      + (e ? '<span class="mt E">早出</span>' : '') + (c ? '<span class="mt C">CS</span>' : '') + dot + '</div>';
   }
   h += '</div></div>';
   if (!n) h += '<div class="none" style="margin-top:10px">この月は、あなたの当番はありません。</div>';
+  const cds = Object.keys(D.comments || {}).filter(ds => ds.slice(0,7) === ym).sort();
+  if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
   h += '<p class="hint">交換や代わりをするときは、「自分の当番だけ」を切って一覧から押してください。</p></div>';
   return h;
+}
+/* 内視鏡カレンダーの「この日のコメント」（見るだけ）。重要コメントはカレンダーと同じ色 */
+const CM_COLOR = {red:'#D2484A', blue:'#287FB8', black:'#1E2833'};
+const cmtOf = ds => (D.comments || {})[ds];
+function cmtHtml(ds){
+  const c = cmtOf(ds); if (!c) return '';
+  return '<div class="dcm">' + (c.important || []).map(x => '<div class="cmi" style="color:'+(CM_COLOR[x.color]||CM_COLOR.black)+'">'+esc(x.text)+'</div>').join('')
+    + (c.normal || []).map(t => '<div class="cmn">'+esc(t)+'</div>').join('') + '</div>';
 }
 function pillHtml(ds, t){ return '<span class="pill"><span class="k '+TY(t)+'">'+SNAME[t]+'</span>'+md(ds)+'</span>'; }
 /* あなたから見て、入る当番・外れる当番 */
 function effect(c, who){
   const inS = [], outS = [];
   if (c.kind === 'swap'){ if (who === c.to){ inS.push([c.ds,c.slot]); outS.push([c.ds2,c.slot2]); } else { inS.push([c.ds2,c.slot2]); outS.push([c.ds,c.slot]); } }
-  else if (c.kind === 'give'){ (who === c.to ? inS : outS).push([c.ds,c.slot]); }
+  else if (c.kind === 'give' || c.kind === 'cal'){ (who === c.to ? inS : outS).push([c.ds,c.slot]); }
   else { (who === c.from ? inS : outS).push([c.ds,c.slot]); }
   return {inS, outS};
 }
@@ -1192,6 +1388,7 @@ function effHtml(c, who){
 function reqCard(c, mode){
   const open = c.kind === 'give' && !c.to;
   const other = c.from === D.me.id ? c.toName : c.fromName;
+  if (c.kind === 'cal') return '<div class="box req"><div class="who">内視鏡カレンダーで交代しました</div><div class="what" style="display:block">'+effHtml(c, D.me.id)+'</div><div class="st done">'+(c.from===D.me.id?esc(c.toName||'なし')+' さんに':esc(c.fromName||'なし')+' さんから')+'</div></div>';
   const who = open ? (mode === 'in' ? '<b>'+esc(c.fromName)+'</b> さんが、代わってくれる人をさがしています' : '代わってくれる人をさがしています（みんなに）') : '<b>'+esc(other)+'</b> さん'+(mode==='in'?'から':'と');
   let h = '<div class="box req"><div class="who">'+who+'</div><div class="what" style="display:block">'+effHtml(open && mode === 'in' ? Object.assign({}, c, {to:D.me.id}) : c, D.me.id)+'</div>';
   if (mode === 'in' && open) h += '<div class="btns"><button class="b-ok" data-ans="'+c.id+'" data-yes="1">代わる</button></div>';
@@ -1322,7 +1519,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; sel = nul
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '8.5.2';
+const APP_VER = '9.0.1';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -1413,16 +1610,17 @@ function wishView(){
   if (days.length) for (let i=0;i<pd(days[0].d).getDay();i++) h += '<div class="d blank"></div>';
   days.forEach(x => {
     const v = x.off ? '' : (edit[x.d] || ''), cls = cntW(v,'n') ? 'no' : cntW(v,'a') ? 'avoid' : '';
-    const mk = (i, lab) => v[i] && v[i] !== '-' ? '<span class="k '+(v[i]==='n'?'kn':'ka')+'">'+lab+(v[i]==='n'?'×':'△')+'</span>' : '';
+    const mk = (i, lab) => v[i] && v[i] !== '-' ? '<span class="k '+(v[i]==='n'?'kn':'ka')+'">'+lab+'<b>'+(v[i]==='n'?'×':'△')+'</b></span>' : '';
     h += '<div class="d'+(x.off?' off':'')+(!open?' lock':'')+(cls?' '+cls:'')+'" data-d="'+x.d+'"><span class="n">'+pd(x.d).getDate()+'</span>'
       + (cls ? '<span class="ks">'+mk(0,'早')+mk(1,'CS')+'</span>' : '') + (x.b && !x.off ? '<span class="b"></span>' : '') + '</div>';
   });
-  h += '</div><div class="legend"><span><i></i>重い当番の日（土曜と水曜のCS・月曜と連休明けの早出）</span><span><i class="off"></i>休診</span></div><div class="legend" style="padding-top:0">△＝避けたい　×＝入れない</div></div>';
+  h += '</div><div class="legend"><span><i></i>重い当番の日（土曜と水曜のCS・月曜と連休明けの早出）</span><span><i class="off"></i>休診</span></div><div class="legend" style="padding-top:0"><span><span class="lk a">△</span>避けたい</span><span><span class="lk n">×</span>入れない</span><span>早＝早出</span></div></div>';
   if (open){
     const na = Object.values(edit).reduce((a,v)=>a+cntW(v,'a'),0);
     h += '<p class="howto">下で種類を選んでから日付を押してください。もう一度押すと消えます。<br>避けたい枠は、少なく書くほど通りやすくなります。</p>'
       + '<div class="dock"><div class="pens">'
-      + PENS.map(([k,lab])=>'<button data-pen="'+k+'" class="'+(k[0]==='a'?'pa':'pn')+(pen===k?' on':'')+'"><i></i>'+lab+'</button>').join('')
+      + '<div class="ph E">早出</div><div class="ph C">CS</div>'
+      + PENS.map(([k])=>'<button data-pen="'+k+'" class="'+(k[0]==='a'?'pa':'pn')+' s'+k[1]+(pen===k?' on':'')+'"><b>'+(k[0]==='a'?'△':'×')+'</b>'+(k[0]==='a'?'避けたい':'入れない')+'</button>').join('')
       + '</div><p class="tip">避けたい <b>'+na+'</b> 枠</p>'
       + '<button class="send" id="send"'+((dirty||!D.sent[m.ym]) && !busy ? '' : ' disabled')+'>'+(busy?'送っています…':(D.sent[m.ym]&&!dirty?'送りました':'送る'))+'</button></div>';
   }
