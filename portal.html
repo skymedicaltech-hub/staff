@@ -151,6 +151,7 @@
   .fld{margin-bottom:12px}
   .fld>label{display:block;font-size:14px;font-weight:700;color:#46535C;margin-bottom:4px}
   .fld .note{font-size:12.5px;color:var(--sub);margin-top:3px}
+  .fld .warn{font-size:13px;color:#9A2F1C;background:#FDEDEA;border:1px solid #F3C2B8;border-radius:10px;padding:8px 10px;margin-top:6px}
   .fld input[type=text],.fld input[type=url],.fld select{width:100%}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .pick-ic{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
@@ -210,7 +211,7 @@
 <div class="toast" id="toast"></div>
 <div class="busy" id="busy">保存中…</div>
 <div class="scan" id="scan">
-  <div class="top"><span id="scanTitle"></span><small>自分の個人QRを、白いわくの中に入れてください</small></div>
+  <div class="top"><span id="scanTitle"></span><small id="scanSub"></small></div>
   <div class="view"><video id="scanVideo" playsinline muted></video><div class="frame"></div><div class="msg" id="scanMsg"></div></div>
   <div class="btns"><button class="cancel" id="scanCancel">やめる</button>
     <label class="photo">写真で読み取る<input type="file" id="scanFile" accept="image/*" capture="environment"></label></div>
@@ -237,7 +238,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver1.9.1';
+const VERSION = 'Ver1.10.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -330,10 +331,10 @@ function renderList(data, note){
   }
   h += '<div class="foot"><span class="ver">' + VERSION + '</span>'
      +   '<button id="reload">↻ 最新にする</button>'
-     +   (data.staff ? '<button class="reset" id="reset">登録を解除</button>' : '<span></span>') + '</div>';
+     +   (data.staff && !preview ? '<button class="reset" id="reset">登録を解除</button>' : '<span></span>') + '</div>';
   if (data._at) h += '<div class="updated">' + esc(data._at) + ' の内容です</div>';
   if (hasQR) h += '<a class="admlink" href="#" id="requr">個人QRを読み取り直す</a>';
-  if (data.staff && data.staff.role === '院長') h += '<a class="admlink adm-on" href="?admin=1">⚙ 院長用の設定</a>';
+  if (!preview && data.staff && data.staff.role === '院長') h += '<a class="admlink adm-on" href="?admin=1">⚙ 院長用の設定</a>';
   $('#main').innerHTML = h;
   bindDemo();
 
@@ -343,9 +344,9 @@ function renderList(data, note){
   const rq = $('#requr');
   if (rq) rq.addEventListener('click', e => { e.preventDefault();
     if (!confirm('読み取った個人QRを、このスマホから消しますか?\n消したあと、アプリのボタンを押してもう一度読み取ります。')) return;
-    ls.del(LS_PURL); start(false); });
-  $('#reload').addEventListener('click', () => start(true));
-  if (data.staff) $('#reset').addEventListener('click', () => {
+    ls.del(purlKey()); if (preview) previewStaff(preview); else start(false); });
+  $('#reload').addEventListener('click', () => preview ? previewStaff(preview) : start(true));
+  if (data.staff && !preview) $('#reset').addEventListener('click', () => {
     if (!confirm('このスマホの登録を解除しますか?\nもう一度使うときは登録QRを読み取ります。')) return;
     ls.del(LS_KEY); ls.del(LS_CACHE); ls.del(LS_PURL);
     if (params.get('k')) { location.href = location.pathname; return; }
@@ -359,6 +360,7 @@ function openApp(a){
       'このアプリは、一人ずつの画面になります。院長からもらった「登録QR」をスマホで読み取ってから開いてください。');
   }
   if (a.state === 'needqr') return openScan(a);
+  if (preview) return showSheet('お試しです', '「' + a.name + '」が開きます(お試しなので、ここでは開きません)。');
   if (a.state === 'nourl'){
     return showSheet('準備中です', 'あなた用のページがまだ用意されていません。院長にお知らせください。');
   }
@@ -369,6 +371,8 @@ function openApp(a){
 
 /* ---------- 見本の切り替え ---------- */
 function demoBanner(){
+  if (preview) return '<div class="demo noprint">お試し表示：<b>' + esc(preview.name) + '</b>さん(' + esc(preview.role) + ')のスマホでの見え方です。'
+    + '<div class="sw"><button id="pvEnd">設定にもどる</button></div></div>';
   if (!DEMO) return '';
   return '<div class="demo noprint">見本データで表示しています(GASがまだつながっていません)。'
     + '<div class="sw"><button data-v="me" class="' + (demoView==='me'?'on':'') + '">登録した人の見え方</button>'
@@ -377,7 +381,9 @@ function demoBanner(){
     + '<button data-v="admin" class="' + (demoView==='admin'?'on':'') + '">院長用の設定</button></div></div>';
 }
 function bindDemo(){
-  document.querySelectorAll('.demo .sw button').forEach(b => b.addEventListener('click', () => {
+  const pe = $('#pvEnd');
+  if (pe) pe.addEventListener('click', () => { preview = null; $('#main').classList.add('admin'); drawAdmin(); window.scrollTo(0, 0); });
+  document.querySelectorAll('.demo .sw button:not(#pvEnd)').forEach(b => b.addEventListener('click', () => {
     if (b.dataset.v === 'admin'){ demoView = 'admin'; admTab = 'apps'; renderAdmin(); window.scrollTo(0, 0); return; }
     $('#main').classList.remove('admin'); demoView = b.dataset.v; start(true);
   }));
@@ -392,12 +398,13 @@ $('#sheetOk').addEventListener('click', () => $('#sheetBg').classList.remove('sh
 $('#sheetBg').addEventListener('click', e => { if (e.target.id === 'sheetBg') $('#sheetBg').classList.remove('show'); });
 
 /* ---------- 読み取った個人QRの保存(このスマホの中だけ) ---------- */
+function purlKey(){ return preview ? LS_PURL + '_pv' : LS_PURL; }
 function myQR(){
-  try { const o = JSON.parse(ls.get(LS_PURL) || 'null'); if (o && o.k === curKey() && o.urls) return o.urls; } catch(e){}
+  try { const o = JSON.parse(ls.get(purlKey()) || 'null'); if (o && o.k === curKey() && o.urls) return o.urls; } catch(e){}
   return {};
 }
-function saveMyQR(urls){ ls.set(LS_PURL, JSON.stringify({ k:curKey(), urls:urls })); }
-function curKey(){ return DEMO ? 'demo' : (ls.get(LS_KEY) || ''); }
+function saveMyQR(urls){ ls.set(purlKey(), JSON.stringify({ k:curKey(), urls:urls })); }
+function curKey(){ return preview ? 'pv:' + preview.name : (DEMO ? 'demo' : (ls.get(LS_KEY) || '')); }
 function qrFits(url, base){ return !!base && typeof url === 'string' && /^https:\/\/\S+$/.test(url) && (url.indexOf(base + '?') === 0 || url.indexOf(base + '#') === 0) && url.length > base.length + 1; }
 /* GASからもらった一覧に、このスマホが覚えている個人QRをあてはめる */
 function applyMyQR(data){
@@ -424,9 +431,20 @@ function decodeFrom(src, w, h){
   return r && r.data ? r.data.trim() : '';
 }
 
-async function openScan(a){
-  scanApp = a; scanBusy = false;
-  $('#scanTitle').textContent = '「' + a.name + '」のQRを読み取る';
+let scanCb = null;   // 読み取った文字を受け取る関数。エラーの文を返すと読み取りを続け、'' を返すと閉じる
+function openScan(a){
+  scanApp = a;
+  return openScanWith('「' + a.name + '」のQRを読み取る', '自分の個人QRを、白いわくの中に入れてください', text => {
+    if (!qrFits(text, a.base)) return 'このアプリのQRではないようです。「' + a.name + '」の自分のQRを読み取ってください。';
+    const mine = myQR(); mine[a.id] = text; saveMyQR(mine);
+    toast('「' + a.name + '」を登録しました');
+    setTimeout(() => preview ? previewStaff(preview) : start(false), 0);
+    return '';
+  });
+}
+async function openScanWith(title, sub, cb){
+  scanCb = cb; scanBusy = false;
+  $('#scanTitle').textContent = title; $('#scanSub').textContent = sub;
   $('#scanMsg').textContent = 'カメラを準備しています…';
   $('#scan').classList.add('show');
   try {
@@ -460,17 +478,11 @@ $('#scanFile').addEventListener('change', e => {
 });
 
 function gotQR(text){
-  if (scanBusy) return;
-  const a = scanApp;
-  if (!qrFits(text, a.base)){
-    $('#scanMsg').textContent = 'このアプリのQRではないようです。「' + a.name + '」の自分のQRを読み取ってください。';
-    return;
-  }
+  if (scanBusy || !scanCb) return;
+  const err = scanCb(text);
+  if (err){ $('#scanMsg').textContent = err; return; }
   scanBusy = true;
-  const mine = myQR(); mine[a.id] = text; saveMyQR(mine);
   closeScan();
-  toast('「' + a.name + '」を登録しました');
-  start(false);
 }
 
 /* ---------- 画面:登録QRが必要 ---------- */
@@ -673,6 +685,7 @@ function editApp(idx){
       + '<h3>' + (isNew ? 'アプリを追加' : 'アプリを編集') + '</h3>'
       + '<div class="prev" id="m_prev">' + prevHtml() + '</div>'
 
+      + '<button class="btn sub" id="m_scan" style="width:100%;margin-bottom:14px">📷 アプリのQRを読み取って、アドレスを入れる</button>'
       + '<div class="fld"><label>アプリ名</label><input type="text" id="f_name" value="' + esc(a.name) + '" placeholder="例:当番希望"></div>'
       + '<div class="fld"><label>説明(ボタンの小さい文字)</label><input type="text" id="f_desc" value="' + esc(a.desc) + '" placeholder="例:早出・CSの希望を入れる"></div>'
       + '<div class="fld"><label>アイコン</label><div class="row" style="margin:0"><input type="text" id="f_icon" value="' + esc(a.icon) + '" style="width:80px;text-align:center;font-size:22px">'
@@ -687,7 +700,8 @@ function editApp(idx){
           + '<button data-v="0" class="' + (!a.selfReg ? 'on' : '') + '">アプリの中で選ぶ</button><button data-v="1" class="' + (a.selfReg ? 'on' : '') + '">一人ずつのQR</button></div>'
           + '<div class="note">' + (a.selfReg ? 'スタッフが入口アプリで自分の個人QRを一度読み取ると、次からはボタンだけで開きます。読み取ったQRは、その人のスマホの中だけに保存します(院長にも見えません)。' : 'みんな同じアドレスを開き、アプリの中で名前などを選ぶ方式です。') + '</div></div>' : '')
       + '<div class="fld"><label>' + (a.personal ? (a.selfReg ? 'アプリのアドレス(QRの確かめに使います)' : '共通のアドレス(URL)') : 'アドレス(URL)') + '</label><input type="url" id="f_url" value="' + esc(a.url) + '" placeholder="https://…">'
-      +   (a.personal ? '<div class="note">' + (a.selfReg ? '個人QRのアドレスから「?」より後ろを除いたものを入れます。読み取ったQRがこのアドレスと合うときだけ登録されます。' : 'みんながこのアドレスを開きます。') + '</div>' : '') + '</div>'
+      +   (a.personal ? '<div class="note">' + (a.selfReg ? '個人QRのアドレスから「?」より後ろを除いたものを入れます。読み取ったQRがこのアドレスと合うときだけ登録されます。' : 'みんながこのアドレスを開きます。') + '</div>' : '')
+      +   (!a.selfReg && /[?#]/.test(a.url) ? '<div class="warn">このアドレスには「?」より後ろの印が付いています。一人ずつ別のQRを配っているアプリなら、上の「本人の見分け方」で「一人ずつのQR」を選んでください。このままだと、全員がこの印の人の画面を開きます。</div>' : '') + '</div>'
       + '<div class="fld"><label>公開する期間(空欄ならずっと)</label><div class="two">'
       +   '<input type="date" id="f_from" value="' + esc(a.from) + '"><input type="date" id="f_until" value="' + esc(a.until) + '"></div>'
       +   '<div class="note">左:この日から出す / 右:この日まで出す(終わると自動で消えます)</div></div>'
@@ -705,9 +719,18 @@ function editApp(idx){
     m.querySelectorAll('[data-co]').forEach(b => b.addEventListener('click', () => { sync(); a.color = b.dataset.co; redraw2(); }));
     m.querySelectorAll('#f_target button').forEach(b => b.addEventListener('click', () => { sync(); a.target = b.dataset.v; redraw2(); }));
     m.querySelectorAll('#f_personal button').forEach(b => b.addEventListener('click', () => { sync(); a.personal = b.dataset.v === '1'; if (!a.personal) a.selfReg = false; redraw2(); }));
-    m.querySelectorAll('#f_selfreg button').forEach(b => b.addEventListener('click', () => { sync(); a.selfReg = b.dataset.v === '1'; redraw2(); }));
+    m.querySelectorAll('#f_selfreg button').forEach(b => b.addEventListener('click', () => { sync(); a.selfReg = b.dataset.v === '1'; if (a.selfReg && a.url) a.url = a.url.split(/[?#]/)[0]; redraw2(); }));
     function redraw2(){ const y = m.scrollTop; draw(); m.scrollTop = y; }
     ['#f_name','#f_desc','#f_icon','#f_until'].forEach(s => $(s).addEventListener('input', () => { sync(); $('#m_prev').innerHTML = prevHtml(); }));
+    $('#m_scan').addEventListener('click', () => {
+      sync();
+      openScanWith('アプリのQRを読み取る', 'そのアプリのQRを、白いわくの中に入れてください', text => {
+        if (!/^https:\/\/\S+$/.test(text)) return 'このQRは使えません(https:// で始まるアドレスのQRではありません)。';
+        a.url = a.selfReg ? text.split(/[?#]/)[0] : text;   // 「一人ずつのQR」なら印(「?」より後ろ)は保存しない
+        setTimeout(() => { const y = m.scrollTop; draw(); m.scrollTop = y; toast('アドレスを入れました'); }, 0);
+        return '';
+      });
+    });
     $('#m_cancel').addEventListener('click', () => m.classList.remove('show'));
     if (!isNew) $('#m_del').addEventListener('click', () => {
       if (!confirm('「' + ADM.apps[idx].name + '」を削除しますか?\n(一時的に隠すだけなら「スタッフのスマホに出す」のチェックを外してください)')) return;
@@ -736,18 +759,41 @@ function editApp(idx){
   m.classList.add('show'); m.scrollTop = 0;
 }
 
+/* ---------- お試し表示(院長が、スタッフのスマホでの見え方を試す) ---------- */
+let preview = null;
+function previewStaff(s){
+  preview = { name:s.name, role:s.role };
+  const d = new Date(), today = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+  const apps = ADM.apps.filter(a => a.show
+      && (!a.from || today >= a.from) && (!a.until || today <= a.until)
+      && (!a.target || a.target === '全員' || a.target === s.role || s.role === '院長'))
+    .map(a => {
+      const o = { id:a.id, name:a.name, desc:a.desc, icon:a.icon, color:a.color, personal:a.personal,
+                  selfReg:a.selfReg, isNew: !!a.from && (new Date(today) - new Date(a.from)) / 86400000 < 7,
+                  until: a.until ? fmtMD(a.until) : '', url:null, state:'nourl' };
+      if (a.selfReg) { o.base = a.url; o.state = a.url ? 'needqr' : 'nourl'; }
+      else if (/^https:\/\/\S+$/.test(a.url)) { o.url = a.url; o.state = 'ok'; }
+      return o;
+    });
+  $('#main').classList.remove('admin');
+  renderList({ staff:{ name:s.name, role:s.role }, apps:apps });
+  window.scrollTo(0, 0);
+}
+
 /* ---------- スタッフ ---------- */
 function drawStaff(){
   const L = ADM.staff;
   let h = '<div class="panel"><p class="hint">名前・職種を変えると、その場で保存されます。職種を「院長」にした人の登録QRで開いたスマホにだけ、「院長用の設定」ボタンが出ます。辞めた人は「在籍」のチェックを外すと、登録QRが使えなくなります。</p>'
     + '<div class="row"><input type="text" id="n_name" placeholder="名前(例:山田 花子)" style="flex:1;min-width:160px">'
     + '<select id="n_role">' + STAFF_ROLES.map(r => '<option>' + r + '</option>').join('') + '</select>'
-    + '<button class="btn" id="n_add">＋ 追加</button></div>';
+    + '<button class="btn" id="n_add">＋ 追加</button>'
+    + (L.some(x => x.name === 'テスト看護師') ? '' : '<button class="btn sub" id="n_test">＋ お試し用の2人を作る</button>') + '</div>';
   L.forEach((s, i) => {
     h += '<div class="srow' + (s.active ? '' : ' off') + '"><input type="text" data-nm="' + i + '" value="' + esc(s.name) + '">'
       + '<select data-rl="' + i + '">' + STAFF_ROLES.map(r => '<option' + (s.role === r ? ' selected' : '') + '>' + r + '</option>').join('') + '</select>'
       + '<label><input type="checkbox" data-ac="' + i + '"' + (s.active ? ' checked' : '') + '>在籍</label>'
-      + '<div class="ops"><button class="btn sub sm" data-rk="' + i + '">QRを作り直す</button><button class="btn del sm" data-dl="' + i + '">削除</button></div></div>';
+      + '<div class="ops"><button class="btn sub sm" data-pv="' + i + '">画面を見る</button>'
+      + '<button class="btn sub sm" data-rk="' + i + '">QRを作り直す</button><button class="btn del sm" data-dl="' + i + '">削除</button></div></div>';
   });
   if (!L.length) h += '<div class="empty">まだスタッフがいません</div>';
   h += '</div>';
@@ -760,6 +806,12 @@ function drawStaff(){
     saveAdmin(n + ' さんを追加しました').then(() => { const e = $('#n_name'); if (e) e.focus(); });
   };
   $('#n_add').addEventListener('click', add);
+  const nt = $('#n_test');
+  if (nt) nt.addEventListener('click', () => {
+    [['テスト看護師','看護師'], ['テスト事務','受付事務']].forEach(x => { if (!L.some(y => y.name === x[0])) L.push({ name:x[0], role:x[1], k:'', active:true }); });
+    saveAdmin('お試し用の2人を作りました');
+  });
+  document.querySelectorAll('[data-pv]').forEach(b => b.addEventListener('click', () => previewStaff(L[+b.dataset.pv])));
   $('#n_name').addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
   document.querySelectorAll('[data-nm]').forEach(inp => inp.addEventListener('change', () => {
     const s = L[+inp.dataset.nm], old = s.name, n = inp.value.trim();
