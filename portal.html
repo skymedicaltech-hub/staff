@@ -100,11 +100,13 @@
   .scan .view{flex:1;position:relative;overflow:hidden;background:#000}
   .scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .scan .frame{position:absolute;left:50%;top:50%;width:66vmin;height:66vmin;max-width:340px;max-height:340px;transform:translate(-50%,-50%);border:3px solid rgba(255,255,255,.9);border-radius:18px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)}
-  .scan .msg{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:15px;padding:0 16px}
+  .scan .msg{position:absolute;left:0;right:0;bottom:34px;text-align:center;font-size:15px;padding:0 16px}
+  .scan .info{position:absolute;left:0;right:0;bottom:10px;text-align:center;font-size:12px;opacity:.7}
   .scan .btns{display:flex;gap:10px;padding:14px 16px calc(14px + env(safe-area-inset-bottom))}
-  .scan .btns button,.scan .btns label{flex:1;text-align:center;padding:14px 8px;border-radius:14px;border:none;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer}
+  .scan .btns button,.scan .btns label{flex:1;text-align:center;padding:13px 6px;border-radius:14px;border:none;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}
   .scan .cancel{background:#3A4B58;color:#fff}
   .scan .photo{background:#fff;color:#1F6FB0}
+  .scan .paste{background:#3A4B58;color:#fff}
   .scan input[type=file]{display:none}
 
   /* 院長用 設定 */
@@ -212,8 +214,9 @@
 <div class="busy" id="busy">保存中…</div>
 <div class="scan" id="scan">
   <div class="top"><span id="scanTitle"></span><small id="scanSub"></small></div>
-  <div class="view"><video id="scanVideo" playsinline muted></video><div class="frame"></div><div class="msg" id="scanMsg"></div></div>
+  <div class="view"><video id="scanVideo" playsinline muted></video><div class="frame"></div><div class="msg" id="scanMsg"></div><div class="info" id="scanInfo"></div></div>
   <div class="btns"><button class="cancel" id="scanCancel">やめる</button>
+    <button class="paste" id="scanPaste">アドレスを貼る</button>
     <label class="photo">写真で読み取る<input type="file" id="scanFile" accept="image/*" capture="environment"></label></div>
 </div>
 
@@ -238,7 +241,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver1.10.0';
+const VERSION = 'Ver1.11.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -418,19 +421,41 @@ function applyMyQR(data){
 }
 
 /* ---------- 個人QRを読み取って、自分用のアドレスとして登録する ---------- */
-let scanApp = null, scanStream = null, scanTimer = null, scanBusy = false;
+let scanApp = null, scanStream = null, scanTimer = null, scanBusy = false, scanErr = '';
 const scanCanvas = document.createElement('canvas');
 
-function decodeFrom(src, w, h){
-  const max = 1000, s = Math.min(1, max / Math.max(w, h));
-  scanCanvas.width = Math.round(w * s); scanCanvas.height = Math.round(h * s);
-  const cx = scanCanvas.getContext('2d', { willReadFrequently:true });
-  cx.drawImage(src, 0, 0, scanCanvas.width, scanCanvas.height);
-  const im = cx.getImageData(0, 0, scanCanvas.width, scanCanvas.height);
-  const r = jsQR(im.data, im.width, im.height);
+/* 画面の一部を切り出して読む。ぼやけないよう、まず元の大きさのまま試す */
+function decodePart(src, sx, sy, sw, sh, max, invert, mirror){
+  const s = Math.min(1, max / Math.max(sw, sh));
+  const cv = scanCanvas; cv.width = Math.round(sw * s); cv.height = Math.round(sh * s);
+  const cx = cv.getContext('2d', { willReadFrequently:true });
+  cx.setTransform(1, 0, 0, 1, 0, 0);
+  if (mirror){ cx.translate(cv.width, 0); cx.scale(-1, 1); }   // 鏡うつしのカメラ用
+  cx.drawImage(src, sx, sy, sw, sh, 0, 0, cv.width, cv.height);
+  cx.setTransform(1, 0, 0, 1, 0, 0);
+  const im = cx.getImageData(0, 0, cv.width, cv.height);
+  const r = jsQR(im.data, im.width, im.height, { inversionAttempts: invert ? 'attemptBoth' : 'dontInvert' });
   return r && r.data ? r.data.trim() : '';
 }
-
+/* まん中・全体の順に、何通りか試す */
+function decodeFrom(src, w, h, hard){
+  const m = Math.min(w, h), cx = (w - m) / 2, cy = (h - m) / 2;
+  const tries = [
+    [cx, cy, m, m, 1200, false],                                  // まん中(白いわくのあたり)
+    [0, 0, w, h, 1400, false],                                    // 画面ぜんたい
+    [cx + m * 0.15, cy + m * 0.15, m * 0.7, m * 0.7, 1000, false] // もっと寄せて
+  ];
+  if (hard) tries.push([cx, cy, m, m, 1200, true, false], [0, 0, w, h, 900, true, false],
+                       [cx, cy, m, m, 1200, false, true], [0, 0, w, h, 1200, false, true]);   // 鏡うつしも試す
+  if (typeof jsQR !== 'function'){ scanErr = 'QRを読む部品が読み込めていません。'; return ''; }
+  for (const a of tries){
+    try {
+      const r = decodePart(src, a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+      if (r) return r;
+    } catch(e){ scanErr = 'エラー:' + (e && e.message ? e.message : e); return ''; }
+  }
+  return '';
+}
 let scanCb = null;   // 読み取った文字を受け取る関数。エラーの文を返すと読み取りを続け、'' を返すと閉じる
 function openScan(a){
   scanApp = a;
@@ -448,31 +473,49 @@ async function openScanWith(title, sub, cb){
   $('#scanMsg').textContent = 'カメラを準備しています…';
   $('#scan').classList.add('show');
   try {
-    scanStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' } }, audio:false });
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1920 }, height:{ ideal:1080 } }, audio:false });
     const v = $('#scanVideo'); v.srcObject = scanStream; await v.play();
     $('#scanMsg').textContent = '';
+    let n = 0, noFrame = 0;
     scanTimer = setInterval(() => {
-      if (scanBusy || !v.videoWidth) return;
-      const text = decodeFrom(v, v.videoWidth, v.videoHeight);
-      if (text) gotQR(text);
-    }, 250);
+      if (scanBusy) return;
+      if (!v.videoWidth){
+        if (++noFrame === 15) $('#scanInfo').textContent = 'カメラの映像が出ていません(0×0)';
+        return;
+      }
+      n++;
+      const text = decodeFrom(v, v.videoWidth, v.videoHeight, n % 3 === 0);
+      $('#scanInfo').textContent = scanErr ? scanErr : '読み取り中… ' + v.videoWidth + '×' + v.videoHeight + ' / ' + n + '回';
+      if (text) return gotQR(text);
+      if (n === 25) $('#scanMsg').textContent = 'QRに近づけて、画面いっぱいに写してみてください。';
+      if (n === 70) $('#scanMsg').textContent = '読み取れないときは「写真で読み取る」か「アドレスを貼る」をお試しください。';
+    }, 180);
   } catch(e){
-    $('#scanMsg').textContent = 'カメラが使えません。下の「写真で読み取る」を押してください。';
+    $('#scanMsg').textContent = 'カメラが使えません。下の「写真で読み取る」か「アドレスを貼る」をお使いください。';
+    $('#scanInfo').textContent = (e && e.name ? e.name : '') + (e && e.message ? ' / ' + e.message : '');
   }
 }
 function closeScan(){
-  clearInterval(scanTimer); scanTimer = null;
+  clearInterval(scanTimer); scanTimer = null; scanErr = '';
+  $('#scanMsg').textContent = ''; $('#scanInfo').textContent = '';
   if (scanStream){ scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
   $('#scanVideo').srcObject = null;
   $('#scan').classList.remove('show');
 }
 $('#scanCancel').addEventListener('click', closeScan);
+$('#scanPaste').addEventListener('click', () => {
+  const s = prompt('アドレス(https://… )を貼り付けてください');
+  if (s) gotQR(s.trim());
+});
 $('#scanFile').addEventListener('change', e => {
   const f = e.target.files[0]; e.target.value = '';
   if (!f) return;
   const img = new Image();
-  img.onload = () => { const text = decodeFrom(img, img.naturalWidth, img.naturalHeight); URL.revokeObjectURL(img.src);
-    if (text) gotQR(text); else $('#scanMsg').textContent = 'QRが読み取れませんでした。QRを大きく写して、もう一度お試しください。'; };
+  $('#scanMsg').textContent = '写真を読み取っています…';
+  img.onload = () => { const text = decodeFrom(img, img.naturalWidth, img.naturalHeight, true); URL.revokeObjectURL(img.src);
+    $('#scanInfo').textContent = scanErr ? scanErr : '写真 ' + img.naturalWidth + '×' + img.naturalHeight;
+    if (text) gotQR(text); else $('#scanMsg').textContent = 'この写真からはQRが読み取れませんでした。QRが大きく、まっすぐ写るように撮ってください。'; };
   img.onerror = () => { $('#scanMsg').textContent = '写真を読み込めませんでした。'; };
   img.src = URL.createObjectURL(f);
 });
@@ -483,6 +526,23 @@ function gotQR(text){
   if (err){ $('#scanMsg').textContent = err; return; }
   scanBusy = true;
   closeScan();
+}
+
+/* ---------- ほかのアプリから渡されたアドレスを登録する ----------
+   例: portal.html?regapp=<アプリID>&regurl=<そのアプリの個人用アドレス>
+   相手アプリの「入口アプリに登録」ボタンから来る。アドレスが合うときだけ、本人のスマホに保存する */
+function tryRegFromLink(data){
+  const id = params.get('regapp'), url = params.get('regurl');
+  if (!id || !url) return;
+  const clean = () => { try { history.replaceState(null, '', location.pathname); } catch(e){} };
+  const a = (data.apps || []).filter(x => x.id === id)[0];
+  if (!a || !a.selfReg){ clean(); return; }
+  if (!qrFits(url, a.base)){ alert('「' + a.name + '」のアドレスではないため、登録しませんでした。'); clean(); return; }
+  if (confirm('「' + a.name + '」をこのスマホに登録しますか?\n\n次からは、入口アプリのボタンだけで開けます。')){
+    const mine = myQR(); mine[a.id] = url; saveMyQR(mine);
+    setTimeout(() => toast('「' + a.name + '」を登録しました'), 300);
+  }
+  clean();
 }
 
 /* ---------- 画面:登録QRが必要 ---------- */
@@ -517,6 +577,7 @@ async function start(force){
       }
       throw new Error(data.error || 'error');
     }
+    tryRegFromLink(data);
     const d = new Date();
     data._at = (d.getMonth()+1) + '/' + d.getDate() + ' ' + d.getHours() + ':' + ('0'+d.getMinutes()).slice(-2);
     if (!DEMO) ls.set(LS_CACHE, JSON.stringify({ id:cacheId, data }));

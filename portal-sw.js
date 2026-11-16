@@ -1,8 +1,8 @@
-/* スカイ スタッフアプリ(入口アプリ) サービスワーカー  Ver1.10.0
+/* スカイ スタッフアプリ(入口アプリ) サービスワーカー  Ver1.11.0
    ・この入口アプリのファイル(portal〜)だけを扱います。
      同じ場所にある大腸カメラ説明アプリ(index.html)・タブレット説明アプリ(tablet.html)には関わりません。
    ・portal.html はいつも最新をとりにいき、電波がないときだけ前回の分を出します。 */
-const CACHE = 'sky-portal-Ver1.10.0';
+const CACHE = 'sky-portal-Ver1.11.0';
 const FILES = ['portal.html', 'portal-config.js', 'portal.webmanifest', 'portal-icon-192.png', 'portal-icon-512.png'];
 
 self.addEventListener('install', e => {
