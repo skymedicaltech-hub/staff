@@ -555,11 +555,23 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 #rWrap .cmrow:last-child{border-bottom:none}
 #rWrap .cmrow .cmd{font-size:12.5px;font-weight:700;color:#55708A}
 #rWrap .cmrow .dcm{border:none;padding:0;margin:0}
+/* ---- Ver10.0.0 希望の色を4つに分ける：早出△＝黄、CS△＝青緑、早出×＝赤、CS×＝紫 ---- */
+#wWrap .pens .pa.sE b{background:#E0A030} #wWrap .pens .pa.sC b{background:#1B9AA0}
+#wWrap .pens .pn.sE b{background:#D2484A} #wWrap .pens .pn.sC b{background:#8A4FC4}
+#wWrap .pens .pa.sE.on{background:#FFF3D6;border-color:#E0A030;color:#8A5A00}
+#wWrap .pens .pa.sC.on{background:#DFF3F4;border-color:#1B9AA0;color:#0F6C71}
+#wWrap .pens .pn.sE.on{background:#FDE4E4;border-color:#D2484A;color:#A32A2C}
+#wWrap .pens .pn.sC.on{background:#EFE5FA;border-color:#8A4FC4;color:#5F2F96}
+#wWrap .d.avoid,#wWrap .d.no{background:#F6FAFD;border:1.5px solid #9FB3C2;color:#27475F;box-shadow:none}
+#wWrap .d .k.ka.sE{background:#E0A030} #wWrap .d .k.ka.sC{background:#1B9AA0}
+#wWrap .d .k.kn.sE{background:#D2484A} #wWrap .d .k.kn.sC{background:#8A4FC4}
+#wWrap .lk.aE{background:#E0A030} #wWrap .lk.aC{background:#1B9AA0} #wWrap .lk.nE{background:#D2484A} #wWrap .lk.nC{background:#8A4FC4}
+#rWrap .mt{max-width:100%;overflow:hidden}
 
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver9.0.1（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver10.0.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div class="toast" id="toast"></div>
@@ -588,14 +600,16 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver9.0.1（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver10.0.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '9.0.1';
-const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者'};
+const VER = '10.0.0';
+const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表'};
 const HEAD = {
-  nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日','特別に入れる日'],
+  nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）'],
+  clerks: ['id','名前','合言葉','有効'],
+  jroster: ['月','確定日時','当番表（事務：早出・居残り）'],
   wishes: ['月','看護師id','名前','日付','種類','送った日時'],
   months: ['月','しめきり','設定'],
   roster: ['月','確定日時','当番表'],
@@ -662,7 +676,20 @@ function surveyOf_(id){ const r = read_('survey').find(x => x[0] === id); return
 function nurseByKey_(k){
   if (!k) return null;
   const r = read_('nurses').find(x => x[2] === String(k) && x[3] === '1');
-  return r ? {id:r[0], name:r[1], canE:r[4] !== '0', canC:r[5] !== '0', ng:ngList_(r[6]), ok:okList_(r[7])} : null;
+  return r ? {id:r[0], name:r[1], canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7])} : null;
+}
+/* 事務（早出・居残り）。スマホは当番表を見るだけ */
+function clerkByKey_(k){
+  if (!k) return null;
+  const r = read_('clerks').find(x => x[2] === String(k) && x[3] === '1');
+  return r ? {id:r[0], name:r[1]} : null;
+}
+function saveClerks_(list){
+  write_('clerks', (Array.isArray(list) ? list : []).slice(0, 100).map(n => [String(n.id), String(n.name).slice(0, 40), String(n.key), n.active ? '1' : '0']));
+}
+function clerkRoster_(c){
+  const roster = read_('jroster').map(r => { try { return {ym:r[0], at:r[1], data:JSON.parse(r[2] || '{}')}; } catch(e){ return null; } }).filter(Boolean).sort((a, b) => a.ym < b.ym ? -1 : 1);
+  return {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:[], roster:roster, changes:[], comments:{}, url:appUrl_()};
 }
 /* 入れない曜日（'1,3' → [1,3]。0＝日〜6＝土） */
 const ngList_ = t => String(t || '').split(',').filter(x => /^[0-6]$/.test(x)).map(Number);
@@ -681,6 +708,7 @@ function doGet(e){
 /* 画面を開いたときのデータ */
 function getInit(k){
   const n = nurseByKey_(k);
+  if (!n){ const c = clerkByKey_(k); if (c) return {ok:true, ver:VER, clerk:true, id:c.id, name:c.name, now:new Date().toISOString(), months:[], wishes:{}, sent:{}, roster:[], survey:null, url:appUrl_()}; }
   if (!n) return {ok:false, error:BAD_KEY};
   const months = read_('months').map(r => ({ym:r[0], deadline:r[1], cfg:JSON.parse(r[2] || '{}')}));
   const wishes = {}, sent = {};
@@ -778,9 +806,10 @@ function admin_(b){
   const cur = P.getProperty('ADMIN');
   if (b.action === 'setup'){
     if (!b.admin) return {ok:false, error:'合言葉がありません。'};
-    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); return {ok:true, first:true, ver:VER}; }
+    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); if (b.clerks) saveClerks_(b.clerks); return {ok:true, first:true, ver:VER}; }
     if (cur !== b.admin) return {ok:false, error:'このスプレッドシートは、別の当番アプリのデータとつながっています。'};
     if (b.nurses) saveNurses_(b.nurses);
+    if (b.clerks) saveClerks_(b.clerks);
     return {ok:true, ver:VER};
   }
   if (!cur || cur !== b.admin) return {ok:false, error:'接続が確かめられません。設定の「接続を確かめる」を押してください。'};
@@ -788,6 +817,7 @@ function admin_(b){
   lock.waitLock(20000);
   try {
     if (b.nurses) saveNurses_(b.nurses);
+    if (b.clerks) saveClerks_(b.clerks);
     if (b.action === 'nurses') return {ok:true};
     if (b.action === 'publish'){
       upsert_('months', b.ym, [b.ym, b.deadline, JSON.stringify(b.cfg || {})]);
@@ -831,6 +861,16 @@ function admin_(b){
       /* 成立した交換・代わりを返す（PCアプリが取り込んで、回数とカレンダーを直す） */
       return {ok:true, changes:read_('changes').map(chgObj_).filter(c => c.state === 'done')};
     }
+    if (b.action === 'rosterJ'){   /* 事務の当番表（スマホで見るだけ） */
+      if (!/^\d{4}-\d{2}$/.test(b.ym)) return {ok:false, error:'月がわかりません。'};
+      const days = {}, src = (b.data && b.data.days) || {};
+      Object.keys(src).forEach(ds => { if (ds.slice(0,7) !== b.ym || !/^\d{4}-\d{2}-\d{2}$/.test(ds)) return; const x = src[ds] || {}, o = {};
+        if (x.early !== undefined){ o.early = String(x.early || ''); o.eId = String(x.eId || ''); }
+        if (x.late !== undefined){ o.late = String(x.late || ''); o.lId = String(x.lId || ''); }
+        days[ds] = o; });
+      upsert_('jroster', b.ym, [b.ym, b.at || now_(), JSON.stringify({days:days})]);
+      return {ok:true};
+    }
     if (b.action === 'roster'){
       upsert_('roster', b.ym, [b.ym, b.at || now_(), JSON.stringify(b.data || {})]);
       return {ok:true};
@@ -841,7 +881,9 @@ function admin_(b){
   }
 }
 function saveNurses_(list){
-  write_('nurses', list.map(n => [n.id, n.name, n.key, n.active ? '1' : '0', n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', (Array.isArray(n.ngDow) ? n.ngDow : []).join(','), (Array.isArray(n.okDays) ? n.okDays : []).join(',')]));
+  /* 入れない曜日は早出・CSで別々（Ver10.0.0〜）。前の版のPCアプリは ngDow（両方）だけを送ってくる */
+  const ng = (n, k) => (Array.isArray(n[k]) ? n[k] : Array.isArray(n.ngDow) ? n.ngDow : []).join(',');
+  write_('nurses', list.map(n => [n.id, n.name, n.key, n.active ? '1' : '0', n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', ng(n,'ngE'), (Array.isArray(n.okDays) ? n.okDays : []).join(','), ng(n,'ngC')]));
 }
 
 /* ================= 内視鏡カレンダーとのやりとり（endoscSync） =================
@@ -983,7 +1025,7 @@ function chgObj_(r){
 function chgRow_(c){
   return [c.id, c.ym, CHG_KIND[c.kind], c.from, c.fromName, c.to, c.toName, c.ds, c.slot, c.ds2 || '', c.slot2 || '', c.msg || '', CHG_STATE[c.state], c.at, c.ansAt || '', c.why || ''];
 }
-function nurseMap_(){ const m = {}; read_('nurses').forEach(r => { m[r[0]] = {id:r[0], name:r[1], active:r[3] === '1', canE:r[4] !== '0', canC:r[5] !== '0', ng:ngList_(r[6]), ok:okList_(r[7])}; }); return m; }
+function nurseMap_(){ const m = {}; read_('nurses').forEach(r => { m[r[0]] = {id:r[0], name:r[1], active:r[3] === '1', canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7])}; }); return m; }
 function rosterMap_(){ const m = {}; read_('roster').forEach(r => { m[r[0]] = {at:r[1], data:JSON.parse(r[2] || '{}')}; }); return m; }
 function holder_(R, ds, t){ const m = R[String(ds).slice(0,7)]; const d = m && m.data.days && m.data.days[ds]; return d ? (d[SLOT_KEY[t][0]] || '') : null; }
 
@@ -1000,19 +1042,19 @@ function chgProblem_(c, R, N){
   const dl = ds => ds.slice(5).replace('-','/');
   const DOWJ = ['日','月','火','水','木','金','土'];
   const dowOf = ds => { const a = String(ds).split('-').map(Number); return new Date(a[0], a[1]-1, a[2]).getDay(); };
-  const ngOn = (n, ds) => n.ng && n.ng.indexOf(dowOf(ds)) >= 0 && !(n.ok && n.ok.indexOf(ds) >= 0) ? n.name+'さんは'+DOWJ[dowOf(ds)]+'曜日に入れない設定です。' : '';
+  const ngOn = (n, ds, t) => { const L = typeOf_(t) === 'E' ? n.ngE : n.ngC; return L && L.indexOf(dowOf(ds)) >= 0 && !(n.ok && n.ok.indexOf(ds) >= 0) ? n.name+'さんは'+DOWJ[dowOf(ds)]+'曜日の'+SLOT_NAME[t]+'に入れない設定です。' : ''; };
   if (c.kind === 'take'){
     if (holder_(R, c.ds, c.slot) !== c.to) return SLOT_NAME[c.slot]+'（'+dl(c.ds)+'）の当番が、もう'+to.name+'さんではありません。';
     if (!can(from, c.slot)) return from.name+'さんは'+SLOT_NAME[c.slot]+'に入らない設定です。';
-    if (ngOn(from, c.ds)) return ngOn(from, c.ds);
+    if (ngOn(from, c.ds, c.slot)) return ngOn(from, c.ds, c.slot);
     const o = other(c.slot);
     if (o && holder_(R, c.ds, o) === c.from) return dl(c.ds)+'のCSに、'+from.name+'さんがもう入っています。';
     return '';
   }
   if (holder_(R, c.ds, c.slot) !== c.from) return SLOT_NAME[c.slot]+'（'+dl(c.ds)+'）の当番が、もう'+c.fromName+'さんではありません。';
   if (!can(to, c.slot)) return to.name+'さんは'+SLOT_NAME[c.slot]+'に入らない設定です。';
-  if (ngOn(to, c.ds)) return ngOn(to, c.ds);
-  if (c.kind === 'swap' && ngOn(from, c.ds2)) return ngOn(from, c.ds2);
+  if (ngOn(to, c.ds, c.slot)) return ngOn(to, c.ds, c.slot);
+  if (c.kind === 'swap' && ngOn(from, c.ds2, c.slot2)) return ngOn(from, c.ds2, c.slot2);
   if (c.kind === 'swap'){
     if (holder_(R, c.ds2, c.slot2) !== c.to) return SLOT_NAME[c.slot2]+'（'+c.ds2.slice(5).replace('-','/')+'）の当番が、もう'+to.name+'さんではありません。';
     if (typeOf_(c.slot) !== typeOf_(c.slot2)) return '交換は、早出どうし・CSどうしでできます。';
@@ -1034,9 +1076,11 @@ function setHolder_(R, ds, t, n){
 /* 当番表アプリを開いたとき */
 function getRoster(k){
   const n = nurseByKey_(k);
+  if (!n){ const c = clerkByKey_(k); if (c) return clerkRoster_(c); }
   if (!n) return {ok:false, error:BAD_KEY};
+  const both_ = x => x.ngE.filter(w => x.ngC.indexOf(w) >= 0);   /* 前の版のスマホ画面用（早出もCSも入れない曜日） */
   const N = nurseMap_(), R = rosterMap_();
-  const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ng:x.ng, ok:x.ok}));
+  const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ngE:x.ngE, ngC:x.ngC, ng:both_(x), ok:x.ok}));
   const roster = Object.keys(R).sort().map(ym => ({ym:ym, at:R[ym].at, data:R[ym].data}));
   const td = today_();
   const changes = read_('changes').map(chgObj_).filter(c => c.from === n.id || c.to === n.id || c.state === 'done' || (c.state === 'wait' && !c.to)).map(c => {
@@ -1044,7 +1088,7 @@ function getRoster(k){
     return c;
   });
   const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
-  return {ok:true, ver:VER, me:{id:n.id, name:n.name, canE:n.canE, canC:n.canC, ng:n.ng, ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
+  return {ok:true, ver:VER, me:{id:n.id, name:n.name, canE:n.canE, canC:n.canC, ngE:n.ngE, ngC:n.ngC, ng:both_(n), ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
 }
 
 /* 申し込む */
@@ -1139,7 +1183,8 @@ function cancelChange(k, id){
     admin_({admin:'demo', action:'nurses', nurses:[
       {id:'nA',name:'青木',key:'kA',active:true,canE:true,canC:true},{id:'nB',name:'伊藤',key:'kB',active:true,canE:true,canC:true},
       {id:'nC',name:'上田',key:'kC',active:true,canE:true,canC:false},{id:'nD',name:'遠藤',key:'kD',active:true,canE:true,canC:true},
-      {id:'nE',name:'大野',key:'kE',active:true,canE:true,canC:true}]});
+      {id:'nE',name:'大野',key:'kE',active:true,canE:true,canC:true}],
+      clerks:[{id:'jA',name:'小川',key:'kJ',active:true},{id:'jB',name:'木村',key:'kK',active:true},{id:'jC',name:'佐藤',key:'kL',active:true}]});
     const N={nA:'青木',nB:'伊藤',nC:'上田',nD:'遠藤',nE:'大野'}, E=['nA','nB','nC','nD','nE'], C=['nA','nB','nD','nE'];
     const now=new Date(), ymOf=(y,m)=>{ const d=new Date(y,m,1); return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2); };
     [0,1].forEach(mi=>{ const ym=ymOf(now.getFullYear(), now.getMonth()+mi), L=new Date(+ym.slice(0,4), +ym.slice(5,7), 0).getDate(), days={}; let k=0;
@@ -1147,6 +1192,10 @@ function cancelChange(k, id){
         const e=E[(k+mi*2)%5], c=C[(k+mi)%4], c2=C[(k+mi+1)%4], x={early:N[e],eId:e,cs:N[c],cId:c};
         if ((w!==3 && w!==6) || k%2){ x.cs2=N[c2]; x.c2Id=c2; } days[ds]=x; }
       admin_({admin:'demo', action:'roster', ym, at:ymOf(now.getFullYear(), now.getMonth()+mi-1)+'-20 09:00', data:{days}}); });
+    [0,1].forEach(mi=>{ const ym=ymOf(now.getFullYear(), now.getMonth()+mi), L=new Date(+ym.slice(0,4), +ym.slice(5,7), 0).getDate(), days={}, J=[['jA','小川'],['jB','木村'],['jC','佐藤']]; let k=0;
+      for (let d=1; d<=L; d++){ const ds=ym+'-'+('0'+d).slice(-2), w=new Date(+ym.slice(0,4), +ym.slice(5,7)-1, d).getDay(); if (w===0) continue; k++;
+        const e=J[(k+mi)%3], l=J[(k+mi+1)%3]; days[ds]={early:e[1],eId:e[0],late:l[1],lId:l[0]}; }
+      admin_({admin:'demo', action:'rosterJ', ym, at:ymOf(now.getFullYear(), now.getMonth()+mi-1)+'-20 09:00', data:{days}}); });
     const wy=ymOf(now.getFullYear(), now.getMonth()+2), dl=ymOf(now.getFullYear(), now.getMonth()+1), L2=new Date(+wy.slice(0,4), +wy.slice(5,7), 0).getDate();
     admin_({admin:'demo', action:'publish', ym:wy, deadline:dl+'-20T23:59:59+09:00', cfg:{limits:{no:3}, days:Array.from({length:L2},(_,i)=>{ const d=wy+'-'+('0'+(i+1)).slice(-2), w=new Date(+wy.slice(0,4), +wy.slice(5,7)-1, i+1).getDay(); return {d, off:w===0, e:w!==0, c:w!==0, b:w===6||w===1||w===3}; })}});
     const cym = ymOf(now.getFullYear(), now.getMonth()), cdays = {};
@@ -1206,7 +1255,7 @@ function goTab(t){
 function demoBar(){
   let el = document.getElementById('demoBar');
   if (!DEMO){ if (el) el.remove(); return; }
-  const who = [['kA','青木'],['kB','伊藤'],['kD','遠藤'],['kE','大野']];
+  const who = [['kA','青木'],['kB','伊藤'],['kD','遠藤'],['kE','大野'],['kJ','小川（事務）']];
   if (!el){ el = document.createElement('div'); el.id = 'demoBar'; document.body.insertBefore(el, document.body.firstChild); }
   el.innerHTML = '<div class="dt1">プレビュー（見本のデータです。院長には届きません）</div><div class="dt2">見る人：'
     + who.map(([k,n]) => '<button data-k="'+k+'" class="'+(k===KEY0?'on':'')+'">'+n+'</button>').join('')
@@ -1235,7 +1284,7 @@ demoBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '9.0.1';
+const APP_VER = '10.0.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -1260,6 +1309,9 @@ function load(first){
     if (!r || !r.ok){ msg(r && r.error || '読み込めませんでした', ''); return; }
     const keepYm = D && D.roster[mi] ? D.roster[mi].ym : '';
     D = r;
+    /* 事務の人（早出・居残り）は、当番表を見るだけ */
+    KEYS.C = D.clerk ? ['lId','late'] : ['cId','cs']; SNAME.C = D.clerk ? '居残り' : 'CS';
+    { const nv = document.getElementById('nav'); if (nv) nv.style.display = D.clerk ? 'none' : ''; }
     if (first || !keepYm){
       /* 今月（なければいちばん近い月）から見せる */
       const cur = D.today.slice(0,7); let i = D.roster.findIndex(x => x.ym >= cur); if (i < 0) i = D.roster.length - 1; mi = Math.max(0, i);
@@ -1276,8 +1328,8 @@ const holderName = (ds, t) => { const d = dayOf(ds); return d ? (d[KEYS[t][1]] |
 const nurse = id => D.nurses.find(n => n.id === id);
 const can = (n, t) => n && (TY(t) === 'E' ? n.canE : n.canC);
 /* 設定で「入れない曜日」になっていないか */
-const dowOK = (n, ds) => !(n && Array.isArray(n.ng) && n.ng.indexOf(pd(ds).getDay()) >= 0 && !(Array.isArray(n.ok) && n.ok.indexOf(ds) >= 0));
-const canTakeOpen = c => c.kind === 'give' && !c.to && c.from !== D.me.id && c.ds >= D.today && can(D.me, c.slot) && dowOK(D.me, c.ds) && !(otherCS(c.slot) && holder(c.ds, otherCS(c.slot)) === D.me.id);
+const dowOK = (n, ds, t) => { const L = n && (TY(t) === 'E' ? (n.ngE || n.ng) : (n.ngC || n.ng)); return !(Array.isArray(L) && L.indexOf(pd(ds).getDay()) >= 0 && !(Array.isArray(n.ok) && n.ok.indexOf(ds) >= 0)); };
+const canTakeOpen = c => c.kind === 'give' && !c.to && c.from !== D.me.id && c.ds >= D.today && can(D.me, c.slot) && dowOK(D.me, c.ds, c.slot) && !(otherCS(c.slot) && holder(c.ds, otherCS(c.slot)) === D.me.id);
 const waitIn = () => D.changes.filter(c => c.state === 'wait' && (c.to === D.me.id || canTakeOpen(c)));
 const waitOut = () => D.changes.filter(c => c.state === 'wait' && c.from === D.me.id);
 const pendingOn = (ds, t) => waitOut().find(c => (c.ds === ds && c.slot === t) || (c.kind === 'swap' && c.ds2 === ds && c.slot2 === t));
@@ -1302,7 +1354,7 @@ function rosterHead(){
   let e = 0, c = 0; days(m.ym).forEach(ds => SL.forEach(t => { if (holder(ds,t) === D.me.id){ if (t === 'E') e++; else c++; } }));
   let h = '<div class="month"><div class="t"><span class="m">'+mo+'<small>月</small></span><span class="y">'+y+'</span></div>'
     + '<div class="arrows"><button id="prev" '+(mi<=0?'disabled':'')+'>‹</button><button id="next" '+(mi>=D.roster.length-1?'disabled':'')+'>›</button></div></div>';
-  h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分のCS</span><span><span class="num">'+c+'</span> 回</span></div></div>';
+  h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
   h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';
   return h;
 }
@@ -1327,7 +1379,7 @@ function rosterBody(){
     const w = pd(ds).getDay();
     h += '<div class="day'+(past?' past':'')+(ds===D.today?' today':'')+'"><div class="dt s'+w+'"><span class="num">'+(+ds.slice(8,10))+'</span><span class="w">'+DOW[w]+'</span></div><div class="slots">';
     const chip = t => {
-      const id = holder(ds,t), nm = holderName(ds,t), me = id === D.me.id, tap = !past && !!id;
+      const id = holder(ds,t), nm = holderName(ds,t), me = id === D.me.id, tap = !past && !!id && !D.clerk;
       const isSel = sel && sel.ds === ds && sel.t === t, cand = sel && !isSel && !!pairOf(sel, ds, t);
       return '<button class="sl'+(me?' mine':'')+(isSel?' sel':'')+(cand?' cand':'')+(sel && !isSel && !cand?' dim':'')+(id?'':' empty')+'" '+(tap?'data-ds="'+ds+'" data-t="'+t+'"':'disabled')+'><span class="k '+TY(t)+'">'+SNAME[t]+'</span><span class="nm">'+(id?esc(nm):'なし')+'</span>'
         + (pendingOn(ds,t) ? '<span class="ch" style="color:var(--warn)" title="申し込み中">待</span>' : changedSlot(ds,t) ? '<span class="ch">⇄</span>' : '') + '</button>';
@@ -1337,7 +1389,7 @@ function rosterBody(){
     h += '</div>'+cmtHtml(ds)+'</div>';
   });
   if (!shown) h += '<div class="none">'+(onlyMe?'この月は、あなたの当番はありません。':'この月の当番はありません。')+'</div>';
-  h += '<p class="hint"><b>交換</b>：自分の当番と相手の当番を、1回ずつ押す<br><b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す</p></div>';
+  h += (D.clerk ? '' : '<p class="hint"><b>交換</b>：自分の当番と相手の当番を、1回ずつ押す<br><b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す</p>')+'</div>';
   if (sel) h += '<div class="selbar" id="selbar">'+SNAME[sel.t]+' '+md(sel.ds)+' をえらびました。交換できる当番（青い枠）を押してください。<span>やめる ✕</span></div>';
   return h;
 }
@@ -1353,13 +1405,13 @@ function calBody(){
     if (e || c) n++;
     const cm = cmtOf(ds), dot = cm ? '<span class="mcm" style="background:'+(cm.important && cm.important.length ? (CM_COLOR[cm.important[0].color]||CM_COLOR.black) : '#9FB3C2')+'"></span>' : '';
     h += '<div class="mc s'+w+(day?'':' none')+(e||c?' on':'')+(ds<D.today?' past':'')+(ds===D.today?' today':'')+'"><span class="mn">'+d+'</span>'
-      + (e ? '<span class="mt E">早出</span>' : '') + (c ? '<span class="mt C">CS</span>' : '') + dot + '</div>';
+      + (e ? '<span class="mt E">早出</span>' : '') + (c ? '<span class="mt C">'+SNAME.C+'</span>' : '') + dot + '</div>';
   }
   h += '</div></div>';
   if (!n) h += '<div class="none" style="margin-top:10px">この月は、あなたの当番はありません。</div>';
   const cds = Object.keys(D.comments || {}).filter(ds => ds.slice(0,7) === ym).sort();
   if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
-  h += '<p class="hint">交換や代わりをするときは、「自分の当番だけ」を切って一覧から押してください。</p></div>';
+  h += (D.clerk ? '' : '<p class="hint">交換や代わりをするときは、「自分の当番だけ」を切って一覧から押してください。</p>')+'</div>';
   return h;
 }
 /* 内視鏡カレンダーの「この日のコメント」（見るだけ）。重要コメントはカレンダーと同じ色 */
@@ -1417,7 +1469,8 @@ function bind(){
   if ($('onlyMe')) $('onlyMe').onclick = () => { onlyMe = !onlyMe; render(); };
   if ($('showPast')) $('showPast').onclick = () => { showPast = true; render(); };
   document.querySelectorAll('.sl[data-ds]').forEach(b => b.onclick = () => tapSlot(b.dataset.ds, b.dataset.t));
-  const bar = $('selbar'); if (bar) bar.onclick = () => { sel = null; render(); };
+  /* 出たばかりの帯は押せないようにする（画面の下のほうの当番を2回つづけて押すとき、2回目が帯に当たらないように） */
+  const bar = $('selbar'); if (bar){ bar.style.pointerEvents = 'none'; setTimeout(() => { bar.style.pointerEvents = ''; }, 450); bar.onclick = () => { sel = null; render(); }; }
   document.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => answer(b.dataset.ans, b.dataset.yes === '1'));
   document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => cancel(b.dataset.cancel));
 }
@@ -1447,7 +1500,7 @@ function pairOf(a, ds, t){
   const other = holder(m.ds2, m.slot2);
   if (otherCS(m.slot) && holder(m.ds, otherCS(m.slot)) === other) return null;
   if (otherCS(m.slot2) && holder(m.ds2, otherCS(m.slot2)) === D.me.id) return null;
-  if (!dowOK(nurse(other), m.ds) || !dowOK(D.me, m.ds2)) return null;   /* 入れない曜日には交換できない */
+  if (!dowOK(nurse(other), m.ds, m.slot) || !dowOK(D.me, m.ds2, m.slot2)) return null;   /* 入れない曜日には交換できない */
   return Object.assign({kind:'swap', to:other, toName:holderName(m.ds2, m.slot2)}, m);
 }
 function tapSlot(ds, t){
@@ -1467,7 +1520,7 @@ function dblSlot(ds, t){
   const id = holder(ds, t);
   if (id === D.me.id){ askConfirm({kind:'give', ds, slot:t, to:''}, 'この当番を、だれかに代わってもらいますか？', 'みんなに出して、いちばん先に「代わる」を押した人に決まります。'); return; }
   if (!can(D.me, t)){ toast(SNAME[t]+'に入らない設定なので、代われません。'); return; }
-  if (!dowOK(D.me, ds)){ toast(DOW[pd(ds).getDay()]+'曜日は入れない設定なので、代われません。'); return; }
+  if (!dowOK(D.me, ds, t)){ toast(DOW[pd(ds).getDay()]+'曜日の'+SNAME[t]+'は入れない設定なので、代われません。'); return; }
   if (otherCS(t) && holder(ds, otherCS(t)) === D.me.id){ toast('この日のCSに、もう入っています。'); return; }
   askConfirm({kind:'take', ds, slot:t, to:id}, holderName(ds,t)+' さんの当番を、代わってあげますか？');
 }
@@ -1519,7 +1572,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; sel = nul
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '9.0.1';
+const APP_VER = '10.0.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -1610,11 +1663,11 @@ function wishView(){
   if (days.length) for (let i=0;i<pd(days[0].d).getDay();i++) h += '<div class="d blank"></div>';
   days.forEach(x => {
     const v = x.off ? '' : (edit[x.d] || ''), cls = cntW(v,'n') ? 'no' : cntW(v,'a') ? 'avoid' : '';
-    const mk = (i, lab) => v[i] && v[i] !== '-' ? '<span class="k '+(v[i]==='n'?'kn':'ka')+'">'+lab+'<b>'+(v[i]==='n'?'×':'△')+'</b></span>' : '';
+    const mk = (i, lab) => v[i] && v[i] !== '-' ? '<span class="k '+(v[i]==='n'?'kn':'ka')+(i?' sC':' sE')+'">'+lab+'<b>'+(v[i]==='n'?'×':'△')+'</b></span>' : '';
     h += '<div class="d'+(x.off?' off':'')+(!open?' lock':'')+(cls?' '+cls:'')+'" data-d="'+x.d+'"><span class="n">'+pd(x.d).getDate()+'</span>'
       + (cls ? '<span class="ks">'+mk(0,'早')+mk(1,'CS')+'</span>' : '') + (x.b && !x.off ? '<span class="b"></span>' : '') + '</div>';
   });
-  h += '</div><div class="legend"><span><i></i>重い当番の日（土曜と水曜のCS・月曜と連休明けの早出）</span><span><i class="off"></i>休診</span></div><div class="legend" style="padding-top:0"><span><span class="lk a">△</span>避けたい</span><span><span class="lk n">×</span>入れない</span><span>早＝早出</span></div></div>';
+  h += '</div><div class="legend"><span><i></i>重い当番の日（土曜と水曜のCS・月曜と連休明けの早出）</span><span><i class="off"></i>休診</span></div><div class="legend" style="padding-top:0"><span><span class="lk aE">△</span>早出を避けたい</span><span><span class="lk aC">△</span>CSを避けたい</span><span><span class="lk nE">×</span>早出に入れない</span><span><span class="lk nC">×</span>CSに入れない</span></div></div>';
   if (open){
     const na = Object.values(edit).reduce((a,v)=>a+cntW(v,'a'),0);
     h += '<p class="howto">下で種類を選んでから日付を押してください。もう一度押すと消えます。<br>避けたい枠は、少なく書くほど通りやすくなります。</p>'
