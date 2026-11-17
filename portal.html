@@ -53,6 +53,8 @@
   .app:active{transform:scale(.98)}
   .icon{flex:0 0 56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;
         background:var(--sky-soft)}
+  .icon.img{overflow:hidden}
+  .icon img{width:100%;height:100%;object-fit:cover;display:block}
   .body{flex:1;min-width:0}
   .name{font-size:19px;font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .desc{font-size:14.5px;color:var(--sub);margin-top:2px}
@@ -159,6 +161,9 @@
   .pick-ic{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
   .pick-ic button{width:40px;height:40px;font-size:21px;border:1px solid #DDE4E9;background:#fff;border-radius:10px;cursor:pointer}
   .pick-ic button.on{border:2px solid var(--sky);background:var(--sky-soft)}
+  .icname{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:15px;color:#46535C}
+  .icname span{flex:0 0 auto;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .icname input{flex:1;min-width:0}
   .pick-co{display:flex;gap:6px;flex-wrap:wrap}
   .pick-co button{border:2px solid transparent;border-radius:999px;padding:5px 12px;font-size:14px;cursor:pointer;color:#fff;font-weight:700}
   .pick-co button.on{border-color:#22303A;box-shadow:0 0 0 2px #fff inset}
@@ -241,7 +246,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver1.11.0';
+const VERSION = 'Ver1.13.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -252,6 +257,25 @@ const LS_PURL = 'skyPortal_myqr';   // 読み取った個人QR(このスマホ�
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* ---------- アイコン(Ver1.12.0〜:院長が作った画像を使える) ----------
+   アイコンの欄が「portal-icon-〇〇.png」の形のときは、同じ場所(GitHub Pages)に置いたその画像を出す。
+   それ以外は今までどおり絵文字。画像が無いとき・読めないときは 📱 を出す。
+   画像のファイル名は決めた形のものだけを使う(ほかの場所の画像は読み込まない)。 */
+const ICON_RE = /^portal-icon-[a-z0-9][a-z0-9-]{0,29}\.png$/;
+function iconFile(v){ v = String(v == null ? '' : v).trim(); return ICON_RE.test(v) ? v : ''; }
+function iconHtml(a, bg){
+  const f = iconFile(a.icon);
+  if (f) return '<div class="icon img" ' + bg + '><img src="' + f + '" alt=""></div>';
+  const em = /^portal-/.test(String(a.icon || '')) ? '' : a.icon;      // 形のちがうファイル名は文字として出さない
+  return '<div class="icon" ' + bg + '>' + esc(em || '📱') + '</div>';
+}
+document.addEventListener('error', e => {                              // 画像が無いときは 📱 にもどす
+  const t = e.target;
+  if (t && t.tagName === 'IMG' && t.parentNode && t.parentNode.classList && t.parentNode.classList.contains('img')){
+    const p = t.parentNode; p.classList.remove('img'); p.textContent = '📱';
+  }
+}, true);
 const ls = {
   get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
   set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} },
@@ -323,7 +347,7 @@ function renderList(data, note){
       if (a.viaQR) hasQR = true;
       const bg = okColor(a.color) ? 'style="background:' + a.color + '1F"' : '';
       h += '<button class="app' + (locked ? ' locked' : '') + '" data-i="' + i + '">'
-         +   '<div class="icon" ' + bg + '>' + esc(a.icon || '📱') + '</div>'
+         +   iconHtml(a, bg)
          +   '<div class="body"><div class="name">' + esc(a.name) + '</div>'
          +     (a.desc ? '<div class="desc">' + esc(a.desc) + '</div>' : '')
          +     '<div class="tags">' + tags.join('') + '</div></div>'
@@ -708,7 +732,7 @@ function drawApps(){
     const bg = okColor(a.color) ? 'style="background:' + a.color + '1F"' : '';
     h += '<div class="arow"><div class="mv"><button data-up="' + i + '"' + (i === 0 ? ' disabled' : '') + '>▲</button>'
       + '<button data-dn="' + i + '"' + (i === L.length - 1 ? ' disabled' : '') + '>▼</button></div>'
-      + '<div class="icon" ' + bg + '>' + esc(a.icon || '📱') + '</div>'
+      + iconHtml(a, bg)
       + '<div class="info"><div class="nm">' + esc(a.name) + '</div><div class="meta">' + appStatus(a)
       + '<span class="chip">' + esc(a.target || '全員') + '</span>'
       + (a.personal ? '<span class="chip me">本人確認あり' + (a.selfReg ? '・一人ずつのQR' : '') + '</span>' : '<span class="chip">匿名</span>') + '</div></div>'
@@ -731,10 +755,47 @@ function editApp(idx){
   const purl = {};
   ADM.purl.filter(p => p.id === a.id).forEach(p => purl[p.name] = p.url);
 
+  // アイコン:自分で作った画像(portal-icon-〇〇.png)か、絵文字か
+  let icMode = (iconFile(a.icon) || isNew || !a.icon) ? 'img' : 'emoji';
+  let icName = iconFile(a.icon) ? iconFile(a.icon).slice(12, -4) : '';
+  let icEmoji = iconFile(a.icon) ? '📱' : (a.icon || '📱');
+  if (icMode === 'img' && !icName) a.icon = '';
+  const icClean = v => { let x = String(v || ''); try { x = x.normalize('NFKC'); } catch(e){}
+    return x.trim().toLowerCase().replace(/^portal-icon-/, '').replace(/\.png$/, '').replace(/[^a-z0-9-]/g, '').replace(/^-+/, '').slice(0, 30); };
+  // Ver1.13.0〜:名前が空のときは、アプリのアドレスから自動で決める(…/toban.html → toban)
+  let icAuto = !icName;
+  const icFromUrl = u => {
+    try {
+      const x = new URL(String(u || '').trim());
+      if (/(^|\.)google\.com$/.test(x.hostname)) return '';          // GASのアドレスからは決められない
+      const p = x.pathname.split('/').filter(Boolean);
+      let n = (p.pop() || '').replace(/\.[A-Za-z0-9]+$/, '');
+      if (/^index$/i.test(n)) n = p.pop() || '';
+      return icClean(n);
+    } catch(e){ return ''; }
+  };
+  const icApplyAuto = () => {
+    if (icMode !== 'img' || !icAuto) return;
+    icName = icFromUrl(a.url);
+    a.icon = icName ? 'portal-icon-' + icName + '.png' : '';
+  };
+  icApplyAuto();
+  let icTimer = null;
+  const icCheck = () => {                                              // 画像がGitHub Pagesに置いてあるかを確かめて知らせる
+    const el = $('#f_icstat'); if (!el) return;
+    if (!icName){ el.textContent = a.url ? 'このアドレスからは自動で決められません。名前を入れてください(空のままだと 📱 が出ます)' : 'アプリのアドレスを入れると、自動で入ります'; el.style.color = ''; return; }
+    const f = 'portal-icon-' + icName + '.png', im = new Image();
+    const mine = () => $('#f_icstat') === el && f === 'portal-icon-' + icName + '.png';
+    el.textContent = '確かめています…'; el.style.color = '';
+    im.onload = () => { if (mine()){ el.textContent = '✓ ' + f + ' が見つかりました' + (icAuto ? '(アドレスから自動で決めました)' : ''); el.style.color = '#1F7A4D'; } };
+    im.onerror = () => { if (mine()){ el.textContent = '⚠ ' + f + ' がまだ置かれていません。GitHub Pages(staff)に置くまでは 📱 が出ます'; el.style.color = '#9A2F1C'; } };
+    im.src = f + '?t=' + Date.now();
+  };
+
   const m = $('#modalBg');
   const prevHtml = () => {
     const bg = okColor(a.color) ? 'style="background:' + a.color + '1F"' : '';
-    return '<div class="app"><div class="icon" ' + bg + '>' + esc(a.icon || '📱') + '</div>'
+    return '<div class="app">' + iconHtml(a, bg)
       +   '<div class="body"><div class="name">' + (esc(a.name) || '<span style="color:#9AA5AD">アプリ名</span>') + '</div>'
       +   (a.desc ? '<div class="desc">' + esc(a.desc) + '</div>' : '')
       +   '<div class="tags">' + (a.until ? '<span class="tag until">' + fmtMD(a.until) + 'まで</span>' : '')
@@ -749,10 +810,18 @@ function editApp(idx){
       + '<button class="btn sub" id="m_scan" style="width:100%;margin-bottom:14px">📷 アプリのQRを読み取って、アドレスを入れる</button>'
       + '<div class="fld"><label>アプリ名</label><input type="text" id="f_name" value="' + esc(a.name) + '" placeholder="例:当番希望"></div>'
       + '<div class="fld"><label>説明(ボタンの小さい文字)</label><input type="text" id="f_desc" value="' + esc(a.desc) + '" placeholder="例:早出・CSの希望を入れる"></div>'
-      + '<div class="fld"><label>アイコン</label><div class="row" style="margin:0"><input type="text" id="f_icon" value="' + esc(a.icon) + '" style="width:80px;text-align:center;font-size:22px">'
-      +   '<span class="note" style="font-size:12.5px;color:#66737C">下から選ぶか、絵文字を入れてください</span></div>'
-      +   '<div class="pick-ic">' + ICONS.map(ic => '<button data-ic="' + ic + '" class="' + (a.icon === ic ? 'on' : '') + '">' + ic + '</button>').join('') + '</div></div>'
-      + '<div class="fld"><label>色</label><div class="pick-co">' + COLORS.map(c => '<button data-co="' + c[0] + '" style="background:' + c[0] + '" class="' + (a.color === c[0] ? 'on' : '') + '">' + c[1] + '</button>').join('') + '</div></div>'
+      + '<div class="fld"><label>アイコン</label><div class="seg" id="f_icmode">'
+      +   '<button data-v="img" class="' + (icMode === 'img' ? 'on' : '') + '">自分で作った画像</button><button data-v="emoji" class="' + (icMode === 'emoji' ? 'on' : '') + '">絵文字</button></div>'
+      + (icMode === 'img'
+        ? '<div class="icname"><span>portal-icon-</span><input type="text" id="f_icname" value="' + esc(icName) + '" placeholder="例:toban" autocapitalize="off" autocomplete="off" spellcheck="false"><span>.png</span></div>'
+          + '<div class="note" id="f_icstat" style="font-weight:700"></div>'
+          + '<div class="note">アプリのアドレスを入れると、名前は自動で入ります(例:…/toban.html → toban)。ちがう名前にしたいときだけ書き直してください。</div>'
+          + '<div class="note">この名前の画像を、GitHub Pages(staff)に置いてください。正方形のPNG画像(512×512がおすすめ)で、角は自動で丸くなります。名前に使えるのは半角の小文字・数字・「-」です。<br>誰でも見られる場所に置くので、顔写真や名前の入った画像は使わないでください。</div>'
+        : '<div class="row" style="margin:8px 0 0"><input type="text" id="f_icon" value="' + esc(icEmoji) + '" style="width:80px;text-align:center;font-size:22px">'
+          +   '<span class="note" style="font-size:12.5px;color:#66737C">下から選ぶか、絵文字を入れてください</span></div>'
+          +   '<div class="pick-ic">' + ICONS.map(ic => '<button data-ic="' + ic + '" class="' + (a.icon === ic ? 'on' : '') + '">' + ic + '</button>').join('') + '</div>')
+      + '</div>'
+      + '<div class="fld"><label>色' + (icMode === 'img' ? '(画像の透明な所の下地になります)' : '') + '</label><div class="pick-co">' + COLORS.map(c => '<button data-co="' + c[0] + '" style="background:' + c[0] + '" class="' + (a.color === c[0] ? 'on' : '') + '">' + c[1] + '</button>').join('') + '</div></div>'
       + '<div class="fld"><label>使う人</label><div class="seg" id="f_target">' + TARGETS.map(t => '<button data-v="' + t + '" class="' + (a.target === t ? 'on' : '') + '">' + t + '</button>').join('') + '</div></div>'
       + '<div class="fld"><label>本人確認</label><div class="seg" id="f_personal">'
       +   '<button data-v="0" class="' + (!a.personal ? 'on' : '') + '">なし(匿名)</button><button data-v="1" class="' + (a.personal ? 'on' : '') + '">あり(本人専用)</button></div>'
@@ -772,22 +841,42 @@ function editApp(idx){
       + '</div>';
 
     const sync = () => {
-      a.name = $('#f_name').value.trim(); a.desc = $('#f_desc').value.trim(); a.icon = $('#f_icon').value.trim();
-      a.url = $('#f_url').value.trim(); a.from = $('#f_from').value; a.until = $('#f_until').value; a.show = $('#f_show').checked;
+      a.name = $('#f_name').value.trim(); a.desc = $('#f_desc').value.trim();
+      if (icMode === 'img'){ icName = icClean($('#f_icname').value); a.icon = icName ? 'portal-icon-' + icName + '.png' : ''; }
+      else { icEmoji = $('#f_icon').value.trim(); a.icon = icEmoji; }
+      a.url = $('#f_url').value.trim(); icApplyAuto(); a.from = $('#f_from').value; a.until = $('#f_until').value; a.show = $('#f_show').checked;
       m.querySelectorAll('[data-pn]').forEach(inp => purl[inp.dataset.pn] = inp.value.trim());
     };
-    m.querySelectorAll('[data-ic]').forEach(b => b.addEventListener('click', () => { sync(); a.icon = b.dataset.ic; redraw2(); }));
+    m.querySelectorAll('[data-ic]').forEach(b => b.addEventListener('click', () => { sync(); a.icon = icEmoji = b.dataset.ic; redraw2(); }));
+    m.querySelectorAll('#f_icmode button').forEach(b => b.addEventListener('click', () => {
+      sync(); icMode = b.dataset.v;
+      a.icon = icMode === 'img' ? (icName ? 'portal-icon-' + icName + '.png' : '') : icEmoji;
+      if (icMode === 'img' && !icName) icAuto = true;
+      icApplyAuto();
+      redraw2();
+    }));
+    if (icMode === 'img'){
+      $('#f_icname').addEventListener('input', () => { icAuto = !$('#f_icname').value.trim(); clearTimeout(icTimer); icTimer = setTimeout(icCheck, 500); });
+      $('#f_icname').addEventListener('change', () => { sync(); $('#f_icname').value = icName; });
+      $('#f_url').addEventListener('input', () => {                      // アドレスを入れたら、名前を自動で入れる
+        if (!icAuto) return;
+        sync(); $('#f_icname').value = icName; $('#m_prev').innerHTML = prevHtml();
+        clearTimeout(icTimer); icTimer = setTimeout(icCheck, 500);
+      });
+      icCheck();
+    }
     m.querySelectorAll('[data-co]').forEach(b => b.addEventListener('click', () => { sync(); a.color = b.dataset.co; redraw2(); }));
     m.querySelectorAll('#f_target button').forEach(b => b.addEventListener('click', () => { sync(); a.target = b.dataset.v; redraw2(); }));
     m.querySelectorAll('#f_personal button').forEach(b => b.addEventListener('click', () => { sync(); a.personal = b.dataset.v === '1'; if (!a.personal) a.selfReg = false; redraw2(); }));
     m.querySelectorAll('#f_selfreg button').forEach(b => b.addEventListener('click', () => { sync(); a.selfReg = b.dataset.v === '1'; if (a.selfReg && a.url) a.url = a.url.split(/[?#]/)[0]; redraw2(); }));
     function redraw2(){ const y = m.scrollTop; draw(); m.scrollTop = y; }
-    ['#f_name','#f_desc','#f_icon','#f_until'].forEach(s => $(s).addEventListener('input', () => { sync(); $('#m_prev').innerHTML = prevHtml(); }));
+    ['#f_name','#f_desc',(icMode === 'img' ? '#f_icname' : '#f_icon'),'#f_until'].forEach(s => $(s).addEventListener('input', () => { sync(); $('#m_prev').innerHTML = prevHtml(); }));
     $('#m_scan').addEventListener('click', () => {
       sync();
       openScanWith('アプリのQRを読み取る', 'そのアプリのQRを、白いわくの中に入れてください', text => {
         if (!/^https:\/\/\S+$/.test(text)) return 'このQRは使えません(https:// で始まるアドレスのQRではありません)。';
         a.url = a.selfReg ? text.split(/[?#]/)[0] : text;   // 「一人ずつのQR」なら印(「?」より後ろ)は保存しない
+        icApplyAuto();                                       // アイコンの名前もアドレスから自動で入れる
         setTimeout(() => { const y = m.scrollTop; draw(); m.scrollTop = y; toast('アドレスを入れました'); }, 0);
         return '';
       });
