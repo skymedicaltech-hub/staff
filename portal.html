@@ -257,7 +257,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver2.0.0';
+const VERSION = 'Ver2.0.1';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -406,7 +406,16 @@ function openApp(a){
   }
   if (DEMO) return showSheet('見本です', '「' + a.name + '」が開きます(見本なので開きません)。'
       + (a.personal ? 'このアプリは、その人専用のページが開きます。' : '匿名のアプリなので、名前などは一切渡さずに開きます。'));
-  location.href = a.url;
+  location.href = a.viaQR ? withFromPortal(a.url) : a.url;
+}
+/* Ver2.0.1〜:「一人ずつのQR」のアプリを開くときだけ、うしろに from=portal を足す(当番アプリからの依頼)。
+   相手アプリが「入口アプリから開かれた=登録ずみ」と分かるようにするための印。
+   足すのは開くときだけで、スマホの中に保存するアドレスは印なしのまま。名前・合言葉などは足さない。 */
+function withFromPortal(u){
+  u = String(u || '');
+  const h = u.indexOf('#'), body = h < 0 ? u : u.slice(0, h), tail = h < 0 ? '' : u.slice(h);
+  if (/[?&]from=portal(&|$)/.test(body)) return u;
+  return body + (body.indexOf('?') < 0 ? '?' : '&') + 'from=portal' + tail;
 }
 
 /* ---------- 見本の切り替え ---------- */
