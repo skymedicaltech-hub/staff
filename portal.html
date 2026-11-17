@@ -81,6 +81,8 @@
   .needreg .big{font-size:44px}
   .needreg h2{font-size:20px;margin:6px 0 8px}
   .needreg p{font-size:15.5px;color:#46535C;margin:0}
+  .needreg ol{text-align:left;font-size:15.5px;color:#2A3740;margin:14px 0 0;padding-left:1.4em;line-height:1.7}
+  .bossnote{background:#FFF8E6;border:1px solid #F0D58C;border-radius:14px;padding:12px 14px;margin:0 0 12px;font-size:14px;color:#5A4500;line-height:1.6}
   .regnote{background:rgba(255,255,255,.9);border:1px dashed #9CC3E2;border-radius:14px;padding:11px 14px;font-size:14.5px;color:#46535C;margin-bottom:12px}
 
   /* おしらせ(下から出る) */
@@ -88,7 +90,7 @@
   .sheet-bg.show{display:flex}
   .sheet{background:#fff;width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:22px 20px calc(22px + env(safe-area-inset-bottom))}
   .sheet h3{margin:0 0 8px;font-size:19px}
-  .sheet p{margin:0 0 16px;color:#46535C;font-size:16px}
+  .sheet p{margin:0 0 16px;color:#46535C;font-size:16px;white-space:pre-line}
   .sheet button{width:100%;padding:15px;border:none;border-radius:14px;background:var(--sky);color:#fff;font-size:17px;font-weight:700}
 
   .loading{text-align:center;color:var(--sub);padding:30px 0}
@@ -246,7 +248,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver1.14.1';
+const VERSION = 'Ver1.15.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -387,7 +389,9 @@ function openApp(a){
       'このアプリは、一人ずつの画面になります。院長からもらった「登録QR」をスマホで読み取ってから開いてください。');
   }
   if (a.state === 'needqr') return openScan(a);
-  if (preview) return showSheet('お試しです', '「' + a.name + '」が開きます(お試しなので、ここでは開きません)。');
+  if (preview) return showSheet('お試しです', '「' + a.name + '」が開きます(お試しなので、ここでは開きません)。\n\n'
+      + '院長が本当に開くには:院長用の設定の「スタッフ」で、院長の行の「このスマホで使う」を押してください。'
+      + 'スタッフと同じ画面になり、' + (a.selfReg ? '📷 のボタンから院長の個人QRを読み取ると、次からボタンだけで開きます。' : 'ボタンを押すと開きます。'));
   if (a.state === 'nourl'){
     return showSheet('準備中です', 'あなた用のページがまだ用意されていません。院長にお知らせください。');
   }
@@ -582,11 +586,32 @@ function renderNeedReg(msg){
   bindDemo();
 }
 
+/* ---------- 画面:相手アプリから登録しようとしたが、このブラウザーは未登録(Ver1.15.0〜) ----------
+   iPhoneで入口アプリを「ホーム画面に追加」している人は、ここに来ることが多い
+   (カメラアプリやほかのアプリから開くと、ホーム画面のスタッフアプリとは別の場所で開くため) */
+function renderNeedRegFromLink(){
+  $('#who').style.display = 'none';
+  $('#main').innerHTML = '<div class="needreg"><div class="big">📲</div><h2>ここでは登録できませんでした</h2>'
+    + '<p>この画面は、ホーム画面の「スタッフアプリ」とは別の場所で開いています。</p>'
+    + '<ol><li>この画面を閉じる</li>'
+    + '<li>ホーム画面の「スタッフアプリ」を開く</li>'
+    + '<li>登録したいアプリ(当番など)の 📷 のボタンを押す</li>'
+    + '<li>スタッフアプリの中のカメラで、QRカードを読み取る</li></ol>'
+    + '<p style="margin-top:14px;font-size:13.5px">スタッフアプリをまだ使っていない人は、先に院長からもらった「登録QR」を読み取ってください。</p></div>'
+    + '<div class="foot"><span class="ver">' + VERSION + '</span></div>';
+}
+
 /* ---------- 起動 ---------- */
 async function start(force){
   const key = DEMO ? (demoView === 'me' ? 'demo' : demoView === 'boss' ? 'boss' : '') : getKey();
   const role = '';
-  if (!key) return renderNeedReg();   // 登録QRを読んでいないスマホには、何も出さない(GASにも問い合わせない)
+  if (!key){                          // 登録QRを読んでいないスマホには、何も出さない(GASにも問い合わせない)
+    if (!DEMO && params.get('regurl')){ // 相手アプリの「登録する」ボタンから来たが、このブラウザーは未登録
+      try { history.replaceState(null, '', location.pathname); } catch(e){}   // 受け取ったアドレスは捨てる(保存しない・GASにも送らない)
+      return renderNeedRegFromLink();
+    }
+    return renderNeedReg();
+  }
 
   // まず前回の内容をすぐ出す
   const cacheId = key + '|' + role;
@@ -648,7 +673,8 @@ function demoAdmin(){
       {id:'hyoka', name:'スタッフ評価(自己評価)', desc:'1項目ずつ5段階でつけます', url:'', target:'全員', personal:true, from:'', until:'2026-11-27', show:false, icon:'⭐', color:'#8A5CC2'} ],
     staff:[
       {name:'見本 花子', role:'看護師', k:'demo1abcde', active:true}, {name:'見本 和子', role:'看護師', k:'demo2abcde', active:true},
-      {name:'見本 由美', role:'受付事務', k:'demo3abcde', active:true}, {name:'見本 真理', role:'受付事務', k:'demo4abcde', active:false} ],
+      {name:'見本 由美', role:'受付事務', k:'demo3abcde', active:true}, {name:'見本 真理', role:'受付事務', k:'demo4abcde', active:false},
+      {name:'見本 院長', role:'院長', k:'demo5abcde', active:true} ],
     purl:[]
   };
 }
@@ -709,6 +735,8 @@ async function saveAdmin(msg){
 function drawAdmin(){
   let h = demoBanner()
     + '<div class="adm-top noprint"><h2 style="margin:0">院長用 設定</h2><a href="' + esc(location.pathname) + '">スタッフの画面にもどる</a></div>'
+    + (!ls.get(LS_KEY) ? '<div class="bossnote noprint">このスマホは、まだスタッフアプリに登録されていません。院長も当番などを開くには、「スタッフ」で院長の行の<b>「このスマホで使う」</b>を押してください'
+        + '(院長がいなければ、職種「院長」で自分を追加してから)。</div>' : '')
     + '<div class="tabs noprint">'
     + [['apps','アプリ'],['staff','スタッフ'],['qr','登録QR']].map(t => '<button data-t="' + t[0] + '" class="' + (admTab === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('')
     + '</div><div id="admBody"></div>';
@@ -945,7 +973,8 @@ function drawStaff(){
     h += '<div class="srow' + (s.active ? '' : ' off') + '"><input type="text" data-nm="' + i + '" value="' + esc(s.name) + '">'
       + '<select data-rl="' + i + '">' + STAFF_ROLES.map(r => '<option' + (s.role === r ? ' selected' : '') + '>' + r + '</option>').join('') + '</select>'
       + '<label><input type="checkbox" data-ac="' + i + '"' + (s.active ? ' checked' : '') + '>在籍</label>'
-      + '<div class="ops"><button class="btn sub sm" data-pv="' + i + '">画面を見る</button>'
+      + '<div class="ops">' + (s.role === '院長' && s.active ? '<button class="btn sm" data-me="' + i + '">このスマホで使う</button>' : '')
+      + '<button class="btn sub sm" data-pv="' + i + '">画面を見る</button>'
       + '<button class="btn sub sm" data-rk="' + i + '">QRを作り直す</button><button class="btn del sm" data-dl="' + i + '">削除</button></div></div>';
   });
   if (!L.length) h += '<div class="empty">まだスタッフがいません</div>';
@@ -965,6 +994,16 @@ function drawStaff(){
     saveAdmin('お試し用の2人を作りました');
   });
   document.querySelectorAll('[data-pv]').forEach(b => b.addEventListener('click', () => previewStaff(L[+b.dataset.pv])));
+  // 院長のスマホを、院長の登録QRを読んだのと同じ状態にする(パスワードが合った人だけがここに来られる)
+  document.querySelectorAll('[data-me]').forEach(b => b.addEventListener('click', async () => {
+    let s = L[+b.dataset.me];
+    if (DEMO) return toast('見本なので登録はされません');
+    if (!s.k){ await saveAdmin(); s = ADM.staff.filter(x => x.name === s.name)[0] || s; }
+    if (!s.k) return alert('合言葉がまだ作られていません。少し待ってから、もう一度押してください。');
+    if (!confirm('このスマホを「' + s.name + '」さん(院長)として登録しますか?\n\nスタッフと同じ画面になり、当番などを本当に開けるようになります。\n(院長以外のスマホでは押さないでください)')) return;
+    ls.set(LS_KEY, s.k); ls.del(LS_CACHE);
+    location.href = location.pathname;
+  }));
   $('#n_name').addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
   document.querySelectorAll('[data-nm]').forEach(inp => inp.addEventListener('change', () => {
     const s = L[+inp.dataset.nm], old = s.name, n = inp.value.trim();
