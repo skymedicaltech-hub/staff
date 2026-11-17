@@ -1,9 +1,9 @@
-/* スカイ スタッフアプリ(入口アプリ) サービスワーカー  Ver1.13.0
+/* スカイ スタッフアプリ(入口アプリ) サービスワーカー  Ver1.14.1
    ・この入口アプリのファイル(portal〜)だけを扱います。
      同じ場所にある当番アプリ(toban.html)など、ほかのアプリには関わりません。
      院長が作ったアプリのアイコン画像(portal-icon-〇〇.png)も、ここで扱います(電波がないときは前回の分を出します)。
    ・portal.html はいつも最新をとりにいき、電波がないときだけ前回の分を出します。 */
-const CACHE = 'sky-portal-Ver1.13.0';
+const CACHE = 'sky-portal-Ver1.14.1';
 const FILES = ['portal.html', 'portal-config.js', 'portal.webmanifest', 'portal-icon-192.png', 'portal-icon-512.png'];
 
 self.addEventListener('install', e => {

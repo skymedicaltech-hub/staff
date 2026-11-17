@@ -51,7 +51,7 @@
        border-radius:18px;padding:16px;box-shadow:0 2px 6px rgba(30,60,90,.05);cursor:pointer;color:inherit;
        transition:transform .08s ease}
   .app:active{transform:scale(.98)}
-  .icon{flex:0 0 56px;height:56px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;
+  .icon{flex:0 0 80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:42px;
         background:var(--sky-soft)}
   .icon.img{overflow:hidden}
   .icon img{width:100%;height:100%;object-fit:cover;display:block}
@@ -132,7 +132,7 @@
   .arow .mv{display:flex;flex-direction:column;gap:3px}
   .arow .mv button{width:34px;height:26px;border:1px solid #C9D4DC;background:#fff;border-radius:7px;cursor:pointer;color:#5E7383;font-size:12px}
   .arow .mv button:disabled{opacity:.3;cursor:default}
-  .arow .icon{flex:0 0 46px;height:46px;font-size:24px;border-radius:13px}
+  .arow .icon{flex:0 0 60px;height:60px;font-size:32px;border-radius:15px}
   .arow .info{flex:1;min-width:0}
   .arow .nm{font-weight:700;font-size:17px}
   .arow .meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:3px}
@@ -246,7 +246,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver1.13.0';
+const VERSION = 'Ver1.14.1';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -553,14 +553,17 @@ function gotQR(text){
 }
 
 /* ---------- ほかのアプリから渡されたアドレスを登録する ----------
-   例: portal.html?regapp=<アプリID>&regurl=<そのアプリの個人用アドレス>
-   相手アプリの「入口アプリに登録」ボタンから来る。アドレスが合うときだけ、本人のスマホに保存する */
+   例: portal.html?regurl=<そのアプリの個人用アドレス>
+   相手アプリの「入口アプリに登録」ボタンから来る。アドレスが合うときだけ、本人のスマホに保存する。
+   Ver1.14.0〜:アプリID(regapp)は無くてよい。どのアプリかは、アドレスの「?」より前で見分ける
+   (regapp が付いていて合えばそれを使い、合わなければアドレスで見分ける) */
 function tryRegFromLink(data){
   const id = params.get('regapp'), url = params.get('regurl');
-  if (!id || !url) return;
+  if (!url) return;
   const clean = () => { try { history.replaceState(null, '', location.pathname); } catch(e){} };
-  const a = (data.apps || []).filter(x => x.id === id)[0];
-  if (!a || !a.selfReg){ clean(); return; }
+  const list = (data.apps || []).filter(x => x.selfReg);
+  const a = (id ? list.filter(x => x.id === id)[0] : null) || list.filter(x => qrFits(url, x.base))[0];
+  if (!a){ alert('このアドレスのアプリは、入口アプリに登録されていないため、登録しませんでした。'); clean(); return; }
   if (!qrFits(url, a.base)){ alert('「' + a.name + '」のアドレスではないため、登録しませんでした。'); clean(); return; }
   if (confirm('「' + a.name + '」をこのスマホに登録しますか?\n\n次からは、入口アプリのボタンだけで開けます。')){
     const mine = myQR(); mine[a.id] = url; saveMyQR(mine);
