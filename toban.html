@@ -50,6 +50,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #demoBar button{border:none;border-radius:999px;padding:4px 11px;font-size:12px;background:#3B4856;color:#fff}
 #demoBar button.on{background:#FFE48A;color:#1E2833;font-weight:700}
 #demoBar #demoReset{background:#D2564F}
+.tst{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:999px;background:#FFE48A;color:#5B4A00;font-size:11px;font-weight:700;letter-spacing:0;vertical-align:2px}
 #regBar{text-align:center;padding:20px 16px 28px;font-size:11.5px;line-height:1.6;color:var(--sub)}
 #regBar button{display:inline-block;border:1px solid #C9D6E0;background:#fff;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;color:#287FB8;margin-bottom:6px}
 #navBadge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-family:"Outfit",sans-serif;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 5px}
@@ -581,7 +582,7 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver11.4.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver11.6.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人は、ここを押すと<br>スタッフアプリから「当番」を開けるようになります</div>
@@ -611,11 +612,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver11.4.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver11.6.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '11.4.0';
+const VER = '11.6.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）'],
@@ -684,19 +685,49 @@ const svList_ = t => (!t || t === 'なし') ? [] : String(t).split(/[・,、]/).
 const svText_ = a => a.length ? a.map(w => SV_DOW[+w]).join('・') : 'なし';
 function surveyRow_(r){ return {early:svList_(r[2]), cs:svList_(r[3]), pair:Object.keys(SV_PAIR).find(k => SV_PAIR[k] === r[4]) || '', at:r[5], note:r[6] || '', row:Object.keys(SV_ROW).find(k => SV_ROW[k] === r[7]) || ''}; }
 function surveyOf_(id){ const r = read_('survey').find(x => x[0] === id); return r ? surveyRow_(r) : null; }
+/* Ver11.5.0：「テスト用」の人。「有効」の列が 'T'（'1'＝有効、'0'＝無効、'T'＝テスト用）。
+   自分のQRでスマホアプリは開けるが、名簿（ほかの人のスマホ・カレンダー・名前を選ぶ欄）には出ない＝ '1' の人だけを見る所はそのまま。
+   テスト用の看護師：当番表を見る・希望・アンケートはできる。交換や代わりの申し込み・返事はできない。
+   テスト用の事務：本物の事務と同じように当番表に名前を入れられる（入れられる名前は本物の事務の人だけ） */
+const ON_ = v => v === '1' || v === 'T';
+const act_ = n => n && n.test === true ? 'T' : (n && n.active ? '1' : '0');
+const NO_TEST = 'テスト用の人は、交換や代わりの申し込みはできません。';
 function nurseByKey_(k){
   if (!k) return null;
-  const r = read_('nurses').find(x => x[2] === String(k) && x[3] === '1');
-  return r ? {id:r[0], name:r[1], canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7])} : null;
+  const r = read_('nurses').find(x => x[2] === String(k) && ON_(x[3]));
+  return r ? {id:r[0], name:r[1], test:r[3] === 'T', canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7])} : null;
 }
 /* 事務（早出・会計）。スマホは当番表を見るだけ */
 function clerkByKey_(k){
   if (!k) return null;
-  const r = read_('clerks').find(x => x[2] === String(k) && x[3] === '1');
-  return r ? {id:r[0], name:r[1]} : null;
+  const r = read_('clerks').find(x => x[2] === String(k) && ON_(x[3]));
+  return r ? {id:r[0], name:r[1], test:r[3] === 'T'} : null;
+}
+/* Ver11.6.0：院長のQR（見るだけ）。合言葉は院長のPC（当番管理）が作り、スクリプトのプロパティ VIEW_KEY に置く。
+   このQRでは、看護師の当番表と事務の当番表を見ることだけができる（交換・希望・アンケート・名前を入れる窓口は、看護師か事務の合言葉でしか通らない） */
+function saveViewKey_(k){
+  k = String(k || '');
+  if (!/^[A-Za-z0-9]{12,40}$/.test(k)) return;
+  const P = PropertiesService.getScriptProperties();
+  if (P.getProperty('VIEW_KEY') !== k) P.setProperty('VIEW_KEY', k);
+}
+function viewerByKey_(k){
+  if (!k) return null;
+  const v = PropertiesService.getScriptProperties().getProperty('VIEW_KEY');
+  return v && String(k) === v ? {id:'@dr', name:'院長', viewer:true} : null;
+}
+function viewerRoster_(v){
+  const both_ = x => x.ngE.filter(w => x.ngC.indexOf(w) >= 0);
+  const N = nurseMap_(), R = rosterMap_();
+  const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ngE:x.ngE, ngC:x.ngC, ng:both_(x), ok:x.ok}));
+  const roster = Object.keys(R).sort().map(ym => ({ym:ym, at:R[ym].at, data:R[ym].data}));
+  const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
+  const res = {ok:true, ver:VER, viewer:true, me:{id:v.id, name:v.name, viewer:true, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:nurses, roster:roster, changes:[], comments:cm, url:appUrl_()};
+  if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
+  return res;
 }
 function saveClerks_(list){
-  const rows = (Array.isArray(list) ? list : []).slice(0, 100).map(n => [String(n.id), String(n.name).slice(0, 40), String(n.key), n.active ? '1' : '0']);
+  const rows = (Array.isArray(list) ? list : []).slice(0, 100).map(n => [String(n.id), String(n.name).slice(0, 40), String(n.key), act_(n)]);
   if (JSON.stringify(rows) === JSON.stringify(read_('clerks'))) return;   /* 変わっていなければ書かない */
   write_('clerks', rows); jBump_();
 }
@@ -807,7 +838,7 @@ function clerkRoster_(c){
   const clerks = read_('clerks').filter(r => r[3] === '1').map(r => ({id:r[0], name:r[1], canE:true, canC:true}));
   /* Ver11.1.0：看護師の当番表も見られる（見るだけ。名前と当番だけで、コメント・申し込みは出さない） */
   const R = rosterMap_(), nr = Object.keys(R).sort().map(ym => ({ym:ym, at:R[ym].at, data:R[ym].data}));
-  const res = {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:clerks, roster:clerkMonths_(), changes:[], comments:{}, url:appUrl_()};
+  const res = {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, test:c.test === true, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:clerks, roster:clerkMonths_(), changes:[], comments:{}, url:appUrl_()};
   if (nr.length) res.other = {roster:nr};
   return res;
 }
@@ -847,7 +878,7 @@ function doGet(e){
 /* 画面を開いたときのデータ */
 function getInit(k){
   const n = nurseByKey_(k);
-  if (!n){ const c = clerkByKey_(k); if (c) return {ok:true, ver:VER, clerk:true, id:c.id, name:c.name, now:new Date().toISOString(), months:[], wishes:{}, sent:{}, roster:[], survey:null, url:appUrl_()}; }
+  if (!n){ const c = clerkByKey_(k) || viewerByKey_(k); if (c) return {ok:true, ver:VER, clerk:true, viewer:c.viewer === true, id:c.id, name:c.name, now:new Date().toISOString(), months:[], wishes:{}, sent:{}, roster:[], survey:null, url:appUrl_()}; }
   if (!n) return {ok:false, error:BAD_KEY};
   const months = read_('months').map(r => ({ym:r[0], deadline:r[1], cfg:JSON.parse(r[2] || '{}')}));
   const wishes = {}, sent = {};
@@ -857,7 +888,7 @@ function getInit(k){
     else if (r[3]) wishes[r[3]] = r[4];
   });
   const roster = read_('roster').map(r => ({ym:r[0], at:r[1], data:JSON.parse(r[2] || '{}')}));
-  return {ok:true, ver:VER, id:n.id, name:n.name, now:new Date().toISOString(), months:months, wishes:wishes, sent:sent, roster:roster, survey:surveyOf_(n.id), url:appUrl_()};
+  return {ok:true, ver:VER, id:n.id, name:n.name, test:n.test === true, now:new Date().toISOString(), months:months, wishes:wishes, sent:sent, roster:roster, survey:surveyOf_(n.id), url:appUrl_()};
 }
 
 /* アンケートに答える（しめきりに関係なく、いつでも答え直せる） */
@@ -945,10 +976,11 @@ function admin_(b){
   const cur = P.getProperty('ADMIN');
   if (b.action === 'setup'){
     if (!b.admin) return {ok:false, error:'合言葉がありません。'};
-    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); if (b.clerks) saveClerks_(b.clerks); return {ok:true, first:true, ver:VER}; }
+    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); if (b.clerks) saveClerks_(b.clerks); if (b.viewKey) saveViewKey_(b.viewKey); return {ok:true, first:true, ver:VER}; }
     if (cur !== b.admin) return {ok:false, error:'このスプレッドシートは、別の当番アプリのデータとつながっています。'};
     if (b.nurses) saveNurses_(b.nurses);
     if (b.clerks) saveClerks_(b.clerks);
+    if (b.viewKey) saveViewKey_(b.viewKey);
     return {ok:true, ver:VER};
   }
   if (!cur || cur !== b.admin) return {ok:false, error:'接続が確かめられません。設定の「接続を確かめる」を押してください。'};
@@ -957,6 +989,7 @@ function admin_(b){
   try {
     if (b.nurses) saveNurses_(b.nurses);
     if (b.clerks) saveClerks_(b.clerks);
+    if (b.viewKey) saveViewKey_(b.viewKey);
     if (b.action === 'nurses') return {ok:true};
     if (b.action === 'publish'){
       upsert_('months', b.ym, [b.ym, b.deadline, JSON.stringify(b.cfg || {})]);
@@ -1018,7 +1051,7 @@ function admin_(b){
 function saveNurses_(list){
   /* 入れない曜日は早出・CSで別々（Ver10.0.0〜）。前の版のPCアプリは ngDow（両方）だけを送ってくる */
   const ng = (n, k) => (Array.isArray(n[k]) ? n[k] : Array.isArray(n.ngDow) ? n.ngDow : []).join(',');
-  write_('nurses', list.map(n => [n.id, n.name, n.key, n.active ? '1' : '0', n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', ng(n,'ngE'), (Array.isArray(n.okDays) ? n.okDays : []).join(','), ng(n,'ngC')]));
+  write_('nurses', list.map(n => [n.id, n.name, n.key, act_(n), n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', ng(n,'ngE'), (Array.isArray(n.okDays) ? n.okDays : []).join(','), ng(n,'ngC')]));
 }
 
 /* ================= 内視鏡カレンダーとのやりとり（endoscSync） =================
@@ -1231,18 +1264,19 @@ function setHolder_(R, ds, t, n){
 function getRoster(k){
   const n = nurseByKey_(k);
   if (!n){ const c = clerkByKey_(k); if (c) return clerkRoster_(c); }
+  if (!n){ const v = viewerByKey_(k); if (v) return viewerRoster_(v); }
   if (!n) return {ok:false, error:BAD_KEY};
   const both_ = x => x.ngE.filter(w => x.ngC.indexOf(w) >= 0);   /* 前の版のスマホ画面用（早出もCSも入れない曜日） */
   const N = nurseMap_(), R = rosterMap_();
   const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ngE:x.ngE, ngC:x.ngC, ng:both_(x), ok:x.ok}));
   const roster = Object.keys(R).sort().map(ym => ({ym:ym, at:R[ym].at, data:R[ym].data}));
   const td = today_();
-  const changes = read_('changes').map(chgObj_).filter(c => c.from === n.id || c.to === n.id || c.state === 'done' || (c.state === 'wait' && !c.to)).map(c => {
+  const changes = read_('changes').map(chgObj_).filter(c => c.from === n.id || c.to === n.id || c.state === 'done' || (c.state === 'wait' && !c.to && !n.test)).map(c => {
     if (c.state === 'wait' && (c.ds < td || (c.kind === 'swap' && c.ds2 < td))) c.state = 'bad', c.why = '日にちが過ぎました。';
     return c;
   });
   const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
-  const res = {ok:true, ver:VER, me:{id:n.id, name:n.name, canE:n.canE, canC:n.canC, ngE:n.ngE, ngC:n.ngC, ng:both_(n), ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
+  const res = {ok:true, ver:VER, me:{id:n.id, name:n.name, test:n.test === true, canE:n.canE, canC:n.canC, ngE:n.ngE, ngC:n.ngC, ng:both_(n), ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
   /* Ver11.1.0：事務の当番表も見られる（見るだけ。事務の人が登録されているときだけ） */
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
   return res;
@@ -1255,6 +1289,7 @@ function askChange(k, a){
   try {
     const n = nurseByKey_(k);
     if (!n) return {ok:false, error:BAD_KEY};
+    if (n.test) return {ok:false, error:NO_TEST};
     a = a || {};
     if (!CHG_KIND[a.kind] || !SLOT_KEY[a.slot] || (a.kind === 'swap' && !SLOT_KEY[a.slot2])) return {ok:false, error:'申し込みの中身がわかりません。'};
     if (a.to === n.id) return {ok:false, error:'自分には申し込めません。'};
@@ -1285,6 +1320,7 @@ function answerChange(k, id, yes){
   try {
     const n = nurseByKey_(k);
     if (!n) return {ok:false, error:BAD_KEY};
+    if (n.test) return {ok:false, error:NO_TEST};
     const rows = read_('changes'), list = rows.map(chgObj_);
     const c = list.find(x => x.id === id);
     if (!c || (c.to !== n.id && !(c.kind === 'give' && !c.to && c.from !== n.id))) return {ok:false, error:'この申し込みは見つかりません。'};
@@ -1458,7 +1494,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '11.4.0';
+const APP_VER = '11.6.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -1482,9 +1518,9 @@ function start(){
 function setSide(o, keepYm){
   side = o ? 1 : 0;
   const view = side ? !DM.clerk : !!DM.clerk;   /* いま見ているのが事務の当番表か */
-  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : DM;
+  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : (DM.viewer ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
   KEYS.C = view ? ['lId','late'] : ['cId','cs']; SNAME.C = view ? '会計' : 'CS';
-  { const nv = document.getElementById('nav'); if (nv) nv.style.display = DM.clerk ? 'none' : ''; }
+  { const nv = document.getElementById('nav'); if (nv) nv.style.display = (DM.clerk || DM.viewer) ? 'none' : ''; }
   if (side){ onlyMe = false; sel = null; tab = 'roster'; }
   let i = keepYm ? D.roster.findIndex(x => x.ym === keepYm) : -1;
   if (i < 0){ const cur = D.today.slice(0,7); i = D.roster.findIndex(x => x.ym >= cur); if (i < 0) i = D.roster.length - 1; }
@@ -1523,7 +1559,7 @@ function days(ym){ return Object.keys((D.roster.find(x => x.ym === ym) || {data:
 /* ---------- 画面 ---------- */
 function render(){
   const nIn = waitIn().length;
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん</span><button class="reload" id="reload">↻ 新しくする</button></div>';
+  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん'+(D.me.test ? '<span class="tst">テスト用</span>' : D.me.viewer ? '<span class="tst">見るだけ</span>' : '')+'</span><button class="reload" id="reload">↻ 新しくする</button></div>';
   if (tab === 'roster') h += rosterHead();
   h += '</div>';
   h += tab === 'roster' ? rosterBody() : reqBody();
@@ -1782,7 +1818,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; sel = nul
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '11.4.0';
+const APP_VER = '11.6.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
