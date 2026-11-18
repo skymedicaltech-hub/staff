@@ -7,6 +7,8 @@
 <meta name="robots" content="noindex,nofollow">
 <title>ご意見箱</title>
 <meta name="theme-color" content="#B5E1F8">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
 <style>
 :root{
   --ink:#24465F; --sub:#71899B; --faint:#A6B8C5; --line:#DCEAF3;
@@ -129,6 +131,14 @@ textarea{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12
 .rows span{flex:1;overflow-wrap:anywhere}
 .pbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
+.ntc{margin:12px 14px 0;background:#FFF8E1;border:1px solid #F0DDA6;border-radius:14px;padding:11px 13px;font-size:14px;line-height:1.65;color:#5C4A12}
+.ntc b{display:block;font-size:12px;color:#8A6A00;margin-bottom:2px}
+.ntc .nt{white-space:pre-wrap;overflow-wrap:anywhere}
+.ntc .nb{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.ntc button{border:1px solid #E3CF93;background:#fff;color:#6B5200;border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700}
+.ntc.up{background:#E8F4FB;border-color:#BBD9EC;color:#1F557A}
+.ntc.up button{border-color:#9BCFEE;color:#216A99}
+
 /* 短い知らせ */
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px);transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(30,40,51,.93);color:#fff;padding:12px 20px;border-radius:14px;font-size:14px;z-index:9;max-width:88%;text-align:center;line-height:1.6;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -150,7 +160,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.6.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.7.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -158,7 +168,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.6.0';
+const APP_VER = '1.7.0';
 const PREVIEW = false;   /* true：院長がclaude.aiで見るための見本専用版（どこにも送らない） */
 /* ===== 共通の部品（スマホアプリ・ご意見箱管理で同じもの） ===== */
 const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};
@@ -203,6 +213,8 @@ function pollDr(p, btns){
     + (p.rows && p.rows.length ? '<div class="rows">'+p.rows.map((r, i) => '<div><b>'+esc(p.named ? r.name : '回答'+(i + 1))+'</b><span>'+esc(optLabel(p, r.c))+'</span></div>').join('')+'</div>' : '')
     + (btns || '')+'</div>';
 }
+/* 版数をくらべる（a が b より新しければ 1） */
+function cmpVer(a, b){ const x = String(a || '').split('.').map(Number), y = String(b || '').split('.').map(Number); for (let i = 0; i < 3; i++){ const d = (x[i] || 0) - (y[i] || 0); if (d) return d > 0 ? 1 : -1; } return 0; }
 let toastT = 0;
 function toast(t){ const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
 /* 画面を閉じるまでの一時的な保存（使えない環境では、この画面の中だけで覚える）。見本（プレビュー）だけが使う */
@@ -313,15 +325,20 @@ function demoBackend(){
   const SpreadsheetApp = {getActiveSpreadsheet(){ return { getSheetByName(n){ return load()[n] ? sh(n) : null; }, insertSheet(n){ const d = load(); d[n] = []; save(d); return sh(n); } }; }};
   const PropertiesService = {getScriptProperties(){ return {
     getProperty(k){ const p = load()['@prop'] || {}; return k in p ? p[k] : null; },
+    getProperties(){ return Object.assign({}, load()['@prop'] || {}); },
     setProperty(k, v){ const d = load(); (d['@prop'] = d['@prop'] || {})[k] = String(v); save(d); } }; }};
-  const LockService = {getScriptLock(){ return {waitLock(){}, releaseLock(){}}; }};
+  const CacheService = {getScriptCache(){ return {
+    get(k){ const c = load()['@cache'] || {}; return k in c ? c[k] : null; },
+    put(k, v){ const d = load(); (d['@cache'] = d['@cache'] || {})[k] = String(v); save(d); },
+    remove(k){ const d = load(); if (d['@cache']) delete d['@cache'][k]; save(d); } }; }};
+  const LockService = {getScriptLock(){ return {waitLock(){}, tryLock(){ return true; }, releaseLock(){}}; }};
   const Utilities = {
     formatDate(d){ const p = n => ('0'+n).slice(-2); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
     getUuid(){ let s = ''; for (let i = 0; i < 32; i++) s += Math.floor(Math.random()*16).toString(16); return s; } };
   const ContentService = {MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * ご意見箱 GAS  Ver1.6.0（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
+ * ご意見箱 GAS  Ver1.7.0（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
  * ご意見箱専用のスプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。スマホアプリは GitHub Pages（goikenbako.html）に置き、ここを呼びます。
  *
@@ -336,7 +353,7 @@ function demoBackend(){
  *  ・アンケートでは、スマホが作ったランダムな番号（アンケートごとに別）と、名前つきのときだけ本人が書いた名前を保存する
  *  ・決めた項目だけを保存する。1件の長さ・1日に受け付ける数に上限がある
  */
-const VER = '1.6.0';
+const VER = '1.7.0';
 const SH = {posts:'投書', polls:'アンケート', ans:'アンケートの回答'};
 const HEAD = {
   posts: ['番号','書いた日','種類','本文','みんなの意見も聞いてほしい','公開','院長の返事','しるし','同じ意見の数','公開した日'],
@@ -382,19 +399,47 @@ function sheet_(k){
   }
   return sh;
 }
+/* ---------- 速くするしくみ（Ver1.7.0） ----------
+   ・設定（スクリプトのプロパティ）は、1回の呼び出しで1度だけまとめて読む
+   ・シートの中身は、Googleの一時置き場（CacheService。10分）に写しを置き、見るだけの呼び出しはそれを使う
+   ・書きかえる呼び出しは、かならずロックを取ってから、シートそのものを読み直す（写しを信じない）
+   ※スプレッドシートを手で直したときは、アプリに出るまで10分ほどかかることがある */
+let PROPS_ = null, RC_ = {}, FRESH_ = false;
+function props_(){ return PROPS_ || (PROPS_ = PropertiesService.getScriptProperties().getProperties() || {}); }
+function gp_(k){ const v = props_()[k]; return v === undefined ? null : v; }
+function sp_(k, v){ PropertiesService.getScriptProperties().setProperty(k, String(v)); props_()[k] = String(v); }
+function lock_(){ const l = LockService.getScriptLock(); l.waitLock(20000); FRESH_ = true; RC_ = {}; return l; }
+const CACHE_SEC = 600, CACHE_MAX = 90000;
+function cachePut_(k, rows){
+  try {
+    const c = CacheService.getScriptCache(), j = JSON.stringify(rows);
+    if (j.length < CACHE_MAX) c.put('R_'+k, j, CACHE_SEC); else c.remove('R_'+k);
+  } catch(e){ try { CacheService.getScriptCache().remove('R_'+k); } catch(e2){} }
+}
 function read_(k){
-  const sh = sheet_(k), n = sh.getLastRow();
-  return n < 2 ? [] : sh.getRange(2,1,n-1,HEAD[k].length).getValues().map(r => r.map(v => String(v)));
+  if (RC_[k]) return RC_[k].map(r => r.slice());
+  let rows = null;
+  if (!FRESH_){ try { const j = CacheService.getScriptCache().get('R_'+k); if (j){ const a = JSON.parse(j); if (Array.isArray(a)) rows = a; } } catch(e){} }
+  if (!rows){
+    const sh = sheet_(k), n = sh.getLastRow();
+    rows = n < 2 ? [] : sh.getRange(2,1,n-1,HEAD[k].length).getValues().map(r => r.map(v => String(v)));
+    if (!FRESH_) cachePut_(k, rows);
+  }
+  RC_[k] = rows;
+  return rows.map(r => r.slice());
 }
 function write_(k, rows){
   const sh = sheet_(k), n = sh.getLastRow(), w = HEAD[k].length;
+  const out = rows.map(r => r.map(v => String(v)));
   sh.getRange(1,1,1,w).setValues([HEAD[k]]);
   if (n > 1) sh.getRange(2,1,n-1,w).clearContent();
-  if (rows.length){
-    const rg = sh.getRange(2,1,rows.length,w);
+  if (out.length){
+    const rg = sh.getRange(2,1,out.length,w);
     rg.setNumberFormat('@');
-    rg.setValues(rows.map(r => r.map(v => String(v))));
+    rg.setValues(out);
   }
+  RC_[k] = out;
+  cachePut_(k, out);
 }
 function today_(){ return Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'); }
 function days_(a, b){   /* a から b までの日数（'yyyy-MM-dd'） */
@@ -418,14 +463,13 @@ const okKey_ = (k, n) => new RegExp('^[a-z0-9]{'+n+',40}$').test(String(k || '')
 
 /* ---------- だれからの呼び出しか（合言葉を確かめる） ---------- */
 function role_(b){
-  const P = PropertiesService.getScriptProperties();
   if (b.admin){
-    const cur = P.getProperty('ADMIN'), a2 = P.getProperty('ADMIN2'), a = String(b.admin);
+    const cur = gp_('ADMIN'), a2 = gp_('ADMIN2'), a = String(b.admin);
     return cur && a === cur ? 'admin' : (a2 && a === a2 ? 'admin2' : '');   /* admin2＝アプリ管理者のPC */
   }
   const k = String(b.k || '');
   if (!k) return '';
-  const s = P.getProperty('STAFF_KEY'), d = P.getProperty('DR_KEY'), as = P.getProperty('AS_KEY');
+  const s = gp_('STAFF_KEY'), d = gp_('DR_KEY'), as = gp_('AS_KEY');
   if (d && k === d) return 'dr';
   if (as && k === as) return 'as';   /* アプリ管理者。できることは院長のQRと同じ */
   if (s && k === s) return 'staff';
@@ -435,40 +479,60 @@ function role_(b){
 /* ---------- 「みんなの意見を聞く」機能のスイッチ（Ver1.1.2） ----------
    院長のPC（ご意見箱管理）だけが切り替えられる。はじめは「使わない（保留）」。
    使わない間は、「みんなの意見も聞いてほしい」の希望を受け取らず、「同じ意見です」も受け付けず、数もスタッフに返さない */
-function opinion_(){ return PropertiesService.getScriptProperties().getProperty('OPINION') === '1'; }
+function opinion_(){ return gp_('OPINION') === '1'; }
 function setOpt_(b){
-  if (typeof b.opinion === 'boolean') PropertiesService.getScriptProperties().setProperty('OPINION', b.opinion ? '1' : '0');
+  if (typeof b.opinion === 'boolean') sp_('OPINION', b.opinion ? '1' : '0');
   return {ok:true, opinion:opinion_()};
 }
 
 /* ---------- 1日に受け付ける数 ---------- */
 function count_(kind, max){
-  const P = PropertiesService.getScriptProperties(), t = today_();
-  let c; try { c = JSON.parse(P.getProperty('CNT') || '{}'); } catch(e){ c = {}; }
+  const t = today_();
+  let c; try { c = JSON.parse(gp_('CNT') || '{}'); } catch(e){ c = {}; }
   if (c.d !== t) c = {d:t};
   c[kind] = Number(c[kind]) || 0;
   if (!(c[kind] < max)) return false;
-  c[kind]++; P.setProperty('CNT', JSON.stringify(c));
+  c[kind]++; sp_('CNT', JSON.stringify(c));
   return true;
 }
 
 /* ---------- 古い投書を消す（1日に1回だけ動く） ---------- */
 function purge_(){
-  const P = PropertiesService.getScriptProperties(), t = today_();
-  if (P.getProperty('PURGE') === t) return;
-  P.setProperty('PURGE', t);
-  const rows = read_('posts');
-  const keep = rows.filter(r => r[5] === PUB['1'] ? !(days_(r[9] || r[1], t) > KEEP_PUB) : !(days_(r[1], t) > KEEP_HIDDEN));
-  if (keep.length !== rows.length) write_('posts', keep);
-  /* 締め切ってから日数がたったアンケートを、回答・名前ごと消す */
-  const polls = read_('polls');
-  if (polls.length){
-    const pk = polls.filter(r => r[7] === P_STATE['1'] || !(days_(r[8] || r[1], t) > KEEP_POLL));
-    const ids = {}; pk.forEach(r => { ids[r[0]] = 1; });
-    const ans = read_('ans'), ak = ans.filter(a => ids[a[0]]);
-    if (pk.length !== polls.length) write_('polls', pk);
-    if (ak.length !== ans.length) write_('ans', ak);
+  const t = today_();
+  if (gp_('PURGE') === t) return;
+  let lock = null;
+  if (!FRESH_){   /* ロックの外から呼ばれたとき：ロックが取れなければ、今回はやめる（次の呼び出しでやる） */
+    lock = LockService.getScriptLock();
+    if (!lock.tryLock(3000)) return;
+    FRESH_ = true; RC_ = {};
   }
+  try {
+    sp_('PURGE', t);
+    const rows = read_('posts');
+    const keep = rows.filter(r => r[5] === PUB['1'] ? !(days_(r[9] || r[1], t) > KEEP_PUB) : !(days_(r[1], t) > KEEP_HIDDEN));
+    if (keep.length !== rows.length) write_('posts', keep);
+    /* 締め切ってから日数がたったアンケートを、回答・名前ごと消す */
+    const polls = read_('polls');
+    if (polls.length){
+      const pk = polls.filter(r => r[7] === P_STATE['1'] || !(days_(r[8] || r[1], t) > KEEP_POLL));
+      const ids = {}; pk.forEach(r => { ids[r[0]] = 1; });
+      const ans = read_('ans'), ak = ans.filter(a => ids[a[0]]);
+      if (pk.length !== polls.length) write_('polls', pk);
+      if (ak.length !== ans.length) write_('ans', ak);
+    }
+  } finally { if (lock) lock.releaseLock(); }
+}
+
+/* ---------- お知らせ（Ver1.7.0。アプリを新しくしたときなどに、院長・アプリ管理者のPCから全員に出す短い文） ---------- */
+const MAX_NOTICE = 200;
+function notice_(){
+  try { const o = JSON.parse(gp_('NOTICE') || 'null'); return o && o.id && o.text ? {id:String(o.id), d:String(o.d || ''), text:String(o.text)} : null; } catch(e){ return null; }
+}
+function setNotice_(b){
+  const t = clean_(b.text);
+  if (len_(t) > MAX_NOTICE) return {ok:false, error:'お知らせが長すぎます（'+MAX_NOTICE+'字まで）。'};
+  sp_('NOTICE', t ? JSON.stringify({id:newId_().slice(0, 8), d:today_(), text:t}) : '');
+  return {ok:true, notice:notice_()};
 }
 
 /* ---------- 返す形 ---------- */
@@ -484,9 +548,9 @@ function list_(role, b){
   if (role === 'staff'){
     const L = rows.filter(r => r[5] === PUB['1']).map(r => pubOut_(r, op));
     L.sort((a, b) => a.pd < b.pd ? 1 : a.pd > b.pd ? -1 : 0);
-    return {ok:true, ver:VER, role:'staff', opinion:op, max:MAX_TEXT, posts:L, polls:pollsOut_('staff', ptOf_(b))};
+    return {ok:true, ver:VER, role:'staff', opinion:op, notice:notice_(), max:MAX_TEXT, posts:L, polls:pollsOut_('staff', ptOf_(b))};
   }
-  return {ok:true, ver:VER, role:role, opinion:op, max:MAX_TEXT, maxReply:MAX_REPLY, posts:rows.map(allOut_), polls:pollsOut_(role, {})};
+  return {ok:true, ver:VER, role:role, opinion:op, notice:notice_(), max:MAX_TEXT, maxReply:MAX_REPLY, maxNotice:MAX_NOTICE, posts:rows.map(allOut_), polls:pollsOut_(role, {})};
 }
 
 /* ---------- アンケート（Ver1.2.0） ----------
@@ -530,8 +594,7 @@ function pollsOut_(role, pt){
 function vote_(b){
   const pid = String(b.pid || ''), tk = String(b.t || '');
   if (!okKey_(tk, 20)) return {ok:false, error:'回答を送れませんでした。アプリを開き直してください。'};
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const r = read_('polls').find(x => x[0] === pid);
     if (!r) return {ok:false, gone:true, error:'このアンケートは、もうありません。'};
@@ -570,8 +633,7 @@ function pollNew_(b){
   if (opts.length < 2) return {ok:false, error:'選択肢を2つ以上書いてください（同じものは1つに数えます）。'};
   if (opts.length > MAX_OPTS) return {ok:false, error:'選択肢は'+MAX_OPTS+'個までです。'};
   if (opts.some(o => len_(o) > MAX_OPT)) return {ok:false, error:'選択肢が長すぎます（1つ'+MAX_OPT+'字まで）。'};
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     purge_();
     const polls = read_('polls');
@@ -585,8 +647,7 @@ function pollNew_(b){
 /* 締め切る（院長のPC） */
 function pollClose_(b){
   const pid = String(b.pid || '');
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const polls = read_('polls'), r = polls.find(x => x[0] === pid);
     if (!r) return {ok:false, gone:true, error:'このアンケートは、もうありません。'};
@@ -597,8 +658,7 @@ function pollClose_(b){
 /* 消す（院長のPC。回答・名前ごと消える。元に戻せない） */
 function pollDel_(b){
   const pid = String(b.pid || '');
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const polls = read_('polls'), pk = polls.filter(x => x[0] !== pid);
     const ans = read_('ans'), ak = ans.filter(a => a[0] !== pid);
@@ -615,8 +675,7 @@ function post_(b){
   const text = clean_(b.text);
   if (!text) return {ok:false, error:'文を書いてください。'};
   if (len_(text) > MAX_TEXT) return {ok:false, error:'文が長すぎます（'+MAX_TEXT+'字まで）。'};
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     purge_();
     const rows = read_('posts');
@@ -632,8 +691,7 @@ function post_(b){
 function agree_(b){
   const id = String(b.id || '');
   if (!opinion_()) return {ok:false, off:true, error:'この機能は、いまは使えません。'};
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const rows = read_('posts'), r = rows.find(x => x[0] === id && x[5] === PUB['1']);
     if (!r) return {ok:false, gone:true, error:'この投書は、もう見られなくなりました。'};
@@ -647,8 +705,7 @@ function agree_(b){
 /* ---------- 院長：公開する・しない、返事、しるし ---------- */
 function set_(b){
   const id = String(b.id || '');
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const rows = read_('posts'), r = rows.find(x => x[0] === id);
     if (!r) return {ok:false, gone:true, error:'この投書は、もうありません。'};
@@ -676,8 +733,7 @@ function set_(b){
 /* ---------- 院長：投書を消す（患者さんの情報が書かれていたときなど。元に戻せない） ---------- */
 function del_(b){
   const id = String(b.id || '');
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  const lock = lock_();
   try {
     const rows = read_('posts'), keep = rows.filter(x => x[0] !== id);
     if (keep.length !== rows.length) write_('posts', keep);
@@ -689,47 +745,46 @@ function del_(b){
 /* はじめて「接続を確かめる」を押したPCの合言葉（admin）を覚える。次からは同じ合言葉のPCだけを通す。
    QRの合言葉（スタッフ共通・院長）は、まだないときだけ、PCが作ったものを置く */
 function setup_(b){
-  const P = PropertiesService.getScriptProperties(), cur = P.getProperty('ADMIN');
+  const cur = gp_('ADMIN');
   if (!okKey_(b.admin, 20)) return {ok:false, error:'合言葉がありません。'};
   let first = false;
-  if (!cur){ P.setProperty('ADMIN', String(b.admin)); first = true; }
+  if (!cur){ sp_('ADMIN', String(b.admin)); first = true; }
   else if (cur !== String(b.admin)){
-    const a2 = P.getProperty('ADMIN2');
+    const a2 = gp_('ADMIN2');
     if (a2 && a2 === String(b.admin)) return {ok:true, ver:VER, first:false, sub:true};   /* アプリ管理者のPC */
     return {ok:false, error:'このスプレッドシートは、別のPCのご意見箱管理とつながっています。'};
   }
-  if (!P.getProperty('STAFF_KEY') && okKey_(b.staffKey, 16)) P.setProperty('STAFF_KEY', String(b.staffKey));
-  if (!P.getProperty('DR_KEY') && okKey_(b.drKey, 16)) P.setProperty('DR_KEY', String(b.drKey));
-  if (!P.getProperty('AS_KEY') && okKey_(b.asKey, 16)) P.setProperty('AS_KEY', String(b.asKey));
+  if (!gp_('STAFF_KEY') && okKey_(b.staffKey, 16)) sp_('STAFF_KEY', String(b.staffKey));
+  if (!gp_('DR_KEY') && okKey_(b.drKey, 16)) sp_('DR_KEY', String(b.drKey));
+  if (!gp_('AS_KEY') && okKey_(b.asKey, 16)) sp_('AS_KEY', String(b.asKey));
   sheet_('posts');
   return {ok:true, ver:VER, first:first};
 }
 function keys_(){
-  const P = PropertiesService.getScriptProperties();
-  return {ok:true, staffKey:P.getProperty('STAFF_KEY') || '', drKey:P.getProperty('DR_KEY') || '', asKey:P.getProperty('AS_KEY') || '', admin2:!!P.getProperty('ADMIN2')};
+  return {ok:true, staffKey:gp_('STAFF_KEY') || '', drKey:gp_('DR_KEY') || '', asKey:gp_('AS_KEY') || '', admin2:!!gp_('ADMIN2')};
 }
 /* QRを作り直す（前のQRは使えなくなる） */
 function setKeys_(b){
-  const P = PropertiesService.getScriptProperties();
   const names = {staffKey:'STAFF_KEY', drKey:'DR_KEY', asKey:'AS_KEY'}, next = {};
-  Object.keys(names).forEach(n => { next[n] = b[n] !== undefined ? String(b[n]) : (P.getProperty(names[n]) || ''); });
+  Object.keys(names).forEach(n => { next[n] = b[n] !== undefined ? String(b[n]) : (gp_(names[n]) || ''); });
   for (const n in names){ if (b[n] !== undefined && !okKey_(b[n], 16)) return {ok:false, error:'合言葉の形がちがいます。'}; }
   const used = Object.keys(next).map(n => next[n]).filter(Boolean);
   if (used.some((v, i) => used.indexOf(v) !== i)) return {ok:false, error:'合言葉の形がちがいます。'};   /* 3つの合言葉は、かならず別々にする */
-  for (const n in names){ if (b[n] !== undefined) P.setProperty(names[n], next[n]); }
+  for (const n in names){ if (b[n] !== undefined) sp_(names[n], next[n]); }
   return keys_();
 }
 
 /* アプリ管理者のPC用の合言葉を決める・消す（院長のPCだけ。新しく決めると、前のつなぎコードは使えなくなる） */
 function setAdmin2_(b){
-  const P = PropertiesService.getScriptProperties(), v = String(b.admin2 == null ? '' : b.admin2);
-  if (v !== '' && (!okKey_(v, 20) || v === P.getProperty('ADMIN'))) return {ok:false, error:'合言葉の形がちがいます。'};
-  P.setProperty('ADMIN2', v);
+  const v = String(b.admin2 == null ? '' : b.admin2);
+  if (v !== '' && (!okKey_(v, 20) || v === gp_('ADMIN'))) return {ok:false, error:'合言葉の形がちがいます。'};
+  sp_('ADMIN2', v);
   return {ok:true, admin2:v !== ''};
 }
 
 /* ---------- 窓口 ---------- */
 function handle_(b){
+  PROPS_ = null; RC_ = {}; FRESH_ = false;
   b = (b && typeof b === 'object') ? b : {};
   const a = String(b.a || '');
   if (a === 'setup') return setup_(b);
@@ -746,6 +801,7 @@ function handle_(b){
   if (a === 'keys') return role === 'admin' ? keys_() : {ok:false, error:NO_ROLE};
   if (a === 'setKeys') return role === 'admin' ? setKeys_(b) : {ok:false, error:NO_ROLE};
   if (a === 'setAdmin2') return who === 'admin' ? setAdmin2_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'setNotice') return role === 'admin' ? setNotice_(b) : {ok:false, error:NO_ROLE};
   if (a === 'setOpt') return role === 'admin' ? setOpt_(b) : {ok:false, error:NO_ROLE};
   if (a === 'vote') return role === 'staff' ? vote_(b) : {ok:false, error:'アンケートは、スタッフ用のQRコードで開いて答えてください。'};
   if (a === 'pollNew') return role === 'admin' ? pollNew_(b) : {ok:false, error:NO_ROLE};
@@ -800,6 +856,7 @@ function demoReset(){ SS.clear(); demoFn = null; }
    ・合言葉（k）とGASの番号（s）：QRコードで開いたときに覚える
    ・公開された投書の一覧（開いたときにすぐ出すため）
    ・「同じ意見です」を押した投書の番号（2回押せないようにするため）
+   ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、とじた「お知らせ」の番号
    ・アンケートの「自分の回答の番号」（答え直しのため。アンケートごとに別のランダムな番号。名前・えらんだものは覚えない）
    書いている途中の文・送った文は覚えない。院長のQRで開いたときは、投書の中身を覚えない */
 const QS = new URLSearchParams(location.search);
@@ -831,12 +888,20 @@ function rcGet(){
 let ptMem = {};
 function ptGet(){ if (DEMO) return ptMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_pt') || 'null'); return c && c.h === hashK(KEY) && c.t && typeof c.t === 'object' ? c.t : {}; } catch(e){ return {}; } }
 function ptPut(t){ if (DEMO){ ptMem = t; return; } try { localStorage.setItem('goikenbako_pt', JSON.stringify({h:hashK(KEY), t:t})); } catch(e){} }
+/* 前に開いたときの役（スタッフ／院長・アプリ管理者）。次に開いたとき、返事を待たずに画面の枠を出すため。合言葉は入れない */
+function roleGet(){ if (DEMO || !KEY) return null; try { const c = JSON.parse(localStorage.getItem('goikenbako_role') || 'null'); return c && c.h === hashK(KEY) && (c.role === 'staff' || c.role === 'dr') ? c : null; } catch(e){ return null; } }
+function rolePut(role, who){ if (DEMO || !KEY) return; try { localStorage.setItem('goikenbako_role', JSON.stringify({h:hashK(KEY), role:role, who:who})); } catch(e){} }
+/* とじた「お知らせ」の番号（同じお知らせを何度も出さないため） */
+let ntMem = '';
+function ntGet(){ if (DEMO) return ntMem; try { return localStorage.getItem('goikenbako_nt') || ''; } catch(e){ return ''; } }
+function ntPut(id){ if (DEMO){ ntMem = id; return; } try { localStorage.setItem('goikenbako_nt', id); } catch(e){} }
 let agMem = {};   /* 見本のときは、この画面の中だけで覚える */
 function agGet(){ if (DEMO) return agMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_ag') || 'null'); return c && c.h === hashK(KEY) && c.ids ? c.ids : {}; } catch(e){ return {}; } }
 function agPut(ids){ if (DEMO){ agMem = ids; return; } try { localStorage.setItem('goikenbako_ag', JSON.stringify({h:hashK(KEY), ids:ids})); } catch(e){} }
 
 /* ===== 画面 ===== */
 let ROLE = '', WHO = '', POSTS = [], POLLS = [], MAXT = 400, MAXR = 400;   /* WHO：'as'＝アプリ管理者のQRで開いている */
+let NOTICE = null, GASVER = '', loaded = false;   /* loaded：GASの返事が1回でも届いたか */
 let sel = {}, nm = {}, voteBusy = false;   /* アンケートでえらんでいる途中のもの（この画面の中だけ） */
 let tab = 'list', loading = false, stale = '', failed = '', busy = false;
 let draft = {cat:'', text:'', want:false};
@@ -862,7 +927,9 @@ function head(lead){
   return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hrow"><div class="ttl">ご意見箱'+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
     + '<button class="reload" id="reload"'+(loading ? ' disabled' : '')+'>'+(loading ? '更新中…' : '↻ 更新する')+'</button></div>'
     + '<div class="lead">'+esc(lead)+'</div>'
-    + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>';
+    + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>'
+    + (cmpVer(GASVER, APP_VER) > 0 ? '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>' : '')
+    + (NOTICE && NOTICE.id !== ntGet() ? '<div class="ntc"><b>お知らせ'+(NOTICE.d ? '（'+esc(md(NOTICE.d))+'）' : '')+'</b><div class="nt">'+esc(NOTICE.text)+'</div><div class="nb"><button id="ntClose">とじる</button></div></div>' : '');
 }
 const foot = () => '<div class="ver">ご意見箱 Ver'+APP_VER+'</div>';
 function cardStaff(p, ag){
@@ -920,19 +987,19 @@ function render(){
     $('wGo').onclick = confirmSend;
   } else if (tab === 'poll'){
     const body = POLLS.length ? POLLS.map(p => ROLE === 'staff' ? pollStaff(p) : pollDr(p)).join('')
-      : '<div class="empty">'+(loading ? '読み込んでいます…' : 'アンケートは、いまはありません。')+'</div>';
+      : '<div class="empty">'+(!loaded ? '読み込んでいます…' : 'アンケートは、いまはありません。')+'</div>';
     app.innerHTML = head(ROLE === 'staff' ? '院長からのアンケートです' : '結果です。作る・締め切るは、PCのご意見箱管理で')+'<div class="list">'+body+'</div>'+foot();
     app.querySelectorAll('[data-pn]').forEach(i => { i.value = nm[i.dataset.pn] || ''; });
   } else if (ROLE === 'staff'){
     const ag = agGet();
     h = head('院長が読んで、公開した投書です')
       + '<div class="list">'+(POSTS.length ? POSTS.map(p => cardStaff(p, ag)).join('')
-        : '<div class="empty">公開された投書は、まだありません。<br>下の「書く」から、意見や希望を出せます。</div>')+'</div>'+foot();
+        : '<div class="empty">'+(!loaded ? '読み込んでいます…<br>下の「書く」は、もう使えます。' : '公開された投書は、まだありません。<br>下の「書く」から、意見や希望を出せます。')+'</div>')+'</div>'+foot();
     app.innerHTML = h;
   } else {
     const L = POSTS.filter(p => tab === 'new' ? p.pub === '' : tab === 'pub' ? p.pub === '1' : p.pub === '0');
     const lead = tab === 'new' ? 'まだ対応していない投書です' : tab === 'pub' ? 'スタッフみんなが見られる投書です' : '公開しないことにした投書です（3か月で消えます）';
-    h = head(lead)+'<div class="list">'+(L.length ? L.map(cardDr).join('') : '<div class="empty">'+(tab === 'new' ? '新しい投書はありません。' : 'ここには、まだ何もありません。')+'</div>')+'</div>'+foot();
+    h = head(lead)+'<div class="list">'+(L.length ? L.map(cardDr).join('') : '<div class="empty">'+(!loaded ? '読み込んでいます…' : tab === 'new' ? '新しい投書はありません。' : 'ここには、まだ何もありません。')+'</div>')+'</div>'+foot();
     app.innerHTML = h;
   }
 }
@@ -952,16 +1019,17 @@ async function load(){
   if (r && r.ok && (r.role === 'staff' || r.role === 'dr')){
     const first = ROLE !== r.role;
     const op0 = OPINION; OPINION = r.opinion === true;
-    ROLE = r.role; WHO = r.who === 'as' ? 'as' : ''; POSTS = Array.isArray(r.posts) ? r.posts : []; POLLS = Array.isArray(r.polls) ? r.polls : [];
+    loaded = true; GASVER = String(r.ver || ''); NOTICE = r.notice && r.notice.id && r.notice.text ? r.notice : null;
+    ROLE = r.role; WHO = r.who === 'as' ? 'as' : ''; rolePut(ROLE, WHO); POSTS = Array.isArray(r.posts) ? r.posts : []; POLLS = Array.isArray(r.polls) ? r.polls : [];
     if (tab !== 'poll'){ sel = {}; nm = {}; }
     if (ROLE === 'staff'){ const pt = ptGet(), keep = {}; POLLS.forEach(p => { if (pt[p.id]) keep[p.id] = pt[p.id]; }); ptPut(keep); } MAXT = Number(r.max) || 400; MAXR = Number(r.maxReply) || 400; stale = '';
-    if (DEMO && op0 !== OPINION) demoBar();
+    if (DEMO) demoBar();
     if (ROLE === 'staff'){
       rcPut(r);
       const ag = agGet(), keep = {}; POSTS.forEach(p => { if (ag[p.id]) keep[p.id] = 1; }); agPut(keep);
       if (first && tab !== 'write') tab = 'list';
     } else { rcDrop(); if (first) tab = 'new'; }
-  } else if (r && r.bad){ rcDrop(); ROLE = ''; POLLS = []; POSTS = []; stale = ''; failed = r.error || 'このQRコードは使えません。'; }
+  } else if (r && r.bad){ rcDrop(); try { localStorage.removeItem('goikenbako_role'); } catch(e){} ROLE = ''; WHO = ''; NOTICE = null; POLLS = []; POSTS = []; stale = ''; failed = r.error || 'このQRコードは使えません。'; }
   else if (ROLE){ stale = ROLE === 'staff' && !DEMO ? 'つながりませんでした。前に見た内容を出しています' : 'つながりませんでした。「更新する」を押してください'; }
   else failed = (r && r.error) || 'つながりませんでした。電波のよい所で、もう一度ためしてください。';
   if (ROLE === 'staff' && tab === 'write' && $('wText') && !!$('wWant') === OPINION){ paintReload(); nav(); } else render();
@@ -1033,6 +1101,8 @@ async function agree(id, btn){
 document.addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.id === 'reload') return load();
+  if (t.id === 'ntClose'){ if (NOTICE) ntPut(NOTICE.id); return render(); }
+  if (t.id === 'upGo'){ try { location.reload(); } catch(e){} return; }
   if (t.dataset.go) return goTab(t.dataset.go);
   if (t.dataset.ag) return agree(t.dataset.ag, t);
   if (t.dataset.vote && ROLE === 'staff') return vote(t.dataset.vote, t);
@@ -1069,19 +1139,23 @@ function demoBar(){
   el.innerHTML = '<div>見本（プレビュー）です。書いても、どこにも送られません</div><div class="dt2">見る人：'
     + [['staff','スタッフ'],['dr','院長'],['as','アプリ管理者']].map(x => '<button data-r="'+x[0]+'" class="'+(demoRole === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')
     + '<button id="demoReset">最初に戻す</button>'+(PREVIEW ? '' : '<button id="demoEnd">終わる</button>')+'</div>'
+    + '<div class="dt2">お知らせ：<button id="demoNt">'+(NOTICE ? '消す' : '見本を出す')+'</button></div>'
     + '<div class="dt2">「みんなの意見を聞く」機能：<button data-op="0" class="'+(OPINION ? '' : 'on')+'">使わない（保留）</button><button data-op="1" class="'+(OPINION ? 'on' : '')+'">使う</button></div>';
   el.querySelectorAll('[data-op]').forEach(b => b.onclick = async ev => { ev.stopPropagation(); await demoCall({a:'setOpt', admin:DEMO_KEYS.admin, opinion:b.dataset.op === '1'}); OPINION = b.dataset.op === '1'; demoBar(); restart(); });
   el.querySelectorAll('[data-r]').forEach(b => b.onclick = ev => { ev.stopPropagation(); demoRole = b.dataset.r; demoBar(); restart(); });
+  $('demoNt').onclick = async ev => { ev.stopPropagation(); await demoCall({a:'setNotice', admin:DEMO_KEYS.admin, text:NOTICE ? '' : 'アプリを新しくしました。\nアンケートに「どれもえらばない」が付きました。'}); ntMem = ''; restart(); };
   $('demoReset').onclick = ev => { ev.stopPropagation(); demoReset(); agMem = {}; ptMem = {}; restart(); };
   if ($('demoEnd')) $('demoEnd').onclick = ev => { ev.stopPropagation(); DEMO = false; demoBar(); restart(); };
 }
 function restart(){
-  ROLE = ''; WHO = ''; POSTS = []; POLLS = []; sel = {}; nm = {}; voteBusy = false; stale = ''; failed = ''; busy = false; loading = false; draft = {cat:'', text:'', want:false}; tab = 'list';
+  ROLE = ''; WHO = ''; NOTICE = null; GASVER = ''; loaded = false; POSTS = []; POLLS = []; sel = {}; nm = {}; voteBusy = false; stale = ''; failed = ''; busy = false; loading = false; draft = {cat:'', text:'', want:false}; tab = 'list';
   sheetClose(); start();
 }
 function start(){
   demoBar();
   const c = rcGet();   /* 前に見た一覧があれば、先に出す */
+  const pr = roleGet();   /* 前に開いたときの役が分かれば、返事を待たずに画面の枠を出す（スタッフは、すぐ「書く」が使える） */
+  if (!c && pr){ ROLE = pr.role; WHO = pr.who === 'as' ? 'as' : ''; tab = ROLE === 'staff' ? 'list' : 'new'; }
   if (c){ ROLE = 'staff'; OPINION = c.opinion === true; POSTS = c.posts; MAXT = Number(c.max) || 400; stale = '前に見た内容です。新しい内容を取りに行っています'; }
   load();
 }
