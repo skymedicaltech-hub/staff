@@ -583,7 +583,7 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver11.6.5（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver11.8.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -613,11 +613,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver11.6.5（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver11.8.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '11.6.5';
+const VER = '11.8.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）'],
@@ -639,8 +639,12 @@ const okW_ = v => /^[-an]{2}$/.test(v) && v !== '--';
 const nCount_ = v => { v = normW_(v); return okW_(v) ? (v[0] === 'n') + (v[1] === 'n') : 0; };
 
 /* ---------- シートの読み書き（すべて文字として保存） ---------- */
+/* Ver11.6.6：スマホで当番表を開くとき（getRoster・getInit）だけ、同じシートを何度も読まないように、
+   1回の呼び出しの間だけ読んだ中身を置いておく（速くするため）。書きこむ窓口では使わない */
+let RC_ = null;
+function once_(f){ if (RC_) return f(); RC_ = {}; try { return f(); } finally { RC_ = null; } }
 function sheet_(k){
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = RC_ ? (RC_['@ss'] || (RC_['@ss'] = SpreadsheetApp.getActiveSpreadsheet())) : SpreadsheetApp.getActiveSpreadsheet();
   let sh = ss.getSheetByName(SH[k]);
   if (!sh){
     sh = ss.insertSheet(SH[k]);
@@ -649,11 +653,14 @@ function sheet_(k){
   return sh;
 }
 function read_(k){
+  if (RC_ && RC_[k]) return RC_[k].map(r => r.slice());
   const sh = sheet_(k), n = sh.getLastRow();
-  if (n < 2) return [];
-  return sh.getRange(2,1,n-1,HEAD[k].length).getValues().map(r => r.map(v => String(v)));
+  const rows = n < 2 ? [] : sh.getRange(2,1,n-1,HEAD[k].length).getValues().map(r => r.map(v => String(v)));
+  if (RC_) RC_[k] = rows.map(r => r.slice());
+  return rows;
 }
 function write_(k, rows){
+  if (RC_) delete RC_[k];
   const sh = sheet_(k), n = sh.getLastRow(), w = HEAD[k].length;
   sh.getRange(1,1,1,w).setValues([HEAD[k]]);
   if (n > 1) sh.getRange(2,1,n-1,w).clearContent();
@@ -712,10 +719,21 @@ function saveViewKey_(k){
   const P = PropertiesService.getScriptProperties();
   if (P.getProperty('VIEW_KEY') !== k) P.setProperty('VIEW_KEY', k);
 }
+/* Ver11.8.0：アプリ管理者のQR（院長のQRと同じで、見るだけ）。合言葉は院長のQRとは別で、当番管理が作り、プロパティ ADM_KEY に置く。
+   当番管理が admKey を送ってこないとき（前の版）は何もしない。''（空）が届いたら切る（前のQRは使えなくなる） */
+function saveAdmKey_(k){
+  if (typeof k !== 'string') return;
+  const P = PropertiesService.getScriptProperties();
+  if (k === ''){ if (P.getProperty('ADM_KEY')) P.deleteProperty('ADM_KEY'); return; }
+  if (!/^[A-Za-z0-9]{16,40}$/.test(k) || k === P.getProperty('VIEW_KEY')) return;
+  if (P.getProperty('ADM_KEY') !== k) P.setProperty('ADM_KEY', k);
+}
 function viewerByKey_(k){
   if (!k) return null;
-  const v = PropertiesService.getScriptProperties().getProperty('VIEW_KEY');
-  return v && String(k) === v ? {id:'@dr', name:'院長', viewer:true} : null;
+  const P = PropertiesService.getScriptProperties(), v = P.getProperty('VIEW_KEY');
+  if (v && String(k) === v) return {id:'@dr', name:'院長', viewer:true};
+  const a = P.getProperty('ADM_KEY');
+  return a && String(k) === a ? {id:'@adm', name:'アプリ管理者', viewer:true, adm:true} : null;
 }
 function viewerRoster_(v){
   const both_ = x => x.ngE.filter(w => x.ngC.indexOf(w) >= 0);
@@ -723,7 +741,7 @@ function viewerRoster_(v){
   const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ngE:x.ngE, ngC:x.ngC, ng:both_(x), ok:x.ok}));
   const roster = Object.keys(R).sort().map(ym => ({ym:ym, at:R[ym].at, data:R[ym].data}));
   const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
-  const res = {ok:true, ver:VER, viewer:true, me:{id:v.id, name:v.name, viewer:true, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:nurses, roster:roster, changes:[], comments:cm, url:appUrl_()};
+  const res = {ok:true, ver:VER, viewer:true, me:{id:v.id, name:v.name, viewer:true, adm:v.adm === true, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:nurses, roster:roster, changes:[], comments:cm, url:appUrl_()};
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
   return res;
 }
@@ -877,7 +895,8 @@ function doGet(e){
 }
 
 /* 画面を開いたときのデータ */
-function getInit(k){
+function getInit(k){ return once_(() => getInit_(k)); }
+function getInit_(k){
   const n = nurseByKey_(k);
   if (!n){ const c = clerkByKey_(k) || viewerByKey_(k); if (c) return {ok:true, ver:VER, clerk:true, viewer:c.viewer === true, id:c.id, name:c.name, now:new Date().toISOString(), months:[], wishes:{}, sent:{}, roster:[], survey:null, url:appUrl_()}; }
   if (!n) return {ok:false, error:BAD_KEY};
@@ -977,11 +996,11 @@ function admin_(b){
   const cur = P.getProperty('ADMIN');
   if (b.action === 'setup'){
     if (!b.admin) return {ok:false, error:'合言葉がありません。'};
-    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); if (b.clerks) saveClerks_(b.clerks); if (b.viewKey) saveViewKey_(b.viewKey); return {ok:true, first:true, ver:VER}; }
+    if (!cur){ P.setProperty('ADMIN', b.admin); if (b.nurses) saveNurses_(b.nurses); if (b.clerks) saveClerks_(b.clerks); if (b.viewKey) saveViewKey_(b.viewKey); saveAdmKey_(b.admKey); return {ok:true, first:true, ver:VER}; }
     if (cur !== b.admin) return {ok:false, error:'このスプレッドシートは、別の当番アプリのデータとつながっています。'};
     if (b.nurses) saveNurses_(b.nurses);
     if (b.clerks) saveClerks_(b.clerks);
-    if (b.viewKey) saveViewKey_(b.viewKey);
+    if (b.viewKey) saveViewKey_(b.viewKey); saveAdmKey_(b.admKey);
     return {ok:true, ver:VER};
   }
   if (!cur || cur !== b.admin) return {ok:false, error:'接続が確かめられません。設定の「接続を確かめる」を押してください。'};
@@ -990,8 +1009,9 @@ function admin_(b){
   try {
     if (b.nurses) saveNurses_(b.nurses);
     if (b.clerks) saveClerks_(b.clerks);
-    if (b.viewKey) saveViewKey_(b.viewKey);
+    if (b.viewKey) saveViewKey_(b.viewKey); saveAdmKey_(b.admKey);
     if (b.action === 'nurses') return {ok:true};
+    if (b.action === 'admState') return {ok:true, set:!!P.getProperty('ADM_KEY')};   /* アプリ管理者のQRが使えるか（Ver11.8.0） */
     if (b.action === 'publish'){
       upsert_('months', b.ym, [b.ym, b.deadline, JSON.stringify(b.cfg || {})]);
       return {ok:true};
@@ -1262,7 +1282,8 @@ function setHolder_(R, ds, t, n){
 }
 
 /* 当番表アプリを開いたとき */
-function getRoster(k){
+function getRoster(k){ return once_(() => getRoster_(k)); }
+function getRoster_(k){
   const n = nurseByKey_(k);
   if (!n){ const c = clerkByKey_(k); if (c) return clerkRoster_(c); }
   if (!n){ const v = viewerByKey_(k); if (v) return viewerRoster_(v); }
@@ -1439,13 +1460,37 @@ window.google = {script:{
     };
   }}); })()
 }};
+/* Ver11.7.0：前に見た当番表を、このスマホの中だけに残す（開いたときにすぐ出すため）。
+   残すのは当番表（名前と当番）だけで、今月から先の分。コメントと申し込みは残さない。合言葉そのものは入れない（見分け用の数字だけ）。
+   ちがう合言葉で開いたとき・GASに断られたとき・45日より古いときは消す。プレビュー中は使わない */
+function rcHash(k){ let h = 5381; k = String(k); for (let i = 0; i < k.length; i++) h = ((h * 33) ^ k.charCodeAt(i)) >>> 0; return String(h); }
+function rcToday(){ const d = new Date(), p = n => ('0'+n).slice(-2); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+function rcWhen(t){ const d = new Date(t); return (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+('0'+d.getMinutes()).slice(-2); }
+function rcDrop(){ try { localStorage.removeItem('toban_rc'); } catch(e){} }
+function rcPut(k, r){
+  if (DEMO || !k || !r || !r.me) return;
+  try {
+    const ym = rcToday().slice(0,7), cut = L => (Array.isArray(L) ? L : []).filter(x => x && x.ym >= ym);
+    const o = {ok:true, ver:r.ver, me:r.me, nurses:r.nurses || [], roster:cut(r.roster), changes:[], comments:{}};
+    if (r.clerk) o.clerk = true; if (r.viewer) o.viewer = true; if (r.other) o.other = {roster:cut(r.other.roster)};
+    localStorage.setItem('toban_rc', JSON.stringify({h:rcHash(k), at:Date.now(), r:o}));
+  } catch(e){}
+}
+function rcGet(k){
+  if (DEMO || !k) return null;
+  try {
+    const c = JSON.parse(localStorage.getItem('toban_rc') || 'null'); if (!c) return null;
+    if (c.h !== rcHash(k) || !(Date.now() - c.at < 45*86400000) || !c.r || !c.r.me || !Array.isArray(c.r.roster)){ rcDrop(); return null; }
+    c.r.today = rcToday(); c.r.stale = c.at; return c.r;
+  } catch(e){ rcDrop(); return null; }
+}
 /* 下のタブ */
 let curTab = 'roster';
 function goTab(t){
   curTab = t;
   document.getElementById('rWrap').style.display = (t === 'roster' || t === 'req') ? '' : 'none';
   document.getElementById('wWrap').style.display = (t === 'wish' || t === 'sv') ? '' : 'none';
-  if (t === 'roster' || t === 'req') R.show(t); else W.show(t);
+  if (t === 'roster' || t === 'req') R.show(t); else { wKick(); W.show(t); }
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.go === t));
   regBar();
   window.scrollTo(0,0);
@@ -1494,11 +1539,15 @@ function demoBar(){
 }
 /* プレビューを始める（ページを移らずに、その場で始める） */
 function startDemo(){ DEMO = true; KEY0 = SS.get('toban_demo_k') || 'kA'; demoBar(); restartAll(); }
+/* Ver11.6.6：開いたときは、まず当番表だけを取りに行く。希望・アンケートの分は、当番表が出たあと
+   （または「希望」「アンケート」を押したとき）に取りに行く。事務・院長のQRでは使わないので取りに行かない */
+let wStarted = false;
+function wKick(){ if (wStarted) return; wStarted = true; W.restart(); }
 function restartAll(){
   document.getElementById('nav').style.display = '';
   document.getElementById('rApp').innerHTML = '<div class="msg">読み込んでいます…</div>';
   document.getElementById('wApp').innerHTML = '<div class="msg">読み込んでいます…</div>';
-  R.restart(); W.restart(); goTab('roster');
+  wStarted = false; R.restart(); goTab('roster');
 }
 function noKeyView(){
   const h = '<div class="msg"><div class="big2" style="font-size:17px;color:var(--ink);font-weight:700;margin-bottom:6px">院長からもらったQRコードから開いてください</div>'
@@ -1512,7 +1561,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '11.6.5';
+const APP_VER = '11.8.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -1536,7 +1585,7 @@ function start(){
 function setSide(o, keepYm){
   side = o ? 1 : 0;
   const view = side ? !DM.clerk : !!DM.clerk;   /* いま見ているのが事務の当番表か */
-  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : (DM.viewer ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
+  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : ((DM.viewer || DM.stale) ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
   KEYS.C = view ? ['lId','late'] : ['cId','cs']; SNAME.C = view ? '会計' : 'CS';
   { const nv = document.getElementById('nav'); if (nv) nv.style.display = (DM.clerk || DM.viewer) ? 'none' : ''; }
   if (side){ onlyMe = false; sel = null; tab = 'roster'; }
@@ -1545,16 +1594,23 @@ function setSide(o, keepYm){
   mi = Math.max(0, i);
 }
 function load(first){
+  /* Ver11.7.0：前に見た当番表がこのスマホに残っていれば、先にそれを出す（見るだけ）。新しい当番表が届いたら入れかえる */
+  if (first){ const c = rcGet(KEY); if (c){ DM = c; side = 0; setSide(0, ''); render(); } }
   google.script.run.withSuccessHandler(r => {
     if (r && r.nokey){ noKeyView(); return; }
-    if (!r || !r.ok){ msg(r && r.error || '読み込めませんでした', ''); return; }
-    const keepYm = D && D.roster[mi] ? D.roster[mi].ym : '';
+    if (!r || !r.ok){ rcDrop(); DM = null; D = null; msg(r && r.error || '読み込めませんでした', ''); return; }
+    const keepYm = D && D.roster[mi] ? D.roster[mi].ym : '', wasStale = !!(DM && DM.stale);
+    rcPut(KEY, r);
     DM = r; if (!r.other) side = 0;
-    setSide(side, first ? '' : keepYm);
+    if (!r.clerk && !r.viewer) wKick();
+    setSide(side, (first && !wasStale) ? '' : keepYm);
     if (first){
     }
     render();
-  }).withFailureHandler(e => msg('つながりませんでした', '電波のよいところで、もう一度開いてください。')).getRoster(KEY);
+  }).withFailureHandler(e => {
+    if (DM && DM.stale){ DM.staleFail = true; render(); return; }   /* つながらないときは、前に見た当番表を出したままにする */
+    msg('つながりませんでした', '電波のよいところで、もう一度開いてください。');
+  }).getRoster(KEY);
 }
 
 /* ---------- データの見かた ---------- */
@@ -1577,7 +1633,8 @@ function days(ym){ return Object.keys((D.roster.find(x => x.ym === ym) || {data:
 /* ---------- 画面 ---------- */
 function render(){
   const nIn = waitIn().length;
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん'+(D.me.test ? '<span class="tst">テスト用</span>' : D.me.viewer ? '<span class="tst">見るだけ</span>' : '')+'</span><button class="reload" id="reload">↻ 新しくする</button></div>';
+  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん'+(D.me.test ? '<span class="tst">テスト用</span>' : D.me.viewer ? '<span class="tst">'+(D.me.adm ? 'アプリ管理者用' : '見るだけ')+'</span>' : '')+'</span><button class="reload" id="reload" style="white-space:nowrap;flex-shrink:0">↻ 更新する</button></div>';
+  if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:12.5px;line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (tab === 'roster') h += rosterHead();
   h += '</div>';
   h += tab === 'roster' ? rosterBody() : reqBody();
@@ -1597,6 +1654,7 @@ function rosterHead(){
   let h = '<div class="month"><div class="t"><span class="m">'+mo+'<small>月</small></span><span class="y">'+y+'</span></div>'
     + '<div class="arrows"><button id="prev" '+(mi<=0?'disabled':'')+'>‹</button><button id="next" '+(mi>=D.roster.length-1?'disabled':'')+'>›</button></div></div>';
   h = sideHtml() + h;
+  if (D.ro && DM.stale && !DM.viewer && !side) return h;
   if (D.ro) return h + '<div class="filter"><span style="font-size:13px;color:var(--sub)">見るだけです（変えられません）</span></div>';
   h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
   h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';
@@ -1836,7 +1894,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; sel = nul
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '11.6.5';
+const APP_VER = '11.8.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -2061,7 +2119,7 @@ document.addEventListener('click', e => {
   else if (t.dataset.d) tapDay(t.dataset.d);
 });
 window.addEventListener('beforeunload', e => { if (dirty){ e.preventDefault(); e.returnValue = ''; } });
-start();
+/* Ver11.6.6：ここでは始めない（当番表が出たあとに wKick() が始める） */
 
 window.W = {show(t){ tab = t; if (D) render(); }, ready:() => !!D, restart(){ D = null; svDraft = null; edit = {}; dirty = false; busy = false; svBusy = false; start(); }};
 
