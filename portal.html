@@ -70,6 +70,18 @@
   .app.locked .icon{filter:grayscale(1);opacity:.55}
   .app.locked .name{color:#7C8890}
 
+  /* お知らせ(Ver2.1.0〜) */
+  .news{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .nw{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#FFFBEA;border:1px solid #EBD58A;border-radius:14px;
+      padding:11px 14px;color:#4A3B00;font-size:16px;font-family:inherit;line-height:1.5;box-shadow:0 2px 6px rgba(30,60,90,.05)}
+  button.nw{cursor:pointer}
+  button.nw:active{transform:scale(.98)}
+  .nw .ni{flex:0 0 auto;font-size:20px}
+  .nw .nb{flex:1;min-width:0;font-weight:700;word-break:break-word}
+  .nw .nb small{display:block;font-weight:400;font-size:12.5px;color:#7A6410;margin-top:1px}
+  .nw .na{flex:0 0 auto;color:#B79A2E;font-size:20px}
+  .nrow .ni{flex:0 0 auto;font-size:26px;width:34px;text-align:center}
+
   .empty{text-align:center;color:var(--sub);padding:40px 10px}
   .foot{margin-top:26px;display:flex;align-items:center;justify-content:space-between;color:var(--sub);font-size:13px}
   .foot button{border:none;background:none;color:var(--sky-d);font-size:15px;padding:8px 4px}
@@ -257,7 +269,7 @@ var qrcode=function(){var t=function(t,r){var e=t,n=g[r],o=null,i=0,a=null,u=[],
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver2.0.2';
+const VERSION = 'Ver2.1.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -318,7 +330,11 @@ function demoData(key, role){
   const apps = all.filter(a => a.target === '全員' || a.target === r || r === '院長').map(a => Object.assign({}, a, {
     state: a.personal && !staff ? 'locked' : 'ok', url: '#demo', selfReg: a.id === 'hyoka' && !!staff, base: 'https://example.com/eval.html'
   }));
-  return { ok:true, staff, apps };
+  const notices = !staff ? [] : [
+    { text:'12月の当番希望を受け付け中です', appId:'toban', until:md(end), target:'看護師' },
+    { text:'年末の大そうじは12/27(土)の診療後です', appId:'', until:'', target:'全員' }
+  ].filter(n => n.target === '全員' || n.target === r || r === '院長').map(n => ({ text:n.text, appId:n.appId, until:n.until }));
+  return { ok:true, staff, apps, notices };
 }
 
 /* ---------- 一覧の取得 ---------- */
@@ -342,6 +358,7 @@ function renderList(data, note){
 
   let h = demoBanner(), hasQR = false;
   if (note) h += '<div class="err">' + note + '</div>';
+  h += newsHtml(data);
   if (!data.apps || !data.apps.length){
     h += '<div class="empty">いま使えるアプリはありません</div>';
   } else {
@@ -377,6 +394,10 @@ function renderList(data, note){
   bindDemo();
 
   document.querySelectorAll('.app').forEach(b => b.addEventListener('click', () => openApp(data.apps[+b.dataset.i])));
+  document.querySelectorAll('#main button.nw').forEach(b => b.addEventListener('click', () => {     // お知らせを押したら、結びつけたアプリを開く
+    const a = (data.apps || []).filter(x => x.id === b.dataset.app)[0];
+    if (a) openApp(a);
+  }));
   const al = document.querySelector('.adm-on');
   if (al && DEMO) al.addEventListener('click', e => { e.preventDefault(); demoView = 'admin'; admTab = 'apps'; renderAdmin(); window.scrollTo(0, 0); });
   const rq = $('#requr');
@@ -390,6 +411,21 @@ function renderList(data, note){
     if (params.get('k')) { location.href = location.pathname; return; }
     start(true);
   });
+}
+
+/* ---------- お知らせ(Ver2.1.0〜) ----------
+   院長がPCの設定で書いた文を、アプリ一覧の上に出す(5件まで)。文は必ず esc() を通して出す。
+   アプリを結びつけたお知らせは、その人の一覧にそのアプリがあるときだけ、押すと開く。 */
+function newsHtml(data){
+  const L = Array.isArray(data.notices) ? data.notices.slice(0, 5) : [];
+  if (!L.length) return '';
+  return '<div class="news">' + L.map(n => {
+    const app = n.appId ? (data.apps || []).filter(a => a.id === n.appId)[0] : null;
+    const sub = [n.until ? esc(n.until) + 'まで' : '', app ? '押すと「' + esc(app.name) + '」が開きます' : ''].filter(Boolean).join(' ・ ');
+    const inner = '<span class="ni">📣</span><span class="nb">' + esc(n.text) + (sub ? '<small>' + sub + '</small>' : '') + '</span>'
+      + (app ? '<span class="na">›</span>' : '');
+    return app ? '<button class="nw" data-app="' + esc(app.id) + '">' + inner + '</button>' : '<div class="nw">' + inner + '</div>';
+  }).join('') + '</div>';
 }
 
 function openApp(a){
@@ -695,6 +731,9 @@ function demoAdmin(){
       {name:'見本 花子', role:'看護師', k:'demo1abcde', active:true}, {name:'見本 和子', role:'看護師', k:'demo2abcde', active:true},
       {name:'見本 由美', role:'受付事務', k:'demo3abcde', active:true}, {name:'見本 真理', role:'受付事務', k:'demo4abcde', active:false},
       {name:'見本 院長', role:'院長', k:'demo5abcde', active:true} ],
+    notices:[
+      {text:'12月の当番希望を受け付け中です', target:'看護師', from:'', until:'2026-11-25', appId:'toban'},
+      {text:'年末の大そうじは12/27(土)の診療後です', target:'全員', from:'', until:'', appId:''} ],
     purl:[]
   };
 }
@@ -754,7 +793,8 @@ async function saveAdmin(msg){
   busy(true);
   try {
     const res = await fetch(GAS_URL, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-      body: JSON.stringify({ action:'save', pw:ADM_PW, rev:ADM.rev, apps:ADM.apps, staff:ADM.staff, purl:ADM.purl }) });
+      body: JSON.stringify({ action:'save', pw:ADM_PW, rev:ADM.rev, apps:ADM.apps, staff:ADM.staff, purl:ADM.purl,
+                             notices: Array.isArray(ADM.notices) ? ADM.notices : undefined }) });   // お知らせ(前の版のGASには送らない)
     const d = await res.json();
     if (!d.ok && d.error === 'stale'){
       alert('ほかのスマホで登録などの変更があったため、保存しませんでした。\n最新の内容を読み込み直します。もう一度操作してください。');
@@ -774,12 +814,12 @@ function drawAdmin(){
     + (!ADM.staff.some(s => s.role === '院長' && s.active) ? '<div class="bossnote noprint">院長も自分のスマホでスタッフと同じように使えます。「スタッフ」で、職種「院長」で自分を追加し、'
         + '<b>「QRを出す」</b>で出たQRを院長のスマホで読み取ってください。</div>' : '')
     + '<div class="tabs noprint">'
-    + [['apps','アプリ'],['staff','スタッフ'],['qr','登録QR']].map(t => '<button data-t="' + t[0] + '" class="' + (admTab === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('')
+    + [['apps','アプリ'],['news','お知らせ'],['staff','スタッフ'],['qr','登録QR']].map(t => '<button data-t="' + t[0] + '" class="' + (admTab === t[0] ? 'on' : '') + '">' + t[1] + '</button>').join('')
     + '</div><div id="admBody"></div>';
   $('#main').innerHTML = h;
   bindDemo();
   document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => { admTab = b.dataset.t; drawAdmin(); }));
-  if (admTab === 'apps') drawApps(); else if (admTab === 'staff') drawStaff(); else drawQR();
+  if (admTab === 'apps') drawApps(); else if (admTab === 'news') drawNews(); else if (admTab === 'staff') drawStaff(); else drawQR();
 }
 
 /* ---------- アプリ ---------- */
@@ -962,6 +1002,7 @@ function editApp(idx){
       if (!confirm('「' + ADM.apps[idx].name + '」を削除しますか?\n(一時的に隠すだけなら「スタッフのスマホに出す」のチェックを外してください)')) return;
       const id = ADM.apps[idx].id;
       ADM.apps.splice(idx, 1); ADM.purl = ADM.purl.filter(p => p.id !== id);
+      if (Array.isArray(ADM.notices)) ADM.notices.forEach(n => { if (n.appId === id) n.appId = ''; });
       m.classList.remove('show'); saveAdmin('削除しました');
     });
     $('#m_save').addEventListener('click', async () => {
@@ -988,6 +1029,98 @@ function editApp(idx){
   m.classList.add('show'); m.scrollTop = 0;
 }
 
+/* ---------- お知らせ(Ver2.1.0〜) ---------- */
+const NEWS_MAX = 10, NEWS_SHOW = 5, NEWS_LEN = 60;
+function todayYmd(){ const d = new Date(); return d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2); }
+function newsStatus(n){
+  const t = todayYmd();
+  if (n.from && t < n.from) return '<span class="chip warn">' + fmtMD(n.from) + 'から出す</span>';
+  if (n.until && t > n.until) return '<span class="chip off">終わりました</span>';
+  return n.until ? '<span class="chip warn">' + fmtMD(n.until) + 'まで</span>' : '<span class="chip">出しています</span>';
+}
+function drawNews(){
+  if (!Array.isArray(ADM.notices)){            // 前の版のGASにつながっているとき
+    $('#admBody').innerHTML = '<div class="panel"><div class="err" style="margin:0">お知らせを使うには、GASコードを Ver2.1.0 に入れ替えてください(貼り替えたあと、「新バージョン」でデプロイします)。</div></div>';
+    return;
+  }
+  const L = ADM.notices, t = todayYmd();
+  const live = L.filter(n => (!n.from || t >= n.from) && (!n.until || t <= n.until)).length;
+  let h = '<div class="panel"><div class="row" style="justify-content:space-between"><p class="hint" style="margin:0">スタッフのスマホの、アプリの一覧の上に出ます。上から順に並び、期間が過ぎると自動で消えます。▲▼で順番を変えられます。</p>'
+    + '<button class="btn" id="addNews"' + (L.length >= NEWS_MAX ? ' disabled style="opacity:.4"' : '') + '>＋ お知らせを追加</button></div>'
+    + '<p class="hint" style="color:#9A2F1C">患者さんの名前・合言葉・パスワードは書かないでください。</p>'
+    + (live > NEWS_SHOW ? '<div class="err">いま出す期間のお知らせが ' + live + ' 件あります。スマホに出るのは上から ' + NEWS_SHOW + ' 件までです。</div>' : '');
+  if (!L.length) h += '<div class="empty">まだお知らせがありません</div>';
+  L.forEach((n, i) => {
+    const app = n.appId ? ADM.apps.filter(a => a.id === n.appId)[0] : null;
+    h += '<div class="arow nrow"><div class="mv"><button data-nup="' + i + '"' + (i === 0 ? ' disabled' : '') + '>▲</button>'
+      + '<button data-ndn="' + i + '"' + (i === L.length - 1 ? ' disabled' : '') + '>▼</button></div>'
+      + '<div class="ni">📣</div>'
+      + '<div class="info"><div class="nm">' + esc(n.text) + '</div><div class="meta">' + newsStatus(n)
+      + '<span class="chip">' + esc(n.target || '全員') + '</span>'
+      + (app ? '<span class="chip me">押すと「' + esc(app.name) + '」</span>' : '') + '</div></div>'
+      + '<button class="btn sub sm" data-ned="' + i + '">編集</button></div>';
+  });
+  h += '</div>';
+  $('#admBody').innerHTML = h;
+  $('#addNews').addEventListener('click', () => { if (L.length < NEWS_MAX) editNews(-1); });
+  document.querySelectorAll('[data-ned]').forEach(b => b.addEventListener('click', () => editNews(+b.dataset.ned)));
+  document.querySelectorAll('[data-nup],[data-ndn]').forEach(b => b.addEventListener('click', () => {
+    const i = +(b.dataset.nup != null ? b.dataset.nup : b.dataset.ndn), j = b.dataset.nup != null ? i - 1 : i + 1;
+    const x = L[i]; L[i] = L[j]; L[j] = x; saveAdmin('順番を変えました');
+  }));
+}
+
+function editNews(idx){
+  const isNew = idx < 0;
+  const n = isNew ? { text:'', target:'全員', from:'', until:'', appId:'' } : JSON.parse(JSON.stringify(ADM.notices[idx]));
+  const m = $('#modalBg');
+  m.onclick = null;
+  const prevHtml = () => {
+    const app = n.appId ? ADM.apps.filter(a => a.id === n.appId)[0] : null;
+    return newsHtml({ notices:[{ text: n.text || 'お知らせの文', until: n.until ? fmtMD(n.until) : '', appId: app ? app.id : '' }], apps: app ? [app] : [] });
+  };
+  const draw = () => {
+    m.innerHTML = '<div class="mbox">'
+      + '<h3>' + (isNew ? 'お知らせを追加' : 'お知らせを編集') + '</h3>'
+      + '<div class="prev" id="n_prev" style="padding-bottom:1px">' + prevHtml() + '</div>'
+      + '<div class="fld"><label>お知らせの文(' + NEWS_LEN + '字まで) <span id="n_cnt" style="font-weight:400;color:#66737C"></span></label>'
+      +   '<input type="text" id="n_text" maxlength="' + NEWS_LEN + '" value="' + esc(n.text) + '" placeholder="例:12月の当番希望を受け付け中です">'
+      +   '<div class="warn">患者さんの名前・合言葉・パスワードは書かないでください。</div></div>'
+      + '<div class="fld"><label>見せる人</label><div class="seg" id="n_target">' + TARGETS.map(t => '<button data-v="' + t + '" class="' + (n.target === t ? 'on' : '') + '">' + t + '</button>').join('') + '</div>'
+      +   '<div class="note">院長のスマホには、どれを選んでも出ます。</div></div>'
+      + '<div class="fld"><label>出す期間(空欄ならずっと)</label><div class="two">'
+      +   '<input type="date" id="n_from" value="' + esc(n.from) + '"><input type="date" id="n_until" value="' + esc(n.until) + '"></div>'
+      +   '<div class="note">左:この日から出す / 右:この日まで出す(終わると自動で消えます)</div></div>'
+      + '<div class="fld"><label>押したときに開くアプリ</label><select id="n_app"><option value="">なし(文を出すだけ)</option>'
+      +   ADM.apps.map(a => '<option value="' + esc(a.id) + '"' + (n.appId === a.id ? ' selected' : '') + '>' + esc(a.name) + '</option>').join('') + '</select>'
+      +   '<div class="note">えらぶと、お知らせを押したときにそのアプリが開きます(そのアプリが並んでいる人だけ)。</div></div>'
+      + '<div class="mfoot">' + (isNew ? '' : '<button class="btn del" id="n_del">削除</button>')
+      +   '<div class="r"><button class="btn sub" id="n_cancel">やめる</button><button class="btn" id="n_save">保存</button></div></div>'
+      + '</div>';
+    const sync = () => { n.text = $('#n_text').value.trim().slice(0, NEWS_LEN); n.from = $('#n_from').value; n.until = $('#n_until').value; n.appId = $('#n_app').value; };
+    const cnt = () => { $('#n_cnt').textContent = 'いま ' + $('#n_text').value.trim().length + ' 字'; };
+    cnt();
+    ['#n_text','#n_until','#n_app'].forEach(s => $(s).addEventListener('input', () => { sync(); cnt(); $('#n_prev').innerHTML = prevHtml(); }));
+    m.querySelectorAll('#n_target button').forEach(b => b.addEventListener('click', () => { sync(); n.target = b.dataset.v; const y = m.scrollTop; draw(); m.scrollTop = y; }));
+    $('#n_cancel').addEventListener('click', () => m.classList.remove('show'));
+    if (!isNew) $('#n_del').addEventListener('click', () => {
+      if (!confirm('このお知らせを削除しますか?')) return;
+      ADM.notices.splice(idx, 1); m.classList.remove('show'); saveAdmin('削除しました');
+    });
+    $('#n_save').addEventListener('click', async () => {
+      sync();
+      if (!n.text) return alert('お知らせの文を入れてください');
+      if (n.from && n.until && n.from > n.until) return alert('出す期間の日付が逆になっています');
+      if (isNew) ADM.notices.push(n); else ADM.notices[idx] = n;
+      m.classList.remove('show');
+      await saveAdmin(isNew ? '追加しました' : '保存しました');
+    });
+  };
+  draw();
+  m.classList.add('show'); m.scrollTop = 0;
+  const e = $('#n_text'); if (e && isNew) e.focus();
+}
+
 /* ---------- お試し表示(院長が、スタッフのスマホでの見え方を試す) ---------- */
 let preview = null;
 function previewStaff(s){
@@ -1005,7 +1138,11 @@ function previewStaff(s){
       return o;
     });
   $('#main').classList.remove('admin');
-  renderList({ staff:{ name:s.name, role:s.role }, apps:apps });
+  const notices = (Array.isArray(ADM.notices) ? ADM.notices : []).filter(n => n.text
+      && (!n.from || today >= n.from) && (!n.until || today <= n.until)
+      && (!n.target || n.target === '全員' || n.target === s.role || s.role === '院長'))
+    .slice(0, NEWS_SHOW).map(n => ({ text:n.text, until: n.until ? fmtMD(n.until) : '', appId: apps.some(a => a.id === n.appId) ? n.appId : '' }));
+  renderList({ staff:{ name:s.name, role:s.role }, apps:apps, notices:notices });
   window.scrollTo(0, 0);
 }
 
