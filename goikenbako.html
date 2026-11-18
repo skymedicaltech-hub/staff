@@ -40,6 +40,7 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .head::before{content:"";position:absolute;inset:-80px -90px auto 30%;height:185px;border-radius:0 0 45% 80%;transform:rotate(-13deg);background:linear-gradient(145deg,rgba(255,255,255,.50),rgba(255,255,255,0));pointer-events:none;z-index:-1}
 .head::after{content:"";position:absolute;width:230px;height:115px;right:-95px;bottom:-78px;border-radius:50%;background:rgba(255,255,255,.22);pointer-events:none;z-index:-1}
 .brand{position:absolute;top:10px;left:20px;font-size:9px;font-weight:700;letter-spacing:.20em;color:#538AAE}
+.hver{position:absolute;top:9px;right:20px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#538AAE}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .ttl{font-size:24px;font-weight:700;color:#173F5D;letter-spacing:.02em}
 .ttl small{font-size:12px;font-weight:700;color:#4C7590;margin-left:8px;background:#FFFFFFB8;border-radius:999px;padding:2px 10px;vertical-align:3px}
@@ -160,7 +161,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.7.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.7.1。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -168,7 +169,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.7.0';
+const APP_VER = '1.7.1';
 const PREVIEW = false;   /* true：院長がclaude.aiで見るための見本専用版（どこにも送らない） */
 /* ===== 共通の部品（スマホアプリ・ご意見箱管理で同じもの） ===== */
 const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};
@@ -338,7 +339,7 @@ function demoBackend(){
   const ContentService = {MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * ご意見箱 GAS  Ver1.7.0（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
+ * ご意見箱 GAS  Ver1.7.1（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
  * ご意見箱専用のスプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。スマホアプリは GitHub Pages（goikenbako.html）に置き、ここを呼びます。
  *
@@ -353,7 +354,7 @@ function demoBackend(){
  *  ・アンケートでは、スマホが作ったランダムな番号（アンケートごとに別）と、名前つきのときだけ本人が書いた名前を保存する
  *  ・決めた項目だけを保存する。1件の長さ・1日に受け付ける数に上限がある
  */
-const VER = '1.7.0';
+const VER = '1.7.1';
 const SH = {posts:'投書', polls:'アンケート', ans:'アンケートの回答'};
 const HEAD = {
   posts: ['番号','書いた日','種類','本文','みんなの意見も聞いてほしい','公開','院長の返事','しるし','同じ意見の数','公開した日'],
@@ -924,7 +925,7 @@ function nav(){
     + (t[0] === 'new' && nNew ? '<span class="badge num">'+nNew+'</span>' : '')+(t[0] === 'poll' && nPoll ? '<span class="badge num">'+nPoll+'</span>' : '')+'</button>').join('');
 }
 function head(lead){
-  return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hrow"><div class="ttl">ご意見箱'+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
+  return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hver">Ver'+APP_VER+'</div><div class="hrow"><div class="ttl">ご意見箱'+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
     + '<button class="reload" id="reload"'+(loading ? ' disabled' : '')+'>'+(loading ? '更新中…' : '↻ 更新する')+'</button></div>'
     + '<div class="lead">'+esc(lead)+'</div>'
     + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>'
