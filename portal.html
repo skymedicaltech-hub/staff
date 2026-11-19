@@ -50,7 +50,7 @@
   .app{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:#fff;border:1px solid var(--line);
        border-radius:18px;padding:16px;box-shadow:0 2px 6px rgba(30,60,90,.05);cursor:pointer;color:inherit;
        transition:transform .08s ease}
-  .app:active{transform:scale(.98)}
+  /* Ver3.4.15〜 .app:active の縮みはやめた(押したときの形はプログラムで1回だけ変える) */
   .icon{flex:0 0 80px;height:80px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:42px;
         background:var(--sky-soft)}
   .icon.img{overflow:hidden}
@@ -240,7 +240,7 @@
   *,*::before,*::after{border-radius:0 !important}
   :root{--navy:#12324A; --band:#1F7FCB; --paper:#E9F1F7; --notice:#FFD84D}
   header{margin-bottom:0;padding:calc(16px + env(safe-area-inset-top)) 0 10px}
-  .logo{max-width:380px;margin:0 auto}   /* Ver3.4.12〜 ロゴを大きく(290→画面の幅いっぱい、最大380) */
+  .logo{max-width:325px;margin:0 auto}   /* Ver3.4.13〜 ロゴの大きさ(290→380は大きすぎたので325) */
   .hrow{margin-top:10px}
   .who{background:none;color:#fff;padding:4px 12px;font-size:16px;font-weight:700;text-shadow:0 1px 2px rgba(0,40,80,.5)}   /* Ver3.4.6〜 背景なし・白い文字・薄い影(3.4.5より少し濃く)。名前・さん・職種を同じ大きさと太さに */
   .who b{color:#fff;font-size:16px;font-weight:700}
@@ -252,11 +252,17 @@
        background:var(--c,#2F7FC1);
        background:linear-gradient(135deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,.08) 38%, rgba(255,255,255,0) 60%),
                   linear-gradient(150deg, color-mix(in srgb, var(--c,#2F7FC1) 24%, transparent) 0%, color-mix(in srgb, var(--c,#2F7FC1) 52%, transparent) 100%);   /* Ver3.4.10〜 少しだけすけにくく(14→24%、40→52%) */
-       -webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px);
        box-shadow:none}
-  /* Ver3.4.11〜 押したときの動き(案A すっと沈む):少し縮んで少し暗くなり、はなすと軽くはずんで戻る */
-  .app{transition:transform .35s cubic-bezier(.3,1.6,.5,1), filter .25s ease}
-  .app:active,.app.pressed{transform:scale(.96);filter:brightness(.9) saturate(1.1);transition:transform .08s ease-out, filter .08s ease-out}
+  /* Ver3.4.14〜 押したときの動き(案A すっと沈む)をなめらかに。
+     スマホが毎回描き直さなくてよい動き(大きさ・重ねた影のうすさ)だけを使う。
+     タイルのごく弱いぼかし(1.5px)は、動きを重くするのでやめた(見た目はほぼ同じ) */
+  .app{position:relative;transform:translateZ(0);will-change:transform;backface-visibility:hidden;
+       transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+  .app::after{content:"";position:absolute;inset:0;background:rgba(0,30,60,.14);opacity:0;pointer-events:none;
+       transition:opacity .25s ease}
+  .app{touch-action:manipulation;-webkit-tap-highlight-color:transparent}   /* Ver3.4.15〜 形を変えるのはプログラムだけにした(:active は使わない) */
+  .app.pressed{transform:scale(.96);transition:transform .1s ease-out}
+  .app.pressed::after{opacity:1;transition:opacity .1s ease-out}
   .app:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
   .app .icon{flex:0 0 128px;width:128px;height:128px;font-size:104px;background:transparent !important;filter:drop-shadow(0 3px 4px rgba(0,30,60,.25))}
   .app .icon.img{width:128px;height:128px;flex-basis:128px}   /* Ver3.4.8〜 アイコンをさらに大きく(60→100→128) */
@@ -333,7 +339,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.4.12';
+const VERSION = 'Ver3.4.15';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -466,15 +472,31 @@ function renderList(data, note){
   bindDemo();
 
   document.querySelectorAll('.app').forEach(b => {
-    // Ver3.4.9〜 押したことが分かるように、指が触れたら形を変え、少し見せてから開く
+    // Ver3.4.15〜 押したときの動きを1回だけにする(前は「縮む→戻る→また縮む」と2回動いてガタついていた)
+    //  ・指が触れて少し(0.06秒)たってから縮む。画面をなぞって動かしたとき(スクロール)は縮まない
+    //  ・指をはなしたあと、開くまで縮んだまま。開いたあとにゆっくり戻る
     const on = () => b.classList.add('pressed');
     const off = () => b.classList.remove('pressed');
-    b.addEventListener('pointerdown', on);
-    ['pointerup','pointercancel','pointerleave'].forEach(t => b.addEventListener(t, () => { if (!b.dataset.busy) off(); }));
+    let tDown = 0, tOff = 0, sx = 0, sy = 0;
+    b.addEventListener('pointerdown', e => {
+      if (b.dataset.busy) return;
+      sx = e.clientX; sy = e.clientY; clearTimeout(tOff);
+      tDown = setTimeout(on, 60);
+    });
+    b.addEventListener('pointermove', e => {
+      if (b.dataset.busy) return;
+      if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) { clearTimeout(tDown); off(); }
+    });
+    b.addEventListener('pointerup', () => {
+      if (b.dataset.busy) return;
+      clearTimeout(tDown);
+      tOff = setTimeout(() => { if (!b.dataset.busy) off(); }, 250);   // 押したことにならなかったときだけ戻す
+    });
+    b.addEventListener('pointercancel', () => { clearTimeout(tDown); clearTimeout(tOff); if (!b.dataset.busy) off(); });
     b.addEventListener('click', () => {
       if (b.dataset.busy) return;                 // すばやい2回押しで2回開かないように
-      b.dataset.busy = '1'; on();
-      setTimeout(() => { openApp(data.apps[+b.dataset.i]); }, 160);
+      b.dataset.busy = '1'; clearTimeout(tDown); clearTimeout(tOff); on();
+      setTimeout(() => { openApp(data.apps[+b.dataset.i]); }, 140);
       setTimeout(() => { delete b.dataset.busy; off(); }, 700);
     });
   });
