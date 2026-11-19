@@ -240,7 +240,7 @@
   *,*::before,*::after{border-radius:0 !important}
   :root{--navy:#12324A; --band:#1F7FCB; --paper:#E9F1F7; --notice:#FFD84D}
   header{margin-bottom:0;padding:calc(16px + env(safe-area-inset-top)) 0 10px}
-  .logo{max-width:290px;margin:0 auto}
+  .logo{max-width:380px;margin:0 auto}   /* Ver3.4.12〜 ロゴを大きく(290→画面の幅いっぱい、最大380) */
   .hrow{margin-top:10px}
   .who{background:none;color:#fff;padding:4px 12px;font-size:16px;font-weight:700;text-shadow:0 1px 2px rgba(0,40,80,.5)}   /* Ver3.4.6〜 背景なし・白い文字・薄い影(3.4.5より少し濃く)。名前・さん・職種を同じ大きさと太さに */
   .who b{color:#fff;font-size:16px;font-weight:700}
@@ -254,9 +254,9 @@
                   linear-gradient(150deg, color-mix(in srgb, var(--c,#2F7FC1) 24%, transparent) 0%, color-mix(in srgb, var(--c,#2F7FC1) 52%, transparent) 100%);   /* Ver3.4.10〜 少しだけすけにくく(14→24%、40→52%) */
        -webkit-backdrop-filter:blur(1.5px);backdrop-filter:blur(1.5px);
        box-shadow:none}
-  /* Ver3.4.9〜 押したことが分かるように:少し縮んで明るくなり、白い枠が出る */
-  .app{transition:transform .12s ease, filter .12s ease, box-shadow .12s ease}
-  .app:active,.app.pressed{transform:scale(.95);filter:brightness(1.12);box-shadow:inset 0 0 0 3px rgba(255,255,255,.95)}
+  /* Ver3.4.11〜 押したときの動き(案A すっと沈む):少し縮んで少し暗くなり、はなすと軽くはずんで戻る */
+  .app{transition:transform .35s cubic-bezier(.3,1.6,.5,1), filter .25s ease}
+  .app:active,.app.pressed{transform:scale(.96);filter:brightness(.9) saturate(1.1);transition:transform .08s ease-out, filter .08s ease-out}
   .app:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
   .app .icon{flex:0 0 128px;width:128px;height:128px;font-size:104px;background:transparent !important;filter:drop-shadow(0 3px 4px rgba(0,30,60,.25))}
   .app .icon.img{width:128px;height:128px;flex-basis:128px}   /* Ver3.4.8〜 アイコンをさらに大きく(60→100→128) */
@@ -333,7 +333,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.4.10';
+const VERSION = 'Ver3.4.12';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
