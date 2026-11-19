@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>業務連絡</title>
+<meta name="theme-color" content="#B5E1F8">
+<link rel="preconnect" href="https://script.google.com">
+<link rel="preconnect" href="https://script.googleusercontent.com">
+<style>
+:root{
+  --ink:#24465F; --sub:#71899B; --faint:#A6B8C5; --line:#DCEAF3;
+  --bg:#EAF5FC; --card:#FFFFFF; --sky:#287FB8; --sky-d:#206A9E; --sky-s:#E8F4FB;
+  --no:#C95758; --no-s:#FCE8E8; --want:#31866D; --want-s:#E5F3EC; --warn:#B58238; --warn-s:#FFF4E6;
+  --nav:calc(62px + env(safe-area-inset-bottom,0px));
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#DFEFF9}
+html,body{margin:0}
+body{
+  font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
+  color:var(--ink);font-size:15px;line-height:1.55;background:var(--bg);
+  background-image:radial-gradient(ellipse at 100% 0%,rgba(167,218,247,.55),transparent 42%),linear-gradient(165deg,#E8F5FC 0%,#F4FAFE 48%,#E9F5FC 100%);
+  background-attachment:fixed;min-height:100vh;
+}
+button,textarea,input{font-family:inherit;color:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.55;cursor:default}
+button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid #79B9DE;outline-offset:2px}
+.num{font-feature-settings:"tnum"}
+
+/* 上の見出し（水色） */
+.head{
+  position:relative;isolation:isolate;overflow:hidden;
+  background:linear-gradient(143deg,#B5E1F8 0%,#CDEAF9 57%,#E3F4FC 100%);
+  padding:32px 20px 20px;border-radius:0 0 26px 26px;box-shadow:0 7px 20px rgba(55,121,171,.065);
+}
+.head::before{content:"";position:absolute;inset:-80px -90px auto 30%;height:185px;border-radius:0 0 45% 80%;transform:rotate(-13deg);background:linear-gradient(145deg,rgba(255,255,255,.50),rgba(255,255,255,0));pointer-events:none;z-index:-1}
+.head::after{content:"";position:absolute;width:230px;height:115px;right:-95px;bottom:-78px;border-radius:50%;background:rgba(255,255,255,.22);pointer-events:none;z-index:-1}
+.brand{position:absolute;top:10px;left:20px;font-size:9px;font-weight:700;letter-spacing:.20em;color:#538AAE}
+.hver{position:absolute;top:9px;right:20px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#538AAE}
+.hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ttl{font-size:24px;font-weight:700;color:#173F5D;letter-spacing:.02em}
+.ttl small{font-size:12px;font-weight:700;color:#4C7590;margin-left:8px;background:#FFFFFFB8;border-radius:999px;padding:2px 10px;vertical-align:3px}
+.reload{border:1px solid #FFFFFFA8;background:#FFFFFFB8;color:#376B8A;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:700;white-space:nowrap}
+.lead{margin-top:8px;font-size:13px;color:#4C7590}
+.stale{margin-top:8px;font-size:12px;color:#84602C;background:#FFF4E6;border:1px solid #F3DFC3;border-radius:10px;padding:5px 10px;display:inline-block}
+
+/* カード */
+.list{padding:16px 14px 24px}
+.card{background:#fff;border-radius:15px;padding:14px 14px 12px;margin-bottom:10px;border:1px solid #EDF3F8;box-shadow:0 2px 12px rgba(42,105,147,.035)}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}
+.chip{font-size:11.5px;font-weight:700;border-radius:7px;padding:2px 8px;white-space:nowrap}
+.chip.c-work{background:#E7F3FA;color:#2579AF}
+.chip.c-item{background:#F6E8DB;color:#A85E32}
+.chip.c-app{background:#EAE6F7;color:#5B4BA8}
+.chip.c-other{background:#EEF1F4;color:#5B6F7E}
+.chip.want{background:var(--want-s);color:#277E61}
+.chip.s-think{background:#FFF3D6;color:#8A5A00}
+.chip.s-do{background:#287FB8;color:#fff}
+.chip.s-done{background:#31866D;color:#fff}
+.chip.s-no{background:#E4E9ED;color:#5B6F7E}
+.chip.new{background:var(--no);color:#fff}
+.dt{margin-left:auto;font-size:12px;color:var(--sub)}
+.tx{font-size:15.5px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.rp{margin-top:10px;background:#F3F9FD;border-left:3px solid var(--sky);border-radius:0 10px 10px 0;padding:8px 11px;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.rp b{display:block;font-size:11.5px;color:#2579AF;margin-bottom:2px}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px}
+.agn{font-size:12.5px;color:var(--sub)}
+.agree{border:1.5px solid #CFE2EF;background:#fff;color:#27658E;border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:700}
+.agree b{margin-left:6px}
+.agree.on{background:var(--sky-s);border-color:#9BCFEE;color:#216A99}
+.act{border:none;background:var(--sky);color:#fff;border-radius:12px;padding:9px 18px;font-size:14px;font-weight:700;box-shadow:0 4px 12px #287FB826}
+.empty{text-align:center;color:var(--sub);font-size:14px;padding:44px 20px;line-height:1.8}
+.msg{text-align:center;color:var(--sub);font-size:14px;padding:70px 24px;line-height:1.8}
+.ver{text-align:center;color:var(--faint);font-size:11px;padding:6px 0 22px}
+
+/* 書く画面 */
+.caution{background:#FFF1F0;border:1.5px solid #EDB7B4;color:#9B2F2F;border-radius:13px;padding:11px 13px;font-size:14px;font-weight:700;line-height:1.6}
+.caution small{display:block;font-weight:400;font-size:12.5px;color:#8A4A48;margin-top:3px}
+.box{background:#fff;border-radius:15px;padding:14px;margin-top:12px;border:1px solid #ECF2F7;box-shadow:0 2px 10px #3379AC0A}
+.h2{font-size:13px;font-weight:700;color:#55778F;letter-spacing:.025em;margin-bottom:8px}
+.pick{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.pick button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;padding:13px 4px;font-size:14px;font-weight:700;color:#27475F;min-height:50px}
+.pick button.on{background:var(--sky);border-color:var(--sky);color:#fff}
+textarea{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:11px 12px;font-size:16px;line-height:1.6;resize:vertical}
+.cnt{text-align:right;font-size:12px;color:var(--sub);margin-top:3px}
+.cnt.over{color:var(--no);font-weight:700}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;font-weight:700;cursor:pointer}
+.chk input{width:22px;height:22px;margin:1px 0 0;flex:none;accent-color:var(--sky)}
+.chk small{display:block;font-weight:400;font-size:12.5px;color:var(--sub)}
+.go{display:block;width:100%;border:none;background:var(--sky);color:#fff;border-radius:13px;padding:15px;font-size:16px;font-weight:700;box-shadow:0 5px 15px #287FB826;margin-top:14px}
+.go:active{background:var(--sky-d)}
+.b-x{display:block;width:100%;border:none;background:#ECF4FA;color:#376B8A;border-radius:13px;padding:13px;font-size:15px;font-weight:700;margin-top:9px}
+.note{font-size:12.5px;color:var(--sub);margin-top:10px;line-height:1.7}
+
+/* 下から出る画面（確かめ・対応） */
+.bg{position:fixed;inset:0;background:rgba(23,49,70,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:7}
+.bg.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);width:100%;max-width:480px;max-height:92vh;overflow:auto;background:#F3F9FD;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));transition:transform .25s;z-index:8;box-shadow:0 -8px 30px rgba(30,70,100,.18)}
+.sheet.show{transform:translate(-50%,0)}
+.sh-h{font-size:17px;font-weight:700;margin-bottom:10px}
+.lb{font-size:12.5px;font-weight:700;color:#55778F;margin:14px 0 6px}
+.seg{display:grid;gap:6px}
+.seg.n2{grid-template-columns:1fr 1fr}
+.seg.n5{grid-template-columns:repeat(5,1fr)}
+.seg button{border:1.5px solid #D5E3EE;background:#fff;border-radius:11px;padding:11px 2px;font-size:13.5px;font-weight:700;color:#27475F;min-height:46px}
+.seg button.on{background:var(--sky);border-color:var(--sky);color:#fff}
+.seg.n5 button{font-size:12px;padding:10px 0}
+.quote{background:#fff;border:1px solid #E3ECF3;border-radius:12px;padding:10px 12px;max-height:150px;overflow:auto}
+.del{display:block;margin:16px auto 0;border:none;background:none;color:var(--no);font-size:13.5px;font-weight:700;text-decoration:underline;padding:8px}
+.go.red{background:var(--no);box-shadow:0 5px 15px #C9575826}
+
+.pq{font-weight:700;margin-bottom:10px}
+.opt,.bar{position:relative;display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px solid #D5E3EE;background:#fff;border-radius:12px;padding:12px 13px;margin-top:7px;font-size:15px;font-weight:700;color:#27475F;min-height:50px;overflow:hidden;isolation:isolate}
+.bar{min-height:42px;padding:9px 13px;font-size:14.5px;cursor:default}
+.opt i,.bar i{position:absolute;left:0;top:0;bottom:0;background:#E3F1FA;z-index:-1;border-radius:0 8px 8px 0}
+.opt span,.bar span{flex:1;overflow-wrap:anywhere}
+.opt b,.bar b{font-size:14px;color:#2579AF;white-space:nowrap}
+.opt::before{content:"";flex:none;width:20px;height:20px;border-radius:50%;border:2px solid #B7CCDB;background:#fff}
+.opt.multi::before{border-radius:6px}
+.opt.on{border-color:var(--sky);background:#F2F9FE}
+.opt.on::before{border-color:var(--sky);background:var(--sky);box-shadow:inset 0 0 0 3px #fff}
+.opt.nonebar,.bar.nonebar{border-style:dashed;color:#5B6F7E;font-weight:400}
+.opt.nonebar{font-weight:700}
+.pname{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
+.rows{margin-top:10px;border-top:1px solid #E6EEF4;padding-top:6px;font-size:13.5px}
+.rows div{display:flex;gap:10px;padding:4px 0;border-bottom:1px dashed #EAF0F5}
+.rows b{flex:none;min-width:96px;color:#55778F}
+.rows span{flex:1;overflow-wrap:anywhere}
+.pbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+
+.ntc{margin:12px 14px 0;background:#FFF8E1;border:1px solid #F0DDA6;border-radius:14px;padding:11px 13px;font-size:14px;line-height:1.65;color:#5C4A12}
+.ntc b{display:block;font-size:12px;color:#8A6A00;margin-bottom:2px}
+.ntc .nt{white-space:pre-wrap;overflow-wrap:anywhere}
+.ntc .nb{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.ntc button{border:1px solid #E3CF93;background:#fff;color:#6B5200;border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700}
+.ntc.up{background:#E8F4FB;border-color:#BBD9EC;color:#1F557A}
+.ntc.up button{border-color:#9BCFEE;color:#216A99}
+
+/* 短い知らせ */
+.toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px);transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(30,40,51,.93);color:#fff;padding:12px 20px;border-radius:14px;font-size:14px;z-index:9;max-width:88%;text-align:center;line-height:1.6;transition:opacity .2s,transform .2s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* 見本（プレビュー）の帯 */
+#demoBar{position:sticky;top:0;z-index:6;background:#1E2833;color:#fff;font-size:12px;padding:8px 10px;text-align:center}
+#demoBar .dt2{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:5px}
+#demoBar button{border:none;border-radius:999px;padding:4px 11px;font-size:12px;background:#3B4856;color:#fff}
+#demoBar button.on{background:#FFE48A;color:#1E2833;font-weight:700}
+#demoBar #demoReset{background:#D2564F}
+
+body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
+#nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nav);padding-bottom:env(safe-area-inset-bottom,0px);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#FFFFFFF4;border-top:1px solid #E2EDF5;box-shadow:0 -4px 24px rgba(42,101,143,.07);z-index:5}
+#nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;color:#8DA3B4;position:relative;isolation:isolate}
+#nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#nav button.on{color:#287FB8}
+#nav button.on::before{content:"";position:absolute;top:4px;height:33px;width:53px;border-radius:11px;background:#E8F4FB;z-index:-1}
+#nav .badge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+</style>
+</head>
+<body>
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.9.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<div id="demoBar" style="display:none"></div>
+<div id="app"><div class="msg">読み込んでいます…</div></div>
+<div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
+<div class="toast" id="toast"></div>
+<nav id="nav" style="display:none"></nav>
+<script>
+'use strict';
+const APP_VER = '1.9.0';
+const PREVIEW = false;
+/* このファイルの役（Ver1.8.0〜）。同じ中身から3つのファイルを作る。
+   'box'＝ご意見箱（goikenbako.html：投書を見る・書く）　'poll'＝アンケート（anketo.html：アンケートに答える）
+   'memo'＝業務連絡（renraku.html：院長からの連絡を読む。Ver1.9.0〜）
+   合言葉・GAS・スマホが覚えるものは、3つで共通（同じ場所に置くので、ご意見箱のQRを1回読めば、ほかの2つも開ける） */
+let MODE = 'memo';
+const APP_NAME = () => MODE === 'poll' ? 'アンケート' : MODE === 'memo' ? '業務連絡' : 'ご意見箱';
+const homeTab = role => MODE === 'poll' ? 'poll' : MODE === 'memo' ? 'memo' : role === 'dr' ? 'new' : 'list';   /* true：院長がclaude.aiで見るための見本専用版（どこにも送らない） */
+/* ===== 共通の部品（スマホアプリ・ご意見箱管理で同じもの） ===== */
+const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};
+/* 書く画面の例文（種類をえらぶと変わる） */
+const CAT_EX = {
+  '':'例：〇〇があると助かります',
+  work:'例：朝の準備の分担を表にして貼ると、分かりやすくなると思います',
+  item:'例：休憩室に電気ケトルがあると助かります',
+  app:'例：当番アプリの不具合を直してください\n例：物品の在庫や発注を記録できるアプリがあると助かります',
+  other:'例：気づいたこと、困っていることを自由に書いてください'
+};
+const CAT_TIP = {app:'アプリの不具合や使いにくい所だけでなく、「こんなアプリがほしい」「この作業をアプリにできないか」という希望も書いてください。'};
+/* 「みんなの意見を聞く」機能を使うか（GASの返事で決まる。院長がご意見箱管理で切り替える） */
+let OPINION = false;
+const ST = {think:'検討中', 'do':'対応します', done:'対応ずみ', no:'見送り'};
+/* 書かれた文字は、そのままHTMLとして出さない（かならず esc を通す） */
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = id => document.getElementById(id);
+const md = d => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(d || ''); return m ? (+m[2])+'/'+(+m[3]) : ''; };
+const len = s => Array.from(String(s || '')).length;
+const catOf = c => CAT[c] ? c : 'other';
+const rndKey = n => { const c = 'abcdefghijkmnpqrstuvwxyz23456789', a = new Uint32Array(n); crypto.getRandomValues(a); return Array.from(a, x => c[x % c.length]).join(''); };
+/* ---------- アンケート（Ver1.2.0） ---------- */
+const NONE_LABEL = 'どれもえらばない（えらべない・行けないとき）';
+const optLabel = (p, c) => (Array.isArray(c) ? c : []).map(i => p.opts[i]).filter(x => x != null).join('、') || 'どれもえらばない';
+function pollChips(p, mine){
+  return '<div class="chips"><span class="chip '+(p.open ? 's-do">受付中' : 's-no">締め切りました')+'</span>'
+    + '<span class="chip '+(p.named ? 'want">名前つき' : 'c-other">匿名')+'</span>'
+    + '<span class="chip c-work">'+(p.multi ? 'いくつでも' : '1つだけ')+'</span>'
+    + (mine ? '<span class="chip s-done">回答ずみ</span>' : '')
+    + (p.d ? '<span class="dt num">'+esc(md(p.d))+'</span>' : '')+'</div>';
+}
+function pollBars(p){
+  const nn = Number(p.noneN) || 0, max = Math.max.apply(null, [1, nn].concat(p.counts));
+  return p.opts.map((o, i) => '<div class="bar"><i style="width:'+Math.round(100 * (p.counts[i] || 0) / max)+'%"></i><span>'+esc(o)+'</span><b class="num">'+(p.counts[i] || 0)+'人</b></div>').join('')
+    + (p.none || nn ? '<div class="bar nonebar"><i style="width:'+Math.round(100 * nn / max)+'%"></i><span>'+esc(NONE_LABEL)+'</span><b class="num">'+nn+'人</b></div>' : '');
+}
+/* 院長の画面のアンケート（結果・一人ずつの回答）。btns：下に出すボタン（PCだけ） */
+function pollDr(p, btns){
+  return '<div class="card">'+pollChips(p, false)+'<div class="tx pq">'+esc(p.q)+'</div>'+pollBars(p)
+    + '<div class="foot"><span class="agn">回答 <b class="num">'+(Number(p.n) || 0)+'</b>人　｜　スタッフに見せる結果：'+(p.show ? '答えた人に人数だけ' : '見せない（院長だけ）')+'</span></div>'
+    + (p.rows && p.rows.length ? '<div class="rows">'+p.rows.map((r, i) => '<div><b>'+esc(p.named ? r.name : '回答'+(i + 1))+'</b><span>'+esc(optLabel(p, r.c))+'</span></div>').join('')+'</div>' : '')
+    + (btns || '')+'</div>';
+}
+/* 版数をくらべる（a が b より新しければ 1） */
+function cmpVer(a, b){ const x = String(a || '').split('.').map(Number), y = String(b || '').split('.').map(Number); for (let i = 0; i < 3; i++){ const d = (x[i] || 0) - (y[i] || 0); if (d) return d > 0 ? 1 : -1; } return 0; }
+let toastT = 0;
+function toast(t){ const el = $('toast'); el.textContent = t; el.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show'), 3200); }
+/* 画面を閉じるまでの一時的な保存（使えない環境では、この画面の中だけで覚える）。見本（プレビュー）だけが使う */
+const MEMS = {};
+const SS = {
+  get(k){ try { const v = sessionStorage.getItem(k); return v === null && k in MEMS ? MEMS[k] : v; } catch(e){ return k in MEMS ? MEMS[k] : null; } },
+  set(k, v){ try { sessionStorage.setItem(k, v); } catch(e){ MEMS[k] = String(v); } },
+  clear(){ try { Object.keys(sessionStorage).filter(k => k.startsWith('goikenbako_demo')).forEach(k => sessionStorage.removeItem(k)); } catch(e){} Object.keys(MEMS).forEach(k => delete MEMS[k]); }
+};
+/* GASを呼ぶ。url：GASのアドレス。返事が来ないときは30秒であきらめる */
+async function gasCall(url, body){
+  const ac = new AbortController(), t = setTimeout(() => ac.abort(), 30000);
+  try {
+    const r = await fetch(url, {method:'POST', body:JSON.stringify(body), signal:ac.signal, referrerPolicy:'no-referrer', credentials:'omit', cache:'no-store'});
+    return await r.json();
+  } finally { clearTimeout(t); }
+}
+function sheetOpen(html){ $('sheet').innerHTML = html; $('sheet').scrollTop = 0; $('sheet').classList.add('show'); $('bg').classList.add('show'); }
+function sheetClose(){ $('sheet').classList.remove('show'); $('bg').classList.remove('show'); }
+
+/* ---------- 院長の画面で使うカードと「対応する」画面 ---------- */
+function chipsDr(p){
+  const c = catOf(p.cat);
+  return '<div class="chips">'+(p.pub === '' ? '<span class="chip new">新しい</span>' : '')
+    + '<span class="chip c-'+c+'">'+esc(CAT[c])+'</span>'
+    + (OPINION && p.want ? '<span class="chip want">みんなの意見も聞いてほしい</span>' : '')
+    + (ST[p.st] ? '<span class="chip s-'+esc(p.st)+'">'+esc(ST[p.st])+'</span>' : '')
+    + '<span class="dt num">'+esc(md(p.d))+'</span></div>';
+}
+function cardDr(p){
+  return '<div class="card" data-id="'+esc(p.id)+'">'+chipsDr(p)
+    + '<div class="tx">'+esc(p.text)+'</div>'
+    + (p.reply ? '<div class="rp"><b>院長より</b>'+esc(p.reply)+'</div>' : '')
+    + '<div class="foot"><span class="agn">'+(OPINION && p.pub === '1' ? '同じ意見 <b class="num">'+(Number(p.ag) || 0)+'</b>' : '')+'</span>'
+    + '<button class="act" data-edit="'+esc(p.id)+'">対応する</button></div></div>';
+}
+/* 「対応する」画面。call(body)：GASを呼ぶ関数、done(post／null＝消した)：すんだあとに呼ぶ */
+let edBusy = false;
+function openEdit(p, maxReply, call, done){
+  const e = {pub:p.pub, st:p.st};
+  edBusy = false;
+  sheetOpen('<div class="sh-h">投書への対応</div>'
+    + '<div class="quote">'+chipsDr(p)+'<div class="tx">'+esc(p.text)+'</div></div>'
+    + '<div class="lb">みんなに公開しますか</div>'
+    + '<div class="seg n2" id="ePub"><button data-v="1">公開する</button><button data-v="0">公開しない</button></div>'
+    + '<div class="lb">しるし（公開すると、みんなに見えます）</div>'
+    + '<div class="seg n5" id="eSt"><button data-v="">なし</button>'+Object.keys(ST).map(k => '<button data-v="'+k+'">'+esc(ST[k])+'</button>').join('')+'</div>'
+    + '<div class="lb">院長の返事（公開すると、みんなに見えます）</div>'
+    + '<textarea id="eReply" rows="4" placeholder="書かなくてもかまいません"></textarea><div class="cnt" id="eCnt"></div>'
+    + '<button class="go" id="eSave">保存する</button><button class="b-x" id="eClose">とじる</button>'
+    + '<button class="del" id="eDel">この投書を消す（患者さんの情報が書かれていたときなど）</button>');
+  const ta = $('eReply'); ta.value = p.reply || '';
+  const paint = () => {
+    $('ePub').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === e.pub));
+    $('eSt').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === e.st));
+    const n = len(ta.value); $('eCnt').textContent = n+' / '+maxReply+'字'; $('eCnt').classList.toggle('over', n > maxReply);
+  };
+  $('ePub').onclick = ev => { const b = ev.target.closest('button'); if (b){ e.pub = b.dataset.v; paint(); } };
+  $('eSt').onclick = ev => { const b = ev.target.closest('button'); if (b){ e.st = b.dataset.v; paint(); } };
+  ta.oninput = paint; paint();
+  $('eClose').onclick = sheetClose;
+  $('eSave').onclick = async () => {
+    if (edBusy) return;
+    if (len(ta.value) > maxReply) return toast('返事が長すぎます（'+maxReply+'字まで）');
+    edBusy = true; $('eSave').disabled = true; $('eSave').textContent = '保存しています…';
+    let r = null;
+    try { r = await call({a:'set', id:p.id, pub:e.pub, st:e.st, reply:ta.value}); } catch(err){}
+    edBusy = false;
+    if (!r || !r.ok){
+      if ($('eSave')){ $('eSave').disabled = false; $('eSave').textContent = '保存する'; }
+      toast(r && r.error ? r.error : 'つながりませんでした。書いた返事はそのままです。もう一度押してください');
+      if (r && r.gone){ sheetClose(); done(null); }
+      return;
+    }
+    sheetClose(); toast(e.pub === '1' ? '保存しました（公開中）' : '保存しました'); done(r.post);
+  };
+  $('eDel').onclick = () => {
+    sheetOpen('<div class="sh-h">この投書を消しますか？</div>'
+      + '<div class="quote"><div class="tx">'+esc(p.text)+'</div></div>'
+      + '<p class="note">消すと、元に戻せません。スタッフの画面からも消えます。</p>'
+      + '<button class="go red" id="eDelGo">消す</button><button class="b-x" id="eDelNo">やめる</button>');
+    $('eDelNo').onclick = sheetClose;
+    $('eDelGo').onclick = async () => {
+      if (edBusy) return;
+      edBusy = true; $('eDelGo').disabled = true; $('eDelGo').textContent = '消しています…';
+      let r = null;
+      try { r = await call({a:'del', id:p.id}); } catch(err){}
+      edBusy = false;
+      if (!r || !r.ok){ if ($('eDelGo')){ $('eDelGo').disabled = false; $('eDelGo').textContent = '消す'; } toast(r && r.error ? r.error : 'つながりませんでした。もう一度押してください'); return; }
+      sheetClose(); toast('消しました'); done(null);
+    };
+  };
+}
+
+/* ===== 見本（プレビュー）：QRコードがなくても動きを見られる。データはこの画面の中だけで、どこにも送らない ===== */
+const DEMO_KEYS = {admin:'demoadminkey0000000000', staff:'demostaffkey0000', dr:'demodoctorkey000', as:'demoassistkey000'};
+function demoBackend(){
+  /* にせのGoogle（スプレッドシートなど）。見本のデータは、この画面の中だけに置く */
+  const DBK = 'goikenbako_demo';
+  const load = () => { try { return JSON.parse(SS.get(DBK) || '{}'); } catch(e){ return {}; } }, save = d => SS.set(DBK, JSON.stringify(d));
+  function sh(name){ return {
+    getLastRow(){ return (load()[name] || []).length; },
+    getRange(r, c, nr, nc){ return {
+      setValues(v){ const d = load(), a = d[name] || []; for (let i = 0; i < nr; i++){ a[r-1+i] = a[r-1+i] || []; for (let j = 0; j < nc; j++) a[r-1+i][c-1+j] = v[i][j]; } d[name] = a; save(d); return this; },
+      getValues(){ const a = load()[name] || [], o = []; for (let i = 0; i < nr; i++){ const row = a[r-1+i] || []; o.push(Array.from({length:nc}, (_, j) => row[c-1+j] === undefined ? '' : row[c-1+j])); } return o; },
+      clearContent(){ const d = load(), a = d[name] || []; a.splice(r-1, nr); d[name] = a; save(d); return this; },
+      setNumberFormat(){ return this; } }; } }; }
+  const SpreadsheetApp = {getActiveSpreadsheet(){ return { getSheetByName(n){ return load()[n] ? sh(n) : null; }, insertSheet(n){ const d = load(); d[n] = []; save(d); return sh(n); } }; }};
+  const PropertiesService = {getScriptProperties(){ return {
+    getProperty(k){ const p = load()['@prop'] || {}; return k in p ? p[k] : null; },
+    getProperties(){ return Object.assign({}, load()['@prop'] || {}); },
+    setProperty(k, v){ const d = load(); (d['@prop'] = d['@prop'] || {})[k] = String(v); save(d); } }; }};
+  const CacheService = {getScriptCache(){ return {
+    get(k){ const c = load()['@cache'] || {}; return k in c ? c[k] : null; },
+    put(k, v){ const d = load(); (d['@cache'] = d['@cache'] || {})[k] = String(v); save(d); },
+    remove(k){ const d = load(); if (d['@cache']) delete d['@cache'][k]; save(d); } }; }};
+  const LockService = {getScriptLock(){ return {waitLock(){}, tryLock(){ return true; }, releaseLock(){}}; }};
+  const Utilities = {
+    formatDate(d){ const p = n => ('0'+n).slice(-2); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
+    getUuid(){ let s = ''; for (let i = 0; i < 32; i++) s += Math.floor(Math.random()*16).toString(16); return s; } };
+  const ContentService = {MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
+
+/**
+ * ご意見箱 GAS  Ver1.9.0（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
+ * ご意見箱専用のスプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
+ * ファイルはこのコード（コード.gs）だけです。スマホアプリは GitHub Pages（goikenbako.html）に置き、ここを呼びます。
+ *
+ * 守り：
+ *  ・合言葉を確かめられた相手にだけ返事をする（スタッフ共通のQR／院長のQR／アプリ管理者のQR／院長のPC）
+ *  ・アプリ管理者（Ver1.6.0〜。Ver1.5.0 では「院長補佐」）：アプリの管理のために、院長と同じことができる人
+ *      スマホ：アプリ管理者のQR（院長のQRと同じことができる）
+ *      PC  ：院長のPCが出した「つなぎコード」を入れたPCで、ご意見箱管理を院長のPCと同じように使える
+ *            （つなぎコードを出す・切るのは、院長のPCだけ）
+ *  ・スタッフ共通のQRには、院長が「公開」にした投書だけを、見せる項目だけ返す
+ *  ・投書では、名前・時刻・スマホを見分けるものは受け取らない・保存しない（残すのは日付まで）。記録（ログ）も書かない
+ *  ・アンケートでは、スマホが作ったランダムな番号（アンケートごとに別）と、名前つきのときだけ本人が書いた名前を保存する
+ *  ・決めた項目だけを保存する。1件の長さ・1日に受け付ける数に上限がある
+ */
+const VER = '1.9.0';
+const SH = {posts:'投書', polls:'アンケート', ans:'アンケートの回答', memos:'業務連絡'};
+const HEAD = {
+  posts: ['番号','書いた日','種類','本文','みんなの意見も聞いてほしい','公開','院長の返事','しるし','同じ意見の数','公開した日'],
+  polls: ['番号','作った日','質問','選択肢','選び方','結果','名前','状態','締め切った日','えらばない'],
+  ans: ['アンケートの番号','回答の番号','選んだもの','名前'],
+  memos: ['番号','出した日','題','本文','大事']
+};
+const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};   /* app は Ver1.3.0〜 */
+const PUB = {'1':'公開', '0':'公開しない'};
+const STATE = {think:'検討中', 'do':'対応します', done:'対応ずみ', no:'見送り'};
+/* アンケート（Ver1.2.0） */
+const P_MULTI = {'0':'1つだけ', '1':'いくつでも'};
+const P_SHOW = {'1':'答えた人に見せる', '0':'院長だけ'};
+const P_NAMED = {'0':'匿名', '1':'名前つき'};
+const P_STATE = {'1':'受付中', '0':'締め切り'};
+const P_NONE = {'1':'付ける', '0':'付けない'};   /* 「どれもえらばない」の選択肢（Ver1.4.0〜。えらべない・行けないとき用） */
+const MAX_Q = 200;           /* 質問の長さ（文字） */
+const MAX_OPT = 40;          /* 選択肢1つの長さ（文字） */
+const MAX_OPTS = 8;          /* 選択肢の数 */
+const MAX_OPEN = 5;          /* 同時に受け付けるアンケートの数 */
+const MAX_POLLS = 50;        /* シートに置けるアンケートの数 */
+const MAX_ANS = 200;         /* アンケート1つに受け付ける回答の数 */
+const MAX_VOTE_DAY = 300;    /* 1日に受け付ける新しい回答の数 */
+const MAX_NAME = 20;         /* 名前の長さ（文字） */
+const KEEP_POLL = 90;        /* 締め切ったアンケートを残す日数 */
+const SHOW_CLOSED = 14;      /* 締め切ったあと、スタッフに結果を見せる日数 */
+const MAX_TEXT = 400;        /* 投書1件の長さ（文字） */
+const MAX_REPLY = 400;       /* 院長の返事の長さ（文字） */
+const MAX_POST_DAY = 30;     /* 1日に受け付ける投書の数 */
+const MAX_AGREE_DAY = 300;   /* 1日に受け付ける「同じ意見です」の数 */
+const MAX_ROWS = 2000;       /* シートに置ける投書の数 */
+const KEEP_HIDDEN = 90;      /* 公開していない投書を残す日数（書いた日から） */
+const KEEP_PUB = 365;        /* 公開した投書を残す日数（公開した日から） */
+const BAD_KEY = 'このQRコードは使えません。院長から新しいQRコードを見せてもらってください。';
+const NO_ROLE = 'この操作はできません。';
+
+/* ---------- シートの読み書き（すべて文字として保存） ---------- */
+function sheet_(k){
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SH[k]);
+  if (!sh){
+    sh = ss.insertSheet(SH[k]);
+    sh.getRange(1,1,1,HEAD[k].length).setValues([HEAD[k]]);
+  }
+  return sh;
+}
+/* ---------- 速くするしくみ（Ver1.7.0） ----------
+   ・設定（スクリプトのプロパティ）は、1回の呼び出しで1度だけまとめて読む
+   ・シートの中身は、Googleの一時置き場（CacheService。10分）に写しを置き、見るだけの呼び出しはそれを使う
+   ・書きかえる呼び出しは、かならずロックを取ってから、シートそのものを読み直す（写しを信じない）
+   ※スプレッドシートを手で直したときは、アプリに出るまで10分ほどかかることがある */
+let PROPS_ = null, RC_ = {}, FRESH_ = false;
+function props_(){ return PROPS_ || (PROPS_ = PropertiesService.getScriptProperties().getProperties() || {}); }
+function gp_(k){ const v = props_()[k]; return v === undefined ? null : v; }
+function sp_(k, v){ PropertiesService.getScriptProperties().setProperty(k, String(v)); props_()[k] = String(v); }
+function lock_(){ const l = LockService.getScriptLock(); l.waitLock(20000); FRESH_ = true; RC_ = {}; return l; }
+const CACHE_SEC = 600, CACHE_MAX = 90000;
+function cachePut_(k, rows){
+  try {
+    const c = CacheService.getScriptCache(), j = JSON.stringify(rows);
+    if (j.length < CACHE_MAX) c.put('R_'+k, j, CACHE_SEC); else c.remove('R_'+k);
+  } catch(e){ try { CacheService.getScriptCache().remove('R_'+k); } catch(e2){} }
+}
+function read_(k){
+  if (RC_[k]) return RC_[k].map(r => r.slice());
+  let rows = null;
+  if (!FRESH_){ try { const j = CacheService.getScriptCache().get('R_'+k); if (j){ const a = JSON.parse(j); if (Array.isArray(a)) rows = a; } } catch(e){} }
+  if (!rows){
+    const sh = sheet_(k), n = sh.getLastRow();
+    rows = n < 2 ? [] : sh.getRange(2,1,n-1,HEAD[k].length).getValues().map(r => r.map(v => String(v)));
+    if (!FRESH_) cachePut_(k, rows);
+  }
+  RC_[k] = rows;
+  return rows.map(r => r.slice());
+}
+function write_(k, rows){
+  const sh = sheet_(k), n = sh.getLastRow(), w = HEAD[k].length;
+  const out = rows.map(r => r.map(v => String(v)));
+  sh.getRange(1,1,1,w).setValues([HEAD[k]]);
+  if (n > 1) sh.getRange(2,1,n-1,w).clearContent();
+  if (out.length){
+    const rg = sh.getRange(2,1,out.length,w);
+    rg.setNumberFormat('@');
+    rg.setValues(out);
+  }
+  RC_[k] = out;
+  cachePut_(k, out);
+}
+function today_(){ return Utilities.formatDate(new Date(), 'Asia/Tokyo', 'yyyy-MM-dd'); }
+function days_(a, b){   /* a から b までの日数（'yyyy-MM-dd'） */
+  const t = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s)); return m ? Date.UTC(+m[1], +m[2]-1, +m[3]) : NaN; };
+  return Math.round((t(b) - t(a)) / 86400000);
+}
+const keyOf_ = (map, label) => Object.keys(map).find(k => map[k] === label) || '';
+const len_ = s => Array.from(s).length;
+/* 書かれた文字を整える：改行をそろえ、見えない制御文字を消す。
+   先頭が = + - @ のときは全角に直す（スプレッドシートが計算式として動かさないように） */
+function clean_(s){
+  s = String(s == null ? '' : s).replace(/\r\n?/g, '\n').replace(/\t/g, ' ')
+    .replace(/[\u0000-\u0009\u000B-\u001F\u007F​-‏‪-‮⁦-⁩﻿]/g, '')
+    .replace(/\n{3,}/g, '\n\n').trim();
+  const z = {'=':'＝', '+':'＋', '-':'－', '@':'＠'};
+  if (s && z[s[0]]) s = z[s[0]] + s.slice(1);
+  return s;
+}
+function newId_(){ return Utilities.getUuid().replace(/-/g, '').slice(0, 12); }
+const okKey_ = (k, n) => new RegExp('^[a-z0-9]{'+n+',40}$').test(String(k || ''));
+
+/* ---------- だれからの呼び出しか（合言葉を確かめる） ---------- */
+function role_(b){
+  if (b.admin){
+    const cur = gp_('ADMIN'), a2 = gp_('ADMIN2'), a = String(b.admin);
+    return cur && a === cur ? 'admin' : (a2 && a === a2 ? 'admin2' : '');   /* admin2＝アプリ管理者のPC */
+  }
+  const k = String(b.k || '');
+  if (!k) return '';
+  const s = gp_('STAFF_KEY'), d = gp_('DR_KEY'), as = gp_('AS_KEY');
+  if (d && k === d) return 'dr';
+  if (as && k === as) return 'as';   /* アプリ管理者。できることは院長のQRと同じ */
+  if (s && k === s) return 'staff';
+  return '';
+}
+
+/* ---------- 「みんなの意見を聞く」機能のスイッチ（Ver1.1.2） ----------
+   院長のPC（ご意見箱管理）だけが切り替えられる。はじめは「使わない（保留）」。
+   使わない間は、「みんなの意見も聞いてほしい」の希望を受け取らず、「同じ意見です」も受け付けず、数もスタッフに返さない */
+function opinion_(){ return gp_('OPINION') === '1'; }
+function setOpt_(b){
+  if (typeof b.opinion === 'boolean') sp_('OPINION', b.opinion ? '1' : '0');
+  return {ok:true, opinion:opinion_()};
+}
+
+/* ---------- 1日に受け付ける数 ---------- */
+function count_(kind, max){
+  const t = today_();
+  let c; try { c = JSON.parse(gp_('CNT') || '{}'); } catch(e){ c = {}; }
+  if (c.d !== t) c = {d:t};
+  c[kind] = Number(c[kind]) || 0;
+  if (!(c[kind] < max)) return false;
+  c[kind]++; sp_('CNT', JSON.stringify(c));
+  return true;
+}
+
+/* ---------- 古い投書を消す（1日に1回だけ動く） ---------- */
+function purge_(){
+  const t = today_();
+  if (gp_('PURGE') === t) return;
+  let lock = null;
+  if (!FRESH_){   /* ロックの外から呼ばれたとき：ロックが取れなければ、今回はやめる（次の呼び出しでやる） */
+    lock = LockService.getScriptLock();
+    if (!lock.tryLock(3000)) return;
+    FRESH_ = true; RC_ = {};
+  }
+  try {
+    sp_('PURGE', t);
+    const rows = read_('posts');
+    const keep = rows.filter(r => r[5] === PUB['1'] ? !(days_(r[9] || r[1], t) > KEEP_PUB) : !(days_(r[1], t) > KEEP_HIDDEN));
+    if (keep.length !== rows.length) write_('posts', keep);
+    const memos = read_('memos'), mk = memos.filter(r => !(days_(r[1], t) > KEEP_MEMO));
+    if (mk.length !== memos.length) write_('memos', mk);
+    /* 締め切ってから日数がたったアンケートを、回答・名前ごと消す */
+    const polls = read_('polls');
+    if (polls.length){
+      const pk = polls.filter(r => r[7] === P_STATE['1'] || !(days_(r[8] || r[1], t) > KEEP_POLL));
+      const ids = {}; pk.forEach(r => { ids[r[0]] = 1; });
+      const ans = read_('ans'), ak = ans.filter(a => ids[a[0]]);
+      if (pk.length !== polls.length) write_('polls', pk);
+      if (ak.length !== ans.length) write_('ans', ak);
+    }
+  } finally { if (lock) lock.releaseLock(); }
+}
+
+/* ---------- 業務連絡（Ver1.9.0） ----------
+   ・書く・直す・消すのは、院長のPCとアプリ管理者のPCだけ。スタッフ（と院長・アプリ管理者のスマホ）は読むだけ
+   ・「読みました」の確認はない。だれが読んだかは、受け取らない・保存しない
+   ・出した日から KEEP_MEMO 日で、自動で消える
+   ※Ver1.7.0〜1.8.0 の「お知らせ」は、Ver1.9.0 でなくした（残っていた文は、院長のPCが開いたときに消す） */
+const MAX_MTITLE = 60;       /* 業務連絡の題の長さ（文字） */
+const MAX_MTEXT = 600;       /* 業務連絡の本文の長さ（文字） */
+const MAX_MEMOS = 100;       /* シートに置ける業務連絡の数 */
+const KEEP_MEMO = 90;        /* 業務連絡を残す日数（出した日から） */
+function memosOut_(){
+  const L = read_('memos').reverse().map(r => ({id:r[0], d:r[1], title:r[2], text:r[3], imp:r[4] === '1'}));   /* 新しいものが上 */
+  return L.filter(m => m.imp).concat(L.filter(m => !m.imp));   /* 「大事」は、いちばん上 */
+}
+/* 業務連絡を出す・直す（id があれば直す。出した日は変えない） */
+function memoSave_(b){
+  const title = clean_(String(b.title == null ? '' : b.title).replace(/\s+/g, ' '));
+  if (!title) return {ok:false, error:'題を書いてください。'};
+  if (len_(title) > MAX_MTITLE) return {ok:false, error:'題が長すぎます（'+MAX_MTITLE+'字まで）。'};
+  const text = clean_(b.text);
+  if (!text) return {ok:false, error:'本文を書いてください。'};
+  if (len_(text) > MAX_MTEXT) return {ok:false, error:'本文が長すぎます（'+MAX_MTEXT+'字まで）。'};
+  const imp = b.imp === true ? '1' : '0', id = String(b.id || '');
+  const lock = lock_();
+  try {
+    purge_();
+    const rows = read_('memos');
+    if (id){
+      const r = rows.find(x => x[0] === id);
+      if (!r) return {ok:false, gone:true, error:'この業務連絡は、もうありません。'};
+      r[2] = title; r[3] = text; r[4] = imp;
+    } else {
+      if (rows.length >= MAX_MEMOS) return {ok:false, error:'業務連絡が多すぎます。古いものを消してください。'};
+      rows.push([newId_(), today_(), title, text, imp]);
+    }
+    write_('memos', rows);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+function memoDel_(b){
+  const id = String(b.id || '');
+  const lock = lock_();
+  try {
+    const rows = read_('memos'), keep = rows.filter(x => x[0] !== id);
+    if (keep.length !== rows.length) write_('memos', keep);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 返す形 ---------- */
+/* スタッフに見せる項目（公開した投書だけ。書いた日・「意見を聞いてほしい」の希望は出さない） */
+const pubOut_ = (r, op) => { const o = {id:r[0], cat:keyOf_(CAT, r[2]) || 'other', text:r[3], reply:r[6], st:keyOf_(STATE, r[7]), pd:r[9]}; if (op) o.ag = Number(r[8]) || 0; return o; };
+/* 院長に見せる項目 */
+const allOut_ = r => ({id:r[0], d:r[1], cat:keyOf_(CAT, r[2]) || 'other', text:r[3], want:r[4] === '1', pub:keyOf_(PUB, r[5]), reply:r[6], st:keyOf_(STATE, r[7]), ag:Number(r[8]) || 0, pd:r[9]});
+
+function list_(role, b){
+  if (role !== 'staff') purge_();
+  const rows = read_('posts').reverse();   /* 新しいものが上 */
+  const op = opinion_();
+  if (role === 'staff'){
+    const L = rows.filter(r => r[5] === PUB['1']).map(r => pubOut_(r, op));
+    L.sort((a, b) => a.pd < b.pd ? 1 : a.pd > b.pd ? -1 : 0);
+    return {ok:true, ver:VER, role:'staff', opinion:op, max:MAX_TEXT, posts:L, polls:pollsOut_('staff', ptOf_(b)), memos:memosOut_()};
+  }
+  if (role === 'admin' && gp_('NOTICE')) sp_('NOTICE', '');   /* 前の版の「お知らせ」の文が残っていたら消す */
+  return {ok:true, ver:VER, role:role, opinion:op, max:MAX_TEXT, maxReply:MAX_REPLY, maxMemoTitle:MAX_MTITLE, maxMemo:MAX_MTEXT, memos:memosOut_(), posts:rows.map(allOut_), polls:pollsOut_(role, {})};
+}
+
+/* ---------- アンケート（Ver1.2.0） ----------
+   ・作る・締め切る・消すは、院長のPCだけ
+   ・回答は、スマホが作ったランダムな番号（アンケートごとに別）ごとに1つ。同じ番号でもう一度送ると、答え直しになる
+   ・名前は、院長が「名前つき」にしたアンケートのときだけ受け取る
+   ・スタッフには、質問・選択肢と、（見せる設定のとき）選択肢ごとの人数だけを返す。ほかの人の番号・名前・回答は返さない */
+function arr_(s){ try { const a = JSON.parse(s); return Array.isArray(a) ? a : []; } catch(e){ return []; } }
+const pollBase_ = r => ({id:r[0], d:r[1], q:r[2], opts:arr_(r[3]).map(String), multi:r[4] === P_MULTI['1'], show:r[5] === P_SHOW['1'], named:r[6] === P_NAMED['1'], open:r[7] === P_STATE['1'], cd:r[8], none:r[9] === P_NONE['1']});
+/* スマホが覚えている「アンケートの番号 → 自分の回答の番号」 */
+function ptOf_(b){
+  const o = {}, pt = b && b.pt;
+  if (pt && typeof pt === 'object' && !Array.isArray(pt)) Object.keys(pt).slice(0, 60).forEach(k => { if (/^[a-z0-9]{6,20}$/.test(k) && okKey_(pt[k], 20)) o[k] = String(pt[k]); });
+  return o;
+}
+function pollsOut_(role, pt){
+  const polls = read_('polls');
+  if (!polls.length) return [];
+  const ans = read_('ans'), t = today_(), out = [];
+  polls.slice().reverse().forEach(r => {
+    const p = pollBase_(r), rows = ans.filter(a => a[0] === p.id);
+    const counts = p.opts.map(() => 0);
+    rows.forEach(a => arr_(a[2]).forEach(i => { if (counts[i] !== undefined) counts[i]++; }));
+    const noneN = rows.filter(a => !arr_(a[2]).length).length;   /* 「どれもえらばない」と答えた人数 */
+    if (role === 'staff'){
+      if (!p.open && !(p.show && !(days_(p.cd, t) > SHOW_CLOSED))) return;
+      const o = {id:p.id, q:p.q, opts:p.opts, multi:p.multi, named:p.named, show:p.show, open:p.open, none:p.none};
+      const tk = pt[p.id], me = tk ? rows.find(a => a[1] === tk) : null;
+      if (me) o.mine = {c:arr_(me[2]), name:me[3]};
+      if (p.show && (me || !p.open)){ o.counts = counts; o.noneN = noneN; o.n = rows.length; }
+      out.push(o);
+    } else {
+      p.counts = counts; p.noneN = noneN; p.n = rows.length; p.rows = rows.map(a => ({name:a[3], c:arr_(a[2])}));
+      out.push(p);
+    }
+  });
+  out.sort((a, b) => (a.open === b.open) ? 0 : a.open ? -1 : 1);
+  return out;
+}
+/* 回答する・答え直す（スタッフ共通のQR） */
+function vote_(b){
+  const pid = String(b.pid || ''), tk = String(b.t || '');
+  if (!okKey_(tk, 20)) return {ok:false, error:'回答を送れませんでした。アプリを開き直してください。'};
+  const lock = lock_();
+  try {
+    const r = read_('polls').find(x => x[0] === pid);
+    if (!r) return {ok:false, gone:true, error:'このアンケートは、もうありません。'};
+    const p = pollBase_(r);
+    if (!p.open) return {ok:false, gone:true, error:'このアンケートは締め切りました。'};
+    const seen = {}, c = (Array.isArray(b.c) ? b.c : []).filter(i => Number.isInteger(i) && i >= 0 && i < p.opts.length && !seen[i] && (seen[i] = 1)).sort((x, y) => x - y);
+    if (p.none && b.none === true) c.length = 0;   /* 「どれもえらばない」：えらんだものを空にして保存する */
+    else {
+      if (!c.length) return {ok:false, error:'えらんでください。'};
+      if (!p.multi && c.length !== 1) return {ok:false, error:'1つだけえらんでください。'};
+    }
+    let name = '';
+    if (p.named){
+      name = clean_(String(b.name == null ? '' : b.name).replace(/\s+/g, ' '));
+      if (!name) return {ok:false, error:'名前を書いてください。'};
+      if (len_(name) > MAX_NAME) return {ok:false, error:'名前が長すぎます（'+MAX_NAME+'字まで）。'};
+    }
+    const ans = read_('ans'), a = ans.find(x => x[0] === pid && x[1] === tk);
+    if (a){ a[2] = JSON.stringify(c); a[3] = name; }
+    else {
+      if (ans.filter(x => x[0] === pid).length >= MAX_ANS) return {ok:false, error:'このアンケートは、もう受け付けられません。院長に伝えてください。'};
+      if (!count_('v', MAX_VOTE_DAY)) return {ok:false, error:'今日はもう受け付けられません。明日また送ってください。'};
+      ans.push([pid, tk, JSON.stringify(c), name]);
+    }
+    write_('ans', ans);
+    const pt = ptOf_(b); pt[pid] = tk;
+    return {ok:true, polls:pollsOut_('staff', pt)};
+  } finally { lock.releaseLock(); }
+}
+/* アンケートを作る（院長のPC） */
+function pollNew_(b){
+  const q = clean_(String(b.q == null ? '' : b.q).replace(/\s+/g, ' '));
+  if (!q) return {ok:false, error:'質問を書いてください。'};
+  if (len_(q) > MAX_Q) return {ok:false, error:'質問が長すぎます（'+MAX_Q+'字まで）。'};
+  const seen = {}, opts = (Array.isArray(b.opts) ? b.opts : []).slice(0, 30).map(o => clean_(String(o == null ? '' : o).replace(/\s+/g, ' '))).filter(o => o && !seen[o] && (seen[o] = 1));
+  if (opts.length < 2) return {ok:false, error:'選択肢を2つ以上書いてください（同じものは1つに数えます）。'};
+  if (opts.length > MAX_OPTS) return {ok:false, error:'選択肢は'+MAX_OPTS+'個までです。'};
+  if (opts.some(o => len_(o) > MAX_OPT)) return {ok:false, error:'選択肢が長すぎます（1つ'+MAX_OPT+'字まで）。'};
+  const lock = lock_();
+  try {
+    purge_();
+    const polls = read_('polls');
+    if (polls.length >= MAX_POLLS) return {ok:false, error:'アンケートが多すぎます。古いものを消してください。'};
+    if (polls.filter(r => r[7] === P_STATE['1']).length >= MAX_OPEN) return {ok:false, error:'受付中のアンケートは'+MAX_OPEN+'つまでです。どれかを締め切ってください。'};
+    polls.push([newId_(), today_(), q, JSON.stringify(opts), P_MULTI[b.multi === true ? '1' : '0'], P_SHOW[b.show === false ? '0' : '1'], P_NAMED[b.named === true ? '1' : '0'], P_STATE['1'], '', P_NONE[b.none === false ? '0' : '1']]);
+    write_('polls', polls);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+/* 締め切る（院長のPC） */
+function pollClose_(b){
+  const pid = String(b.pid || '');
+  const lock = lock_();
+  try {
+    const polls = read_('polls'), r = polls.find(x => x[0] === pid);
+    if (!r) return {ok:false, gone:true, error:'このアンケートは、もうありません。'};
+    if (r[7] === P_STATE['1']){ r[7] = P_STATE['0']; r[8] = today_(); write_('polls', polls); }
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+/* 消す（院長のPC。回答・名前ごと消える。元に戻せない） */
+function pollDel_(b){
+  const pid = String(b.pid || '');
+  const lock = lock_();
+  try {
+    const polls = read_('polls'), pk = polls.filter(x => x[0] !== pid);
+    const ans = read_('ans'), ak = ans.filter(a => a[0] !== pid);
+    if (pk.length !== polls.length) write_('polls', pk);
+    if (ak.length !== ans.length) write_('ans', ak);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 投書を受け付ける（スタッフ共通のQR） ---------- */
+function post_(b){
+  const cat = CAT[String(b.cat || '')];
+  if (!cat) return {ok:false, error:'種類をえらんでください。'};
+  const text = clean_(b.text);
+  if (!text) return {ok:false, error:'文を書いてください。'};
+  if (len_(text) > MAX_TEXT) return {ok:false, error:'文が長すぎます（'+MAX_TEXT+'字まで）。'};
+  const lock = lock_();
+  try {
+    purge_();
+    const rows = read_('posts');
+    if (rows.length >= MAX_ROWS) return {ok:false, error:'ご意見箱がいっぱいです。院長に伝えてください。'};
+    if (!count_('p', MAX_POST_DAY)) return {ok:false, error:'今日はもう受け付けられません。明日また送ってください。'};
+    rows.push([newId_(), today_(), cat, text, (opinion_() && b.want === true) ? '1' : '0', '', '', '', '0', '']);
+    write_('posts', rows);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 「同じ意見です」（スタッフ共通のQR。公開した投書にだけ） ---------- */
+function agree_(b){
+  const id = String(b.id || '');
+  if (!opinion_()) return {ok:false, off:true, error:'この機能は、いまは使えません。'};
+  const lock = lock_();
+  try {
+    const rows = read_('posts'), r = rows.find(x => x[0] === id && x[5] === PUB['1']);
+    if (!r) return {ok:false, gone:true, error:'この投書は、もう見られなくなりました。'};
+    if (!count_('a', MAX_AGREE_DAY)) return {ok:false, error:'今日はもう受け付けられません。'};
+    r[8] = String((Number(r[8]) || 0) + 1);
+    write_('posts', rows);
+    return {ok:true, ag:Number(r[8])};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 院長：公開する・しない、返事、しるし ---------- */
+function set_(b){
+  const id = String(b.id || '');
+  const lock = lock_();
+  try {
+    const rows = read_('posts'), r = rows.find(x => x[0] === id);
+    if (!r) return {ok:false, gone:true, error:'この投書は、もうありません。'};
+    if (b.pub !== undefined){
+      const p = String(b.pub);
+      if (p !== '' && !PUB[p]) return {ok:false, error:'公開のえらび方がちがいます。'};
+      r[5] = PUB[p] || '';
+      if (p === '1'){ if (!r[9]) r[9] = today_(); } else r[9] = '';
+    }
+    if (b.st !== undefined){
+      const s = String(b.st);
+      if (s !== '' && !STATE[s]) return {ok:false, error:'しるしのえらび方がちがいます。'};
+      r[7] = STATE[s] || '';
+    }
+    if (b.reply !== undefined){
+      const t = clean_(b.reply);
+      if (len_(t) > MAX_REPLY) return {ok:false, error:'返事が長すぎます（'+MAX_REPLY+'字まで）。'};
+      r[6] = t;
+    }
+    write_('posts', rows);
+    return {ok:true, post:allOut_(r)};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 院長：投書を消す（患者さんの情報が書かれていたときなど。元に戻せない） ---------- */
+function del_(b){
+  const id = String(b.id || '');
+  const lock = lock_();
+  try {
+    const rows = read_('posts'), keep = rows.filter(x => x[0] !== id);
+    if (keep.length !== rows.length) write_('posts', keep);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 院長のPC：はじめのつなぎ・QRの合言葉 ---------- */
+/* はじめて「接続を確かめる」を押したPCの合言葉（admin）を覚える。次からは同じ合言葉のPCだけを通す。
+   QRの合言葉（スタッフ共通・院長）は、まだないときだけ、PCが作ったものを置く */
+function setup_(b){
+  const cur = gp_('ADMIN');
+  if (!okKey_(b.admin, 20)) return {ok:false, error:'合言葉がありません。'};
+  let first = false;
+  if (!cur){ sp_('ADMIN', String(b.admin)); first = true; }
+  else if (cur !== String(b.admin)){
+    const a2 = gp_('ADMIN2');
+    if (a2 && a2 === String(b.admin)) return {ok:true, ver:VER, first:false, sub:true};   /* アプリ管理者のPC */
+    return {ok:false, error:'このスプレッドシートは、別のPCのご意見箱管理とつながっています。'};
+  }
+  if (!gp_('STAFF_KEY') && okKey_(b.staffKey, 16)) sp_('STAFF_KEY', String(b.staffKey));
+  if (!gp_('DR_KEY') && okKey_(b.drKey, 16)) sp_('DR_KEY', String(b.drKey));
+  if (!gp_('AS_KEY') && okKey_(b.asKey, 16)) sp_('AS_KEY', String(b.asKey));
+  sheet_('posts');
+  return {ok:true, ver:VER, first:first};
+}
+function keys_(){
+  return {ok:true, staffKey:gp_('STAFF_KEY') || '', drKey:gp_('DR_KEY') || '', asKey:gp_('AS_KEY') || '', admin2:!!gp_('ADMIN2')};
+}
+/* QRを作り直す（前のQRは使えなくなる） */
+function setKeys_(b){
+  const names = {staffKey:'STAFF_KEY', drKey:'DR_KEY', asKey:'AS_KEY'}, next = {};
+  Object.keys(names).forEach(n => { next[n] = b[n] !== undefined ? String(b[n]) : (gp_(names[n]) || ''); });
+  for (const n in names){ if (b[n] !== undefined && !okKey_(b[n], 16)) return {ok:false, error:'合言葉の形がちがいます。'}; }
+  const used = Object.keys(next).map(n => next[n]).filter(Boolean);
+  if (used.some((v, i) => used.indexOf(v) !== i)) return {ok:false, error:'合言葉の形がちがいます。'};   /* 3つの合言葉は、かならず別々にする */
+  for (const n in names){ if (b[n] !== undefined) sp_(names[n], next[n]); }
+  return keys_();
+}
+
+/* アプリ管理者のPC用の合言葉を決める・消す（院長のPCだけ。新しく決めると、前のつなぎコードは使えなくなる） */
+function setAdmin2_(b){
+  const v = String(b.admin2 == null ? '' : b.admin2);
+  if (v !== '' && (!okKey_(v, 20) || v === gp_('ADMIN'))) return {ok:false, error:'合言葉の形がちがいます。'};
+  sp_('ADMIN2', v);
+  return {ok:true, admin2:v !== ''};
+}
+
+/* ---------- 窓口 ---------- */
+function handle_(b){
+  PROPS_ = null; RC_ = {}; FRESH_ = false;
+  b = (b && typeof b === 'object') ? b : {};
+  const a = String(b.a || '');
+  if (a === 'setup') return setup_(b);
+  let role = role_(b);
+  const who = role;
+  if (role === 'as') role = 'dr';
+  if (role === 'admin2') role = 'admin';   /* アプリ管理者のPCは、院長のPCと同じことができる（下の setAdmin2 だけは別） */
+  if (!role) return {ok:false, bad:true, error:b.admin ? '合言葉がちがいます。' : BAD_KEY};   /* 確かめられない相手には、何も返さない */
+  if (a === 'list'){ const r = list_(role, b); if (who === 'as') r.who = 'as'; return r; }
+  if (a === 'post') return role === 'staff' ? post_(b) : {ok:false, error:'投書は、スタッフ用のQRコードで開いて書いてください。'};
+  if (a === 'agree') return role === 'staff' ? agree_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'set') return role !== 'staff' ? set_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'del') return role !== 'staff' ? del_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'keys') return role === 'admin' ? keys_() : {ok:false, error:NO_ROLE};
+  if (a === 'setKeys') return role === 'admin' ? setKeys_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'setAdmin2') return who === 'admin' ? setAdmin2_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'memoSave') return role === 'admin' ? memoSave_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'memoDel') return role === 'admin' ? memoDel_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'setOpt') return role === 'admin' ? setOpt_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'vote') return role === 'staff' ? vote_(b) : {ok:false, error:'アンケートは、スタッフ用のQRコードで開いて答えてください。'};
+  if (a === 'pollNew') return role === 'admin' ? pollNew_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'pollClose') return role === 'admin' ? pollClose_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'pollDel') return role === 'admin' ? pollDel_(b) : {ok:false, error:NO_ROLE};
+  return {ok:false, error:'わからない操作です。アプリを新しい版に入れ替えてください。'};
+}
+function doPost(e){
+  let res;
+  try { res = handle_(JSON.parse(e.postData.contents)); }
+  catch (err) { res = {ok:false, error:'うまくいきませんでした。少し待って、もう一度ためしてください。'}; }
+  return ContentService.createTextOutput(JSON.stringify(res)).setMimeType(ContentService.MimeType.JSON);
+}
+/* このアドレスを直接開いた人には、何も見せない */
+function doGet(){
+  return ContentService.createTextOutput('ご意見箱アプリ用のアドレスです。QRコードから開いてください。');
+}
+
+  if (!load()[SH.posts]){
+    setup_({admin:DEMO_KEYS.admin, staffKey:DEMO_KEYS.staff, drKey:DEMO_KEYS.dr, asKey:DEMO_KEYS.as});
+    const day = n => Utilities.formatDate(new Date(Date.now() - n*86400000));
+    write_('posts', [
+      ['demo00000001', day(20), CAT.item, '更衣室のハンガーが足りません。', '0', PUB['1'], '20本買い足しました。', STATE.done, '2', day(18)],
+      ['demo00000002', day(12), CAT.work, '朝の掃除の範囲がわかりにくいので、表にして貼ってほしいです。', '0', PUB['0'], '', '', '0', ''],
+      ['demo00000003', day(9), CAT.item, '受付のプリンターの紙づまりが多いです。\n買い替えを考えてほしいです。', '1', PUB['1'], '12月に新しいものに入れ替えます。', STATE['do'], '5', day(7)],
+      ['demo00000004', day(5), CAT.work, '内視鏡の洗浄のあとの物品の補充を、午前と午後で分担を決めたいです。', '1', PUB['1'], '次のミーティングで話し合いましょう。', STATE.think, '3', day(3)],
+      ['demo00000005', day(1), CAT.other, '駐車場の照明が暗く、帰りが少しこわいです。', '0', '', '', '', '0', ''],
+      ['demo00000006', day(0), CAT.item, '休憩室に電子レンジがもう1台ほしいです。お昼に列ができます。', '1', '', '', '', '0', '']
+    ]);
+    write_('polls', [
+      ['demopoll0001', day(6), '休憩室に買う備品は、どれがよいですか？', JSON.stringify(['電子レンジ（2台目）', '電気ケトル', '小型の冷蔵庫']), P_MULTI['0'], P_SHOW['1'], P_NAMED['0'], P_STATE['1'], '', P_NONE['1']],
+      ['demopoll0002', day(2), '忘年会に来られる日を、全部えらんでください', JSON.stringify(['12/11（金）', '12/12（土）', '12/18（金）', '12/19（土）']), P_MULTI['1'], P_SHOW['0'], P_NAMED['1'], P_STATE['1'], '', P_NONE['1']]
+    ]);
+    write_('memos', [
+      ['demomemo0001', day(10), '年末の診療日について', '12/29（火）は午前のみ、12/30（水）〜1/3（日）は休診です。\n当番表は、当番アプリで確かめてください。', '0'],
+      ['demomemo0002', day(4), '内視鏡室の物品の置き場所を変えました', '洗浄用のブラシは、流しの右の棚の2段目に移しました。\n補充するときは、古いものを手前に置いてください。', '0'],
+      ['demomemo0003', day(1), '火災訓練のお知らせ', '11/26（木）13:30から、全員で火災訓練を行います。\n午後の診療は14:30からです。', '1']
+    ]);
+    write_('ans', [
+      ['demopoll0001', 'demotoken00000000000001', '[0]', ''], ['demopoll0001', 'demotoken00000000000002', '[0]', ''], ['demopoll0001', 'demotoken00000000000003', '[1]', ''],
+      ['demopoll0001', 'demotoken00000000000004', '[2]', ''], ['demopoll0001', 'demotoken00000000000005', '[0]', ''],
+      ['demopoll0002', 'demotoken00000000000011', '[0,2]', '山田（見本）'], ['demopoll0002', 'demotoken00000000000012', '[2,3]', '佐藤（見本）'], ['demopoll0002', 'demotoken00000000000013', '[2]', '鈴木（見本）'], ['demopoll0002', 'demotoken00000000000014', '[]', '田中（見本）']
+    ]);
+  }
+  return handle_;
+}
+let demoFn = null;
+function demoCall(body){
+  return new Promise((ok, ng) => setTimeout(() => {
+    try { if (!demoFn) demoFn = demoBackend(); ok(JSON.parse(JSON.stringify(demoFn(JSON.parse(JSON.stringify(body)))))); } catch(e){ ng(e); }
+  }, 150));
+}
+function demoReset(){ SS.clear(); demoFn = null; }
+
+
+/* ===== このスマホが覚えるもの =====
+   ・合言葉（k）とGASの番号（s）：QRコードで開いたときに覚える
+   ・公開された投書の一覧（開いたときにすぐ出すため）
+   ・「同じ意見です」を押した投書の番号（2回押せないようにするため）
+   ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、読んだ業務連絡の番号（「新しい」のしるしのため）
+   ・アンケートの「自分の回答の番号」（答え直しのため。アンケートごとに別のランダムな番号。名前・えらんだものは覚えない）
+   書いている途中の文・送った文は覚えない。院長のQRで開いたときは、投書の中身を覚えない */
+const QS = new URLSearchParams(location.search);
+const okK = v => /^[a-z0-9]{16,40}$/.test(v || ''), okS = v => /^[A-Za-z0-9_-]{20,200}$/.test(v || '');
+function mem(k, v){ try { if (v) localStorage.setItem('goikenbako_'+k, v); return localStorage.getItem('goikenbako_'+k) || ''; } catch(e){ return v || ''; } }
+let DEMO = PREVIEW || QS.get('demo') === '1';
+let demoRole = 'staff';
+let KEY = DEMO ? '' : mem('k', okK(QS.get('k')) ? QS.get('k') : '');
+const GAS = DEMO ? '' : mem('s', okS(QS.get('s')) ? QS.get('s') : '');
+const GAS_URL = GAS ? 'https://script.google.com/macros/s/'+GAS+'/exec' : '';
+/* 合言葉を画面のアドレスに出したままにしない（入口アプリが付ける from=portal など、知らない印は使わずに捨てる） */
+try { if (!DEMO && QS.get('k')) history.replaceState(null, '', location.pathname); } catch(e){}
+
+function call(body){
+  if (DEMO) return demoCall(Object.assign({}, body, {k:DEMO_KEYS[demoRole]}));
+  if (!KEY || !GAS_URL) return Promise.resolve({ok:false, nokey:true});
+  return gasCall(GAS_URL, Object.assign({}, body, {k:KEY}));
+}
+/* 前に見た一覧をこのスマホの中に残す（スタッフ用だけ。合言葉そのものは入れず、見分け用の数字だけ） */
+function hashK(k){ let h = 5381; k = String(k); for (let i = 0; i < k.length; i++) h = ((h * 33) ^ k.charCodeAt(i)) >>> 0; return String(h); }
+function rcDrop(){ try { localStorage.removeItem('goikenbako_rc'); } catch(e){} }
+function rcPut(r){ if (DEMO || !KEY || r.role !== 'staff') return; try { localStorage.setItem('goikenbako_rc', JSON.stringify({h:hashK(KEY), at:Date.now(), max:r.max, opinion:r.opinion === true, posts:r.posts, memos:Array.isArray(r.memos) ? r.memos : []})); } catch(e){} }
+function rcGet(){
+  if (DEMO || !KEY) return null;
+  try { const c = JSON.parse(localStorage.getItem('goikenbako_rc') || 'null'); if (!c) return null;
+    if (c.h !== hashK(KEY) || !(Date.now() - c.at < 45*86400000) || !Array.isArray(c.posts)){ rcDrop(); return null; } return c; } catch(e){ rcDrop(); return null; }
+}
+/* アンケートの「自分の回答の番号」（アンケートごとに別のランダムな番号。このスマホの中だけ） */
+let ptMem = {};
+function ptGet(){ if (DEMO) return ptMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_pt') || 'null'); return c && c.h === hashK(KEY) && c.t && typeof c.t === 'object' ? c.t : {}; } catch(e){ return {}; } }
+function ptPut(t){ if (DEMO){ ptMem = t; return; } try { localStorage.setItem('goikenbako_pt', JSON.stringify({h:hashK(KEY), t:t})); } catch(e){} }
+/* 前に開いたときの役（スタッフ／院長・アプリ管理者）。次に開いたとき、返事を待たずに画面の枠を出すため。合言葉は入れない */
+function roleGet(){ if (DEMO || !KEY) return null; try { const c = JSON.parse(localStorage.getItem('goikenbako_role') || 'null'); return c && c.h === hashK(KEY) && (c.role === 'staff' || c.role === 'dr') ? c : null; } catch(e){ return null; } }
+function rolePut(role, who){ if (DEMO || !KEY) return; try { localStorage.setItem('goikenbako_role', JSON.stringify({h:hashK(KEY), role:role, who:who})); } catch(e){} }
+/* 読んだ業務連絡の番号（「新しい」のしるしと、ご意見箱の画面の知らせのため。このスマホの中だけ。GASには送らない） */
+let msMem = {};
+function msGet(){ if (DEMO) return msMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_ms') || 'null'); return c && c.h === hashK(KEY) && c.ids ? c.ids : {}; } catch(e){ return {}; } }
+function msPut(ids){ if (DEMO){ msMem = ids; return; } try { localStorage.setItem('goikenbako_ms', JSON.stringify({h:hashK(KEY), ids:ids})); } catch(e){} }
+let agMem = {};   /* 見本のときは、この画面の中だけで覚える */
+function agGet(){ if (DEMO) return agMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_ag') || 'null'); return c && c.h === hashK(KEY) && c.ids ? c.ids : {}; } catch(e){ return {}; } }
+function agPut(ids){ if (DEMO){ agMem = ids; return; } try { localStorage.setItem('goikenbako_ag', JSON.stringify({h:hashK(KEY), ids:ids})); } catch(e){} }
+
+/* ===== 画面 ===== */
+let ROLE = '', WHO = '', POSTS = [], POLLS = [], MAXT = 400, MAXR = 400;   /* WHO：'as'＝アプリ管理者のQRで開いている */
+let MEMOS = [], msNew = {}, GASVER = '', loaded = false;   /* msNew：この回に開いたとき、まだ読んでいなかった業務連絡 */   /* loaded：GASの返事が1回でも届いたか */
+let sel = {}, nm = {}, voteBusy = false;   /* アンケートでえらんでいる途中のもの（この画面の中だけ） */
+let tab = homeTab('staff'), loading = false, stale = '', failed = '', busy = false;
+let draft = {cat:'', text:'', want:false};
+const ICON = {
+  list:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
+  write:'<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>',
+  'new':'<svg viewBox="0 0 24 24"><path d="M4 7l8 6 8-6"/><rect x="3.5" y="5" width="17" height="14" rx="2.5"/></svg>',
+  pub:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8 12.5l3 3 5-6"/></svg>',
+  hide:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M9 3v4M15 3v4M8 12h8"/></svg>',
+  poll:'<svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>'
+};
+const TABS = {staff:[['list','みんなの投書'],['write','書く']], dr:[['new','新しい投書'],['pub','公開中'],['hide','公開しない']]};   /* アンケートは別のファイル（下のタブなし） */
+function nav(){
+  const el = $('nav'), T = MODE === 'box' ? TABS[ROLE] : null;
+  if (!T){ el.style.display = 'none'; return; }
+  const nNew = ROLE === 'dr' ? POSTS.filter(p => p.pub === '').length : 0;
+  const nPoll = ROLE === 'staff' ? POLLS.filter(p => p.open && !p.mine).length : 0;
+  el.style.display = '';
+  el.innerHTML = T.map(t => '<button data-go="'+t[0]+'" class="'+(tab === t[0] ? 'on' : '')+'">'+ICON[t[0]]+esc(t[1])
+    + (t[0] === 'new' && nNew ? '<span class="badge num">'+nNew+'</span>' : '')+(t[0] === 'poll' && nPoll ? '<span class="badge num">'+nPoll+'</span>' : '')+'</button>').join('');
+}
+function head(lead){
+  return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hver">Ver'+APP_VER+'</div><div class="hrow"><div class="ttl">'+APP_NAME()+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
+    + '<button class="reload" id="reload"'+(loading ? ' disabled' : '')+'>'+(loading ? '更新中…' : '↻ 更新する')+'</button></div>'
+    + '<div class="lead">'+esc(lead)+'</div>'
+    + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>'
+    + (cmpVer(GASVER, APP_VER) > 0 ? '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>' : '');
+}
+const foot = () => '<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
+function cardStaff(p, ag){
+  const c = catOf(p.cat), on = !!ag[p.id];
+  return '<div class="card">'
+    + '<div class="chips"><span class="chip c-'+c+'">'+esc(CAT[c])+'</span>'+(ST[p.st] ? '<span class="chip s-'+esc(p.st)+'">'+esc(ST[p.st])+'</span>' : '')+'<span class="dt num">'+esc(md(p.pd))+'</span></div>'
+    + '<div class="tx">'+esc(p.text)+'</div>'
+    + (p.reply ? '<div class="rp"><b>院長より</b>'+esc(p.reply)+'</div>' : '')
+    + (OPINION ? '<div class="foot"><span class="agn">'+(on ? '押しました' : '')+'</span><button class="agree'+(on ? ' on' : '')+'" data-ag="'+esc(p.id)+'"'+(on ? ' disabled' : '')+'>同じ意見です<b class="num">'+(Number(p.ag) || 0)+'</b></button></div>' : '')+'</div>';
+}
+/* スタッフのアンケート1つ分 */
+function pollStaff(p){
+  if (!sel[p.id]) sel[p.id] = p.mine && Array.isArray(p.mine.c) ? (p.mine.c.length ? p.mine.c.slice() : (p.none ? [-1] : [])) : [];   /* -1＝どれもえらばない */
+  if (nm[p.id] === undefined) nm[p.id] = p.mine ? String(p.mine.name || '') : '';
+  const s = sel[p.id], has = Array.isArray(p.counts), nn = Number(p.noneN) || 0, max = has ? Math.max.apply(null, [1, nn].concat(p.counts)) : 1;
+  const row = (o, i) => {
+    const cn = i < 0 ? nn : (p.counts ? p.counts[i] || 0 : 0);
+    const bar = has ? '<i style="width:'+Math.round(100 * cn / max)+'%"></i>' : '', n = has ? '<b class="num">'+cn+'人</b>' : '';
+    return p.open ? '<button class="opt'+(i < 0 ? ' nonebar' : (p.multi ? ' multi' : ''))+(s.indexOf(i) >= 0 ? ' on' : '')+'" data-pid="'+esc(p.id)+'" data-oi="'+i+'">'+bar+'<span>'+esc(o)+'</span>'+n+'</button>'
+      : '<div class="bar'+(i < 0 ? ' nonebar' : '')+'">'+bar+'<span>'+esc(o)+'</span>'+n+'</div>';
+  };
+  return '<div class="card">'+pollChips(p, !!p.mine)+'<div class="tx pq">'+esc(p.q)+'</div>'+p.opts.map(row).join('')+(p.none ? row(NONE_LABEL, -1) : '')
+    + (p.open && p.named ? '<div class="caution" style="margin-top:12px">このアンケートは名前つきです<small>名前と、えらんだものは、院長とアプリ管理者だけが見ます。</small></div><input class="pname" type="text" data-pn="'+esc(p.id)+'" maxlength="20" placeholder="名前を書いてください" autocomplete="off">' : '')
+    + (p.open ? '<button class="go" data-vote="'+esc(p.id)+'">'+(p.mine ? '答えを変える' : '回答する')+'</button>' : '')
+    + '<p class="note">'+(p.open ? (p.named ? '' : '名前は記録されません。')+(p.show ? (p.mine ? '' : '答えると、みんなの回答の人数が見えます。') : '結果は院長とアプリ管理者だけが見ます。')+'締め切りまで、答えを変えられます。'
+        : (has ? '回答 '+(Number(p.n) || 0)+'人' : ''))+'</p></div>';
+}
+function render(){
+  const app = $('app');
+  nav();
+  if (failed && !ROLE){
+    app.innerHTML = '<div class="msg"><b style="font-size:16px;color:var(--ink)">'+esc(failed)+'</b><br><button class="reload" id="reload" style="margin-top:16px;border-color:#C9D6E0;background:#fff">↻ もう一度ためす</button></div>'+foot();
+    return;
+  }
+  if (!ROLE){ app.innerHTML = '<div class="msg">読み込んでいます…</div>'; return; }
+  let h = '';
+  if (ROLE === 'staff' && tab === 'write'){
+    h = head('名前は記録されません。院長とアプリ管理者が読みます')
+      + '<div class="list">'
+      + '<div class="caution">患者さんの名前・ID・検査の内容は書かないでください<small>スタッフ個人への不満は、ここに書かず、院長に直接伝えてください。</small></div>'
+      + '<div class="box"><div class="h2">種類</div><div class="pick" id="wCat">'+Object.keys(CAT).map(k => '<button data-v="'+k+'" class="'+(draft.cat === k ? 'on' : '')+'">'+esc(CAT[k])+'</button>').join('')+'</div></div>'
+      + '<div class="box"><div class="h2">内容</div><textarea id="wText" rows="7"></textarea><div class="cnt" id="wCnt"></div><p class="note" id="wTip" style="margin:4px 0 0"></p></div>'
+      + (OPINION ? '<div class="box"><label class="chk"><input type="checkbox" id="wWant"'+(draft.want ? ' checked' : '')+'><span>みんなの意見も聞いてほしい<small>公開するかどうかは、院長が決めます</small></span></label></div>' : '')
+      + '<button class="go" id="wGo">送る前に確かめる</button>'
+      + '<p class="note">送った投書は、名前なし・日付だけで、院長とアプリ管理者に届きます。院長が公開した投書だけが「みんなの投書」に出ます。公開されなかったときの知らせはありません。</p>'
+      + '</div>'+foot();
+    app.innerHTML = h;
+    const ta = $('wText'); ta.value = draft.text;
+    const cnt = () => { const n = len(ta.value); $('wCnt').textContent = n+' / '+MAXT+'字'; $('wCnt').classList.toggle('over', n > MAXT); };
+    ta.oninput = () => { draft.text = ta.value; cnt(); }; cnt();
+    const ex = () => { ta.placeholder = CAT_EX[draft.cat] || CAT_EX['']; $('wTip').textContent = CAT_TIP[draft.cat] || ''; $('wTip').style.display = CAT_TIP[draft.cat] ? '' : 'none'; };
+    ex();
+    $('wCat').onclick = e => { const b = e.target.closest('button'); if (!b) return; draft.cat = b.dataset.v; $('wCat').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); ex(); };
+    if ($('wWant')) $('wWant').onchange = e => { draft.want = e.target.checked; };
+    $('wGo').onclick = confirmSend;
+  } else if (tab === 'memo'){
+    const body = MEMOS.length ? MEMOS.map(m => '<div class="card">'
+        + '<div class="chips">'+(m.imp ? '<span class="chip new">大事</span>' : '')+(msNew[m.id] ? '<span class="chip s-do">新しい</span>' : '')+'<span class="dt num">'+esc(md(m.d))+'</span></div>'
+        + '<div class="tx pq">'+esc(m.title)+'</div><div class="tx">'+esc(m.text)+'</div></div>').join('')
+      : '<div class="empty">'+(!loaded ? '読み込んでいます…' : '業務連絡は、いまはありません。')+'</div>';
+    app.innerHTML = head(ROLE === 'staff' ? '院長からの連絡です' : '書く・直す・消すは、PCのご意見箱管理で')+'<div class="list">'+body+'</div>'+foot();
+  } else if (tab === 'poll'){
+    const body = POLLS.length ? POLLS.map(p => ROLE === 'staff' ? pollStaff(p) : pollDr(p)).join('')
+      : '<div class="empty">'+(!loaded ? '読み込んでいます…' : 'アンケートは、いまはありません。')+'</div>';
+    app.innerHTML = head(ROLE === 'staff' ? '院長からのアンケートです' : '結果です。作る・締め切るは、PCのご意見箱管理で')+'<div class="list">'+body+'</div>'+foot();
+    app.querySelectorAll('[data-pn]').forEach(i => { i.value = nm[i.dataset.pn] || ''; });
+  } else if (ROLE === 'staff'){
+    const ag = agGet(), nPoll = POLLS.filter(p => p.open && !p.mine).length, ms = msGet(), nMemo = MEMOS.filter(m => !ms[m.id]).length;
+    h = head('院長が読んで、公開した投書です')
+      + (nPoll ? '<div class="ntc up"><b>アンケート</b><div class="nt">まだ答えていないアンケートが '+nPoll+'件あります。</div><div class="nb"><button id="goPoll">アンケートを開く</button></div></div>' : '')
+      + (nMemo ? '<div class="ntc up"><b>業務連絡</b><div class="nt">まだ読んでいない業務連絡が '+nMemo+'件あります。</div><div class="nb"><button id="goMemo">業務連絡を開く</button></div></div>' : '')
+      + '<div class="list">'+(POSTS.length ? POSTS.map(p => cardStaff(p, ag)).join('')
+        : '<div class="empty">'+(!loaded ? '読み込んでいます…<br>下の「書く」は、もう使えます。' : '公開された投書は、まだありません。<br>下の「書く」から、意見や希望を出せます。')+'</div>')+'</div>'+foot();
+    app.innerHTML = h;
+  } else {
+    const L = POSTS.filter(p => tab === 'new' ? p.pub === '' : tab === 'pub' ? p.pub === '1' : p.pub === '0');
+    const lead = tab === 'new' ? 'まだ対応していない投書です' : tab === 'pub' ? 'スタッフみんなが見られる投書です' : '公開しないことにした投書です（3か月で消えます）';
+    h = head(lead)+'<div class="list">'+(L.length ? L.map(cardDr).join('') : '<div class="empty">'+(!loaded ? '読み込んでいます…' : tab === 'new' ? '新しい投書はありません。' : 'ここには、まだ何もありません。')+'</div>')+'</div>'+foot();
+    app.innerHTML = h;
+  }
+}
+function goTab(t){ tab = t; sheetClose(); render(); window.scrollTo(0, 0); }
+/* 更新のボタンだけを書き直す（書いている途中の画面を作り直さないため） */
+function paintReload(){ const b = $('reload'); if (b && ROLE){ b.disabled = loading; b.textContent = loading ? '更新中…' : '↻ 更新する'; } }
+
+/* ===== 読み込み（開いたときに1回。あとは「更新する」を押したとき） ===== */
+async function load(){
+  if (loading) return;
+  loading = true; failed = '';
+  if (ROLE && tab === 'write') paintReload(); else render();
+  let r = null;
+  try { r = await call({a:'list', pt:ptGet()}); } catch(e){}
+  loading = false;
+  if (r && r.nokey){ noKeyView(); return; }
+  if (r && r.ok && (r.role === 'staff' || r.role === 'dr')){
+    const first = ROLE !== r.role;
+    const op0 = OPINION; OPINION = r.opinion === true;
+    loaded = true; GASVER = String(r.ver || ''); MEMOS = Array.isArray(r.memos) ? r.memos : [];
+    ROLE = r.role; WHO = r.who === 'as' ? 'as' : ''; rolePut(ROLE, WHO); POSTS = Array.isArray(r.posts) ? r.posts : []; POLLS = Array.isArray(r.polls) ? r.polls : [];
+    if (tab !== 'poll'){ sel = {}; nm = {}; }
+    if (ROLE === 'staff'){ const pt = ptGet(), keep = {}; POLLS.forEach(p => { if (pt[p.id]) keep[p.id] = pt[p.id]; }); ptPut(keep); } MAXT = Number(r.max) || 400; MAXR = Number(r.maxReply) || 400; stale = '';
+    { const ms = msGet(), keep = {}; MEMOS.forEach(m => { if (ms[m.id]) keep[m.id] = 1; else if (MODE === 'memo') msNew[m.id] = 1; });   /* 業務連絡を開いたら、出ているものを「読んだ」として覚える */
+      if (MODE === 'memo') MEMOS.forEach(m => { keep[m.id] = 1; }); msPut(keep); }
+    if (DEMO) demoBar();
+    if (ROLE === 'staff'){
+      rcPut(r);
+      const ag = agGet(), keep = {}; POSTS.forEach(p => { if (ag[p.id]) keep[p.id] = 1; }); agPut(keep);
+      if (first && tab !== 'write') tab = homeTab('staff');
+    } else { rcDrop(); if (first) tab = homeTab('dr'); }
+  } else if (r && r.bad){ rcDrop(); try { localStorage.removeItem('goikenbako_role'); } catch(e){} ROLE = ''; WHO = ''; MEMOS = []; POLLS = []; POSTS = []; stale = ''; failed = r.error || 'このQRコードは使えません。'; }
+  else if (ROLE){ stale = ROLE === 'staff' && !DEMO && MODE !== 'poll' ? 'つながりませんでした。前に見た内容を出しています' : 'つながりませんでした。「更新する」を押してください'; }
+  else failed = (r && r.error) || 'つながりませんでした。電波のよい所で、もう一度ためしてください。';
+  if (ROLE === 'staff' && tab === 'write' && $('wText') && !!$('wWant') === OPINION){ paintReload(); nav(); } else render();
+}
+
+/* ===== 投書を送る ===== */
+function confirmSend(){
+  const text = draft.text.trim();
+  if (!CAT[draft.cat]) return toast('種類をえらんでください');
+  if (!text) return toast('内容を書いてください');
+  if (len(text) > MAXT) return toast('文が長すぎます（'+MAXT+'字まで）');
+  sheetOpen('<div class="sh-h">この内容で送りますか？</div>'
+    + '<div class="quote"><div class="chips"><span class="chip c-'+draft.cat+'">'+esc(CAT[draft.cat])+'</span>'+(OPINION && draft.want ? '<span class="chip want">みんなの意見も聞いてほしい</span>' : '')+'</div><div class="tx">'+esc(text)+'</div></div>'
+    + '<div class="caution" style="margin-top:12px">患者さんの名前・ID・検査の内容が入っていないか、もう一度見てください</div>'
+    + '<button class="go" id="sGo">送る</button><button class="b-x" id="sNo">もどって直す</button>');
+  $('sNo').onclick = sheetClose;
+  $('sGo').onclick = async () => {
+    if (busy) return;
+    busy = true; $('sGo').disabled = true; $('sGo').textContent = '送っています…';   /* 2回送られないようにする */
+    let r = null;
+    try { r = await call({a:'post', cat:draft.cat, text:text, want:OPINION && draft.want === true}); } catch(e){}
+    busy = false;
+    if (!r || !r.ok){
+      if ($('sGo')){ $('sGo').disabled = false; $('sGo').textContent = '送る'; }
+      if (r && r.bad){ sheetClose(); toast(r.error || 'このQRコードは使えません'); return; }
+      toast(r && r.error ? r.error : 'つながりませんでした。書いた文はそのままです。もう一度押してください');
+      return;
+    }
+    draft = {cat:'', text:'', want:false};
+    sheetClose(); goTab('list'); toast('送りました');
+  };
+}
+
+/* ===== アンケートに答える・答え直す ===== */
+async function vote(pid, btn){
+  const p = POLLS.find(x => x.id === pid); if (!p || !p.open || voteBusy) return;
+  const c = (sel[pid] || []).slice().sort((a, b) => a - b), name = String(nm[pid] || '').trim();
+  const none = c.indexOf(-1) >= 0;
+  if (!c.length) return toast('えらんでください');
+  if (p.named && !name) return toast('名前を書いてください');
+  const pt = ptGet(); if (!pt[pid]){ pt[pid] = rndKey(24); ptPut(pt); }   /* 先に覚える（送り直しても同じ人の回答になるように） */
+  voteBusy = true; btn.disabled = true; btn.textContent = '送っています…';
+  let r = null;
+  try { r = await call({a:'vote', pid:pid, t:pt[pid], c:none ? [] : c, none:none, name:p.named ? name : '', pt:pt}); } catch(e){}
+  voteBusy = false;
+  if (!r || !r.ok){
+    btn.disabled = false; btn.textContent = p.mine ? '答えを変える' : '回答する';
+    toast(r && r.error ? r.error : 'つながりませんでした。えらんだものはそのままです。もう一度押してください');
+    if (r && (r.gone || r.bad)) load();
+    return;
+  }
+  const was = !!p.mine;
+  POLLS = Array.isArray(r.polls) ? r.polls : POLLS; delete sel[pid]; delete nm[pid];
+  toast(was ? '答えを変えました' : '回答しました'); render();
+}
+
+/* ===== 同じ意見です ===== */
+async function agree(id, btn){
+  const ag = agGet(); if (ag[id] || btn.disabled) return;
+  btn.disabled = true;
+  let r = null;
+  try { r = await call({a:'agree', id:id}); } catch(e){}
+  if (!r || !r.ok){ btn.disabled = false; toast(r && r.error ? r.error : 'つながりませんでした。もう一度押してください'); if (r && (r.gone || r.off)) load(); return; }
+  const a2 = agGet(); a2[id] = 1; agPut(a2);
+  const p = POSTS.find(x => x.id === id); if (p) p.ag = r.ag;
+  if (tab === 'list') render();
+}
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'reload') return load();
+  if (t.id === 'goMemo'){ if (DEMO){ MODE = 'memo'; demoBar(); return restart(); } try { location.href = 'renraku.html'; } catch(e){} return; }
+  if (t.id === 'goPoll'){ if (DEMO){ MODE = 'poll'; demoBar(); return restart(); } try { location.href = 'anketo.html'; } catch(e){} return; }
+  if (t.id === 'upGo'){ try { location.reload(); } catch(e){} return; }
+  if (t.dataset.go) return goTab(t.dataset.go);
+  if (t.dataset.ag) return agree(t.dataset.ag, t);
+  if (t.dataset.vote && ROLE === 'staff') return vote(t.dataset.vote, t);
+  if (t.dataset.oi !== undefined && ROLE === 'staff' && !voteBusy){
+    const p = POLLS.find(x => x.id === t.dataset.pid), i = Number(t.dataset.oi); if (!p || !p.open) return;
+    const s = sel[p.id] || (sel[p.id] = []), at = s.indexOf(i);
+    if (i < 0) sel[p.id] = at >= 0 ? [] : [-1];   /* 「どれもえらばない」は、ほかの選択肢といっしょにえらべない */
+    else if (p.multi){ const s2 = s.filter(x => x >= 0), a2 = s2.indexOf(i); if (a2 >= 0) s2.splice(a2, 1); else s2.push(i); sel[p.id] = s2; } else sel[p.id] = [i];
+    return render();
+  }
+  if (t.dataset.edit && ROLE === 'dr'){
+    const p = POSTS.find(x => x.id === t.dataset.edit); if (!p) return;
+    openEdit(p, MAXR, call, np => {
+      if (np){ const i = POSTS.findIndex(x => x.id === np.id); if (i >= 0) POSTS[i] = np; } else POSTS = POSTS.filter(x => x.id !== p.id);
+      render();
+    });
+  }
+});
+$('bg').onclick = () => { if (!busy && !edBusy) sheetClose(); };
+document.addEventListener('input', e => { const t = e.target; if (t && t.dataset && t.dataset.pn) nm[t.dataset.pn] = t.value; });
+
+/* ===== QRコードなしで開いたとき・見本（プレビュー） ===== */
+function noKeyView(){
+  ROLE = ''; $('nav').style.display = 'none';
+  $('app').innerHTML = '<div class="msg"><b style="font-size:17px;color:var(--ink)">'+(MODE !== 'box' ? '先に「ご意見箱」のQRコードを読み取ってください' : '院長に見せてもらったQRコードから開いてください')+'</b>'
+    + '<p style="font-size:13px">'+(MODE !== 'box' ? 'スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。1回読み取ると、この「'+APP_NAME()+'」も開けるようになります。' : 'はじめての人は、スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。')+'</p>'
+    + '<button id="demoGo" style="margin-top:18px;border:none;background:var(--sky);color:#fff;border-radius:14px;padding:13px 22px;font-size:15px;font-weight:700">見本で見てみる（プレビュー）</button></div>'+foot();
+  $('demoGo').onclick = () => { DEMO = true; demoBar(); restart(); };
+}
+function demoBar(){
+  const el = $('demoBar');
+  if (!DEMO){ el.style.display = 'none'; return; }
+  el.style.display = '';
+  try { document.title = APP_NAME()+(PREVIEW ? ' 見本（プレビュー）' : ''); } catch(e){}
+  el.innerHTML = '<div>見本（プレビュー）です。書いても、どこにも送られません</div>'
+    + '<div class="dt2">アプリ：<button data-md="box" class="'+(MODE === 'box' ? 'on' : '')+'">ご意見箱</button><button data-md="poll" class="'+(MODE === 'poll' ? 'on' : '')+'">アンケート</button><button data-md="memo" class="'+(MODE === 'memo' ? 'on' : '')+'">業務連絡</button></div><div class="dt2">見る人：'
+    + [['staff','スタッフ'],['dr','院長'],['as','アプリ管理者']].map(x => '<button data-r="'+x[0]+'" class="'+(demoRole === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')
+    + '<button id="demoReset">最初に戻す</button>'+(PREVIEW ? '' : '<button id="demoEnd">終わる</button>')+'</div>'
+    + '<div class="dt2">「みんなの意見を聞く」機能：<button data-op="0" class="'+(OPINION ? '' : 'on')+'">使わない（保留）</button><button data-op="1" class="'+(OPINION ? 'on' : '')+'">使う</button></div>';
+  el.querySelectorAll('[data-op]').forEach(b => b.onclick = async ev => { ev.stopPropagation(); await demoCall({a:'setOpt', admin:DEMO_KEYS.admin, opinion:b.dataset.op === '1'}); OPINION = b.dataset.op === '1'; demoBar(); restart(); });
+  el.querySelectorAll('[data-md]').forEach(b => b.onclick = ev => { ev.stopPropagation(); MODE = b.dataset.md; demoBar(); restart(); });
+  el.querySelectorAll('[data-r]').forEach(b => b.onclick = ev => { ev.stopPropagation(); demoRole = b.dataset.r; demoBar(); restart(); });
+  $('demoReset').onclick = ev => { ev.stopPropagation(); demoReset(); agMem = {}; ptMem = {}; msMem = {}; restart(); };
+  if ($('demoEnd')) $('demoEnd').onclick = ev => { ev.stopPropagation(); DEMO = false; demoBar(); restart(); };
+}
+function restart(){
+  ROLE = ''; WHO = ''; MEMOS = []; msNew = {}; GASVER = ''; loaded = false; POSTS = []; POLLS = []; sel = {}; nm = {}; voteBusy = false; stale = ''; failed = ''; busy = false; loading = false; draft = {cat:'', text:'', want:false}; tab = homeTab('staff');
+  sheetClose(); start();
+}
+function start(){
+  demoBar();
+  const c = MODE === 'poll' ? null : rcGet();   /* 前に見た一覧があれば、先に出す（ご意見箱だけ） */
+  const pr = roleGet();   /* 前に開いたときの役が分かれば、返事を待たずに画面の枠を出す（スタッフは、すぐ「書く」が使える） */
+  if (!c && pr){ ROLE = pr.role; WHO = pr.who === 'as' ? 'as' : ''; tab = homeTab(ROLE); }
+  if (c){ ROLE = 'staff'; tab = homeTab('staff'); OPINION = c.opinion === true; MEMOS = Array.isArray(c.memos) ? c.memos : []; POSTS = c.posts; MAXT = Number(c.max) || 400; stale = '前に見た内容です。新しい内容を取りに行っています'; }
+  load();
+}
+start();
+</script>
+</body>
+</html>
