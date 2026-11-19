@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<title>ご意見箱 数字の部品</title>
+</head>
+<body style="margin:0;font-family:sans-serif;color:#33485A">
+<!-- ご意見箱「数字の部品」 Ver1.10.0。GitHub Pages の staff に goikenbako-badge.html として置きます。
+     スタッフアプリ（入口アプリ）が、見えない枠（iframe）の中でこのファイルを開き、
+     「まだ読んでいない業務連絡の数」「まだ答えていないアンケートの数」の2つの数字だけを受け取ります。
+     合言葉・名前はこのファイルに入っていません。連絡やアンケートの中身は、入口アプリに渡しません -->
+<p id="t" style="display:none;margin:24px;font-size:15px;line-height:1.8"></p>
+<script>
+'use strict';
+(function(){
+  const VER = '1.10.0';
+  const ORIGIN = location.origin;
+  const HOLD = 20000;      /* この時間（ミリ秒）の間は、GASに聞き直さない（開くたびに何度も聞かないように） */
+  const ZERO = () => ({'renraku.html':0, 'anketo.html':0});
+
+  /* 同じ置き場所（staff）のページの中に入れられたときだけ動く。じかに開いたとき・よその場所のページに入れられたときは、何もしない */
+  let par = null;
+  try { if (window.parent !== window && window.parent.location.origin === ORIGIN && /^https?:$/.test(location.protocol)) par = window.parent; } catch(e){}
+  if (!par){
+    const t = document.getElementById('t');
+    t.textContent = 'この画面は、スタッフアプリ（入口アプリ）のボタンに数字を出すための部品です。開いて使うものではありません。（Ver'+VER+'）';
+    t.style.display = '';
+    return;
+  }
+
+  /* ===== ご意見箱のアプリがこのスマホに覚えさせたものを読む（読むだけ。書きかえない） ===== */
+  const okK = v => /^[a-z0-9]{16,40}$/.test(v || ''), okS = v => /^[A-Za-z0-9_-]{20,200}$/.test(v || '');
+  const okId = v => /^[A-Za-z0-9_-]{1,40}$/.test(v);
+  const ls = k => { try { return localStorage.getItem('goikenbako_'+k) || ''; } catch(e){ return ''; } };
+  const lsJ = k => { try { return JSON.parse(ls(k) || 'null'); } catch(e){ return null; } };
+  function hashK(k){ let h = 5381; k = String(k); for (let i = 0; i < k.length; i++) h = ((h * 33) ^ k.charCodeAt(i)) >>> 0; return String(h); }
+  function keys(){ const k = ls('k'), s = ls('s'); return okK(k) && okS(s) ? {k:k, s:s, h:hashK(k)} : null; }
+  function part(name, field, h){ const c = lsJ(name); return c && c.h === h && c[field] && typeof c[field] === 'object' && !Array.isArray(c[field]) ? c[field] : {}; }
+  const readMemos = h => part('ms', 'ids', h);     /* 読んだ業務連絡の番号 */
+  const myTokens = h => part('pt', 't', h);        /* アンケートごとの「自分の回答の番号」 */
+
+  /* ===== この部品が覚えるもの：業務連絡の番号と、まだ答えていないアンケートの番号だけ（中身・合言葉は入れない） ===== */
+  function cacheGet(h){
+    const c = lsJ('bd');
+    return c && c.h === h && typeof c.at === 'number' && [c.m, c.p, c.q].every(a => Array.isArray(a) && a.every(x => typeof x === 'string' && okId(x))) ? c : null;
+  }
+  function cachePut(c){ try { localStorage.setItem('goikenbako_bd', JSON.stringify(c)); } catch(e){} }
+  function cacheDrop(){ try { localStorage.removeItem('goikenbako_bd'); } catch(e){} }
+
+  /* 数える。m：出ている業務連絡、p：GASに聞いたとき答えていなかったアンケート、q：そのうち、もう回答の番号があったもの（送りそこねなど） */
+  function count(c, h){
+    const ms = readMemos(h), pt = myTokens(h), cap = n => Math.max(0, Math.min(99, n));
+    return {
+      'renraku.html': cap(c.m.filter(id => !ms[id]).length),
+      'anketo.html': cap(c.p.filter(id => !(pt[id] && c.q.indexOf(id) < 0)).length)   /* 聞いたあとで答えたものは、数えない */
+    };
+  }
+  /* 入口アプリへ渡す。渡すのは、この形の数字だけ。同じ置き場所のページにしか渡さない */
+  function send(state, counts){
+    try { par.postMessage({type:'staff-badge', from:'goikenbako', v:1, state:state, counts:counts}, ORIGIN); } catch(e){}
+  }
+
+  async function ask(K){
+    const ac = new AbortController(), t = setTimeout(() => ac.abort(), 15000);
+    try {
+      const r = await fetch('https://script.google.com/macros/s/'+K.s+'/exec', {method:'POST', body:JSON.stringify({a:'list', k:K.k, pt:myTokens(K.h)}),
+        signal:ac.signal, referrerPolicy:'no-referrer', credentials:'omit', cache:'no-store'});
+      return await r.json();
+    } finally { clearTimeout(t); }
+  }
+
+  let busy = false;
+  /* state：'ok'＝GASに聞いた数字　'cache'＝前に聞いたときの数字（聞き直している途中か、つながらなかった）
+            'nokey'＝ご意見箱のQRをまだ読んでいない　'bad'＝QRが使えなくなっている　'off'＝つながらず、前の数字もない */
+  async function run(net){
+    const K = keys();
+    if (!K){ send('nokey', ZERO()); return; }
+    const c = cacheGet(K.h), age = c ? Date.now() - c.at : -1;
+    if (c && age >= 0 && age < HOLD){ send('ok', count(c, K.h)); return; }
+    if (c) send('cache', count(c, K.h));
+    if (!net || busy) return;
+    busy = true;
+    let r = null;
+    try { r = await ask(K); } catch(e){}
+    busy = false;
+    const K2 = keys();
+    if (!K2 || K2.h !== K.h) return;   /* 聞いている間にQRが変わった：この返事は使わない */
+    if (r && r.ok === true && (r.role === 'staff' || r.role === 'dr')){
+      const ids = L => (Array.isArray(L) ? L : []).map(x => String(x && x.id)).filter(okId);
+      const pt = myTokens(K.h);
+      const p = r.role === 'staff' ? ids((Array.isArray(r.polls) ? r.polls : []).filter(x => x && x.open === true && !x.mine)).slice(0, 30) : [];
+      const nc = {h:K.h, at:Date.now(), m:ids(r.memos).slice(0, 200), p:p, q:p.filter(id => pt[id])};
+      cachePut(nc); send('ok', count(nc, K.h));
+    } else if (r && r.bad){ cacheDrop(); send('bad', ZERO()); }
+    else if (!c) send('off', ZERO());
+  }
+
+  run(true);
+  /* 入口アプリの画面に戻ってきたとき（業務連絡を読んだあとなど）に、数え直す */
+  window.addEventListener('pageshow', e => { if (e.persisted) run(true); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') run(true); });
+  /* 入口アプリから「数え直して」と言われたとき */
+  window.addEventListener('message', e => { if (e.origin === ORIGIN && e.source === par && e.data && e.data.type === 'staff-badge-refresh') run(true); });
+  /* 別の画面で業務連絡を読んだ・アンケートに答えたとき：GASには聞かず、覚えている番号で数え直すだけ */
+  window.addEventListener('storage', e => { if (e.key && e.key.indexOf('goikenbako_') === 0 && e.key !== 'goikenbako_bd') run(false); });
+})();
+</script>
+</body>
+</html>
