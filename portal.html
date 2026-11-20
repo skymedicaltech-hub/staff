@@ -276,7 +276,8 @@
   .app .body{display:flex;flex-direction:column;align-items:flex-start;box-sizing:border-box;padding-left:6px}   /* Ver3.4.20〜 アプリ名と札を少し右へ(6px) */
   .app .name{font-size:19px;font-weight:700;text-align:left;justify-content:flex-start;word-break:normal;overflow-wrap:anywhere}
   .app .tags{order:-1;margin:0 0 6px;justify-content:flex-start}
-  .app .bdg{left:calc(50% + 44px)}
+  .list > .app .icon{transform:translate(-14px,-6px)}   /* Ver3.4.21〜 アイコンを少し左上へ(左14px・上6px)。タイルの大きさ・アプリ名の位置は変えない */
+  .app .bdg{left:calc(50% + 30px);top:1px}
   .app .tag{font-size:11.5px;padding:1px 6px;background:rgba(0,40,80,.28);color:inherit;border:1px solid currentColor}
   .app .tag.new{background:#fff;color:var(--navy);border-color:#fff}
   .app .tag.qr{background:#fff;color:#B26A00;border-color:#fff}
@@ -346,7 +347,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.4.20';
+const VERSION = 'Ver3.4.21';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
