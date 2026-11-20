@@ -270,6 +270,13 @@
   .app .name{font-size:17px;line-height:1.3;color:inherit;word-break:break-all;text-shadow:var(--ts,0 1px 2px rgba(0,30,60,.7), 0 0 8px rgba(0,30,60,.35))}
   .app .desc,.app .arrow{display:none}
   .app .tags{margin-top:6px;gap:4px}
+  /* Ver3.4.17〜 アプリの名前を大きく(17→19)。アイコンは真ん中。左右の余白を少しせまく
+     Ver3.4.19〜 文字は左ぞろえ(3.4.18の右ぞろえから戻した)。札(NEWなど)はアプリ名の上に出し、アプリ名はどのタイルでもいちばん下の同じ位置 */
+  .list > .app{align-items:center;text-align:left;padding-left:10px;padding-right:8px}
+  .app .body{display:flex;flex-direction:column;align-items:flex-start;box-sizing:border-box;padding-left:6px}   /* Ver3.4.20〜 アプリ名と札を少し右へ(6px) */
+  .app .name{font-size:19px;font-weight:700;text-align:left;justify-content:flex-start;word-break:normal;overflow-wrap:anywhere}
+  .app .tags{order:-1;margin:0 0 6px;justify-content:flex-start}
+  .app .bdg{left:calc(50% + 44px)}
   .app .tag{font-size:11.5px;padding:1px 6px;background:rgba(0,40,80,.28);color:inherit;border:1px solid currentColor}
   .app .tag.new{background:#fff;color:var(--navy);border-color:#fff}
   .app .tag.qr{background:#fff;color:#B26A00;border-color:#fff}
@@ -339,7 +346,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.4.15';
+const VERSION = 'Ver3.4.20';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -472,32 +479,31 @@ function renderList(data, note){
   bindDemo();
 
   document.querySelectorAll('.app').forEach(b => {
-    // Ver3.4.15〜 押したときの動きを1回だけにする(前は「縮む→戻る→また縮む」と2回動いてガタついていた)
+    // Ver3.4.16〜 押したときの動き
     //  ・指が触れて少し(0.06秒)たってから縮む。画面をなぞって動かしたとき(スクロール)は縮まない
-    //  ・指をはなしたあと、開くまで縮んだまま。開いたあとにゆっくり戻る
+    //  ・指をはなしたら、すぐに軽くはずんで戻る。戻りながらアプリを開く
+    //  ・すばやく押してすぐはなしたとき(縮む前にはなした)も、一瞬だけ縮んで戻る
     const on = () => b.classList.add('pressed');
     const off = () => b.classList.remove('pressed');
-    let tDown = 0, tOff = 0, sx = 0, sy = 0;
+    let tDown = 0, waiting = false, sx = 0, sy = 0;
     b.addEventListener('pointerdown', e => {
-      if (b.dataset.busy) return;
-      sx = e.clientX; sy = e.clientY; clearTimeout(tOff);
-      tDown = setTimeout(on, 60);
+      sx = e.clientX; sy = e.clientY; waiting = true;
+      tDown = setTimeout(() => { waiting = false; on(); }, 60);
     });
     b.addEventListener('pointermove', e => {
-      if (b.dataset.busy) return;
-      if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) { clearTimeout(tDown); off(); }
+      if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) { clearTimeout(tDown); waiting = false; off(); }
     });
     b.addEventListener('pointerup', () => {
-      if (b.dataset.busy) return;
       clearTimeout(tDown);
-      tOff = setTimeout(() => { if (!b.dataset.busy) off(); }, 250);   // 押したことにならなかったときだけ戻す
+      if (waiting) { waiting = false; on(); setTimeout(off, 90); }   // 縮む前にはなした
+      else off();                                                     // はなしたら戻る
     });
-    b.addEventListener('pointercancel', () => { clearTimeout(tDown); clearTimeout(tOff); if (!b.dataset.busy) off(); });
+    b.addEventListener('pointercancel', () => { clearTimeout(tDown); waiting = false; off(); });
     b.addEventListener('click', () => {
       if (b.dataset.busy) return;                 // すばやい2回押しで2回開かないように
-      b.dataset.busy = '1'; clearTimeout(tDown); clearTimeout(tOff); on();
-      setTimeout(() => { openApp(data.apps[+b.dataset.i]); }, 140);
-      setTimeout(() => { delete b.dataset.busy; off(); }, 700);
+      b.dataset.busy = '1';
+      setTimeout(() => { openApp(data.apps[+b.dataset.i]); }, 180);   // 戻る動きが見えてから開く
+      setTimeout(() => { delete b.dataset.busy; }, 700);
     });
   });
   document.querySelectorAll('#main button.nw').forEach(b => b.addEventListener('click', () => {     // お知らせを押したら、結びつけたアプリを開く
