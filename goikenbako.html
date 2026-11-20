@@ -161,7 +161,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.7.1。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.10.1。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -169,8 +169,15 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.7.1';
-const PREVIEW = false;   /* true：院長がclaude.aiで見るための見本専用版（どこにも送らない） */
+const APP_VER = '1.10.1';
+const PREVIEW = false;
+/* このファイルの役（Ver1.8.0〜）。同じ中身から3つのファイルを作る。
+   'box'＝ご意見箱（goikenbako.html：投書を見る・書く）　'poll'＝アンケート（anketo.html：アンケートに答える）
+   'memo'＝業務連絡（renraku.html：院長からの連絡を読む。Ver1.9.0〜）
+   合言葉・GAS・スマホが覚えるものは、3つで共通（同じ場所に置くので、ご意見箱のQRを1回読めば、ほかの2つも開ける） */
+let MODE = 'box';
+const APP_NAME = () => MODE === 'poll' ? 'アンケート' : MODE === 'memo' ? '業務連絡' : 'ご意見箱';
+const homeTab = role => MODE === 'poll' ? 'poll' : MODE === 'memo' ? 'memo' : role === 'dr' ? 'new' : 'list';   /* true：院長がclaude.aiで見るための見本専用版（どこにも送らない） */
 /* ===== 共通の部品（スマホアプリ・ご意見箱管理で同じもの） ===== */
 const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};
 /* 書く画面の例文（種類をえらぶと変わる） */
@@ -339,7 +346,7 @@ function demoBackend(){
   const ContentService = {MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * ご意見箱 GAS  Ver1.7.1（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
+ * ご意見箱 GAS  Ver1.9.0（ご意見箱管理・スマホアプリ「ご意見箱」と同じ版数）
  * ご意見箱専用のスプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。スマホアプリは GitHub Pages（goikenbako.html）に置き、ここを呼びます。
  *
@@ -354,12 +361,13 @@ function demoBackend(){
  *  ・アンケートでは、スマホが作ったランダムな番号（アンケートごとに別）と、名前つきのときだけ本人が書いた名前を保存する
  *  ・決めた項目だけを保存する。1件の長さ・1日に受け付ける数に上限がある
  */
-const VER = '1.7.1';
-const SH = {posts:'投書', polls:'アンケート', ans:'アンケートの回答'};
+const VER = '1.9.0';
+const SH = {posts:'投書', polls:'アンケート', ans:'アンケートの回答', memos:'業務連絡'};
 const HEAD = {
   posts: ['番号','書いた日','種類','本文','みんなの意見も聞いてほしい','公開','院長の返事','しるし','同じ意見の数','公開した日'],
   polls: ['番号','作った日','質問','選択肢','選び方','結果','名前','状態','締め切った日','えらばない'],
-  ans: ['アンケートの番号','回答の番号','選んだもの','名前']
+  ans: ['アンケートの番号','回答の番号','選んだもの','名前'],
+  memos: ['番号','出した日','題','本文','大事']
 };
 const CAT = {work:'業務の改善', item:'備品・設備', app:'アプリの改善', other:'その他'};   /* app は Ver1.3.0〜 */
 const PUB = {'1':'公開', '0':'公開しない'};
@@ -512,6 +520,8 @@ function purge_(){
     const rows = read_('posts');
     const keep = rows.filter(r => r[5] === PUB['1'] ? !(days_(r[9] || r[1], t) > KEEP_PUB) : !(days_(r[1], t) > KEEP_HIDDEN));
     if (keep.length !== rows.length) write_('posts', keep);
+    const memos = read_('memos'), mk = memos.filter(r => !(days_(r[1], t) > KEEP_MEMO));
+    if (mk.length !== memos.length) write_('memos', mk);
     /* 締め切ってから日数がたったアンケートを、回答・名前ごと消す */
     const polls = read_('polls');
     if (polls.length){
@@ -524,16 +534,52 @@ function purge_(){
   } finally { if (lock) lock.releaseLock(); }
 }
 
-/* ---------- お知らせ（Ver1.7.0。アプリを新しくしたときなどに、院長・アプリ管理者のPCから全員に出す短い文） ---------- */
-const MAX_NOTICE = 200;
-function notice_(){
-  try { const o = JSON.parse(gp_('NOTICE') || 'null'); return o && o.id && o.text ? {id:String(o.id), d:String(o.d || ''), text:String(o.text)} : null; } catch(e){ return null; }
+/* ---------- 業務連絡（Ver1.9.0） ----------
+   ・書く・直す・消すのは、院長のPCとアプリ管理者のPCだけ。スタッフ（と院長・アプリ管理者のスマホ）は読むだけ
+   ・「読みました」の確認はない。だれが読んだかは、受け取らない・保存しない
+   ・出した日から KEEP_MEMO 日で、自動で消える
+   ※Ver1.7.0〜1.8.0 の「お知らせ」は、Ver1.9.0 でなくした（残っていた文は、院長のPCが開いたときに消す） */
+const MAX_MTITLE = 60;       /* 業務連絡の題の長さ（文字） */
+const MAX_MTEXT = 600;       /* 業務連絡の本文の長さ（文字） */
+const MAX_MEMOS = 100;       /* シートに置ける業務連絡の数 */
+const KEEP_MEMO = 90;        /* 業務連絡を残す日数（出した日から） */
+function memosOut_(){
+  const L = read_('memos').reverse().map(r => ({id:r[0], d:r[1], title:r[2], text:r[3], imp:r[4] === '1'}));   /* 新しいものが上 */
+  return L.filter(m => m.imp).concat(L.filter(m => !m.imp));   /* 「大事」は、いちばん上 */
 }
-function setNotice_(b){
-  const t = clean_(b.text);
-  if (len_(t) > MAX_NOTICE) return {ok:false, error:'お知らせが長すぎます（'+MAX_NOTICE+'字まで）。'};
-  sp_('NOTICE', t ? JSON.stringify({id:newId_().slice(0, 8), d:today_(), text:t}) : '');
-  return {ok:true, notice:notice_()};
+/* 業務連絡を出す・直す（id があれば直す。出した日は変えない） */
+function memoSave_(b){
+  const title = clean_(String(b.title == null ? '' : b.title).replace(/\s+/g, ' '));
+  if (!title) return {ok:false, error:'題を書いてください。'};
+  if (len_(title) > MAX_MTITLE) return {ok:false, error:'題が長すぎます（'+MAX_MTITLE+'字まで）。'};
+  const text = clean_(b.text);
+  if (!text) return {ok:false, error:'本文を書いてください。'};
+  if (len_(text) > MAX_MTEXT) return {ok:false, error:'本文が長すぎます（'+MAX_MTEXT+'字まで）。'};
+  const imp = b.imp === true ? '1' : '0', id = String(b.id || '');
+  const lock = lock_();
+  try {
+    purge_();
+    const rows = read_('memos');
+    if (id){
+      const r = rows.find(x => x[0] === id);
+      if (!r) return {ok:false, gone:true, error:'この業務連絡は、もうありません。'};
+      r[2] = title; r[3] = text; r[4] = imp;
+    } else {
+      if (rows.length >= MAX_MEMOS) return {ok:false, error:'業務連絡が多すぎます。古いものを消してください。'};
+      rows.push([newId_(), today_(), title, text, imp]);
+    }
+    write_('memos', rows);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
+}
+function memoDel_(b){
+  const id = String(b.id || '');
+  const lock = lock_();
+  try {
+    const rows = read_('memos'), keep = rows.filter(x => x[0] !== id);
+    if (keep.length !== rows.length) write_('memos', keep);
+    return {ok:true};
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------- 返す形 ---------- */
@@ -549,9 +595,10 @@ function list_(role, b){
   if (role === 'staff'){
     const L = rows.filter(r => r[5] === PUB['1']).map(r => pubOut_(r, op));
     L.sort((a, b) => a.pd < b.pd ? 1 : a.pd > b.pd ? -1 : 0);
-    return {ok:true, ver:VER, role:'staff', opinion:op, notice:notice_(), max:MAX_TEXT, posts:L, polls:pollsOut_('staff', ptOf_(b))};
+    return {ok:true, ver:VER, role:'staff', opinion:op, max:MAX_TEXT, posts:L, polls:pollsOut_('staff', ptOf_(b)), memos:memosOut_()};
   }
-  return {ok:true, ver:VER, role:role, opinion:op, notice:notice_(), max:MAX_TEXT, maxReply:MAX_REPLY, maxNotice:MAX_NOTICE, posts:rows.map(allOut_), polls:pollsOut_(role, {})};
+  if (role === 'admin' && gp_('NOTICE')) sp_('NOTICE', '');   /* 前の版の「お知らせ」の文が残っていたら消す */
+  return {ok:true, ver:VER, role:role, opinion:op, max:MAX_TEXT, maxReply:MAX_REPLY, maxMemoTitle:MAX_MTITLE, maxMemo:MAX_MTEXT, memos:memosOut_(), posts:rows.map(allOut_), polls:pollsOut_(role, {})};
 }
 
 /* ---------- アンケート（Ver1.2.0） ----------
@@ -802,7 +849,8 @@ function handle_(b){
   if (a === 'keys') return role === 'admin' ? keys_() : {ok:false, error:NO_ROLE};
   if (a === 'setKeys') return role === 'admin' ? setKeys_(b) : {ok:false, error:NO_ROLE};
   if (a === 'setAdmin2') return who === 'admin' ? setAdmin2_(b) : {ok:false, error:NO_ROLE};
-  if (a === 'setNotice') return role === 'admin' ? setNotice_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'memoSave') return role === 'admin' ? memoSave_(b) : {ok:false, error:NO_ROLE};
+  if (a === 'memoDel') return role === 'admin' ? memoDel_(b) : {ok:false, error:NO_ROLE};
   if (a === 'setOpt') return role === 'admin' ? setOpt_(b) : {ok:false, error:NO_ROLE};
   if (a === 'vote') return role === 'staff' ? vote_(b) : {ok:false, error:'アンケートは、スタッフ用のQRコードで開いて答えてください。'};
   if (a === 'pollNew') return role === 'admin' ? pollNew_(b) : {ok:false, error:NO_ROLE};
@@ -836,6 +884,11 @@ function doGet(){
       ['demopoll0001', day(6), '休憩室に買う備品は、どれがよいですか？', JSON.stringify(['電子レンジ（2台目）', '電気ケトル', '小型の冷蔵庫']), P_MULTI['0'], P_SHOW['1'], P_NAMED['0'], P_STATE['1'], '', P_NONE['1']],
       ['demopoll0002', day(2), '忘年会に来られる日を、全部えらんでください', JSON.stringify(['12/11（金）', '12/12（土）', '12/18（金）', '12/19（土）']), P_MULTI['1'], P_SHOW['0'], P_NAMED['1'], P_STATE['1'], '', P_NONE['1']]
     ]);
+    write_('memos', [
+      ['demomemo0001', day(10), '年末の診療日について', '12/29（火）は午前のみ、12/30（水）〜1/3（日）は休診です。\n当番表は、当番アプリで確かめてください。', '0'],
+      ['demomemo0002', day(4), '内視鏡室の物品の置き場所を変えました', '洗浄用のブラシは、流しの右の棚の2段目に移しました。\n補充するときは、古いものを手前に置いてください。', '0'],
+      ['demomemo0003', day(1), '火災訓練のお知らせ', '11/26（木）13:30から、全員で火災訓練を行います。\n午後の診療は14:30からです。', '1']
+    ]);
     write_('ans', [
       ['demopoll0001', 'demotoken00000000000001', '[0]', ''], ['demopoll0001', 'demotoken00000000000002', '[0]', ''], ['demopoll0001', 'demotoken00000000000003', '[1]', ''],
       ['demopoll0001', 'demotoken00000000000004', '[2]', ''], ['demopoll0001', 'demotoken00000000000005', '[0]', ''],
@@ -857,7 +910,8 @@ function demoReset(){ SS.clear(); demoFn = null; }
    ・合言葉（k）とGASの番号（s）：QRコードで開いたときに覚える
    ・公開された投書の一覧（開いたときにすぐ出すため）
    ・「同じ意見です」を押した投書の番号（2回押せないようにするため）
-   ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、とじた「お知らせ」の番号
+   ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、読んだ業務連絡の番号（「新しい」のしるしのため）
+   ・「新しい版にする」を押したときの版の組（例 1.10.1>1.10.0。入れ替えられたかを見分けるため。版数だけ）
    ・アンケートの「自分の回答の番号」（答え直しのため。アンケートごとに別のランダムな番号。名前・えらんだものは覚えない）
    書いている途中の文・送った文は覚えない。院長のQRで開いたときは、投書の中身を覚えない */
 const QS = new URLSearchParams(location.search);
@@ -869,7 +923,7 @@ let KEY = DEMO ? '' : mem('k', okK(QS.get('k')) ? QS.get('k') : '');
 const GAS = DEMO ? '' : mem('s', okS(QS.get('s')) ? QS.get('s') : '');
 const GAS_URL = GAS ? 'https://script.google.com/macros/s/'+GAS+'/exec' : '';
 /* 合言葉を画面のアドレスに出したままにしない（入口アプリが付ける from=portal など、知らない印は使わずに捨てる） */
-try { if (!DEMO && QS.get('k')) history.replaceState(null, '', location.pathname); } catch(e){}
+try { if (!DEMO && (QS.get('k') || QS.get('r'))) history.replaceState(null, '', location.pathname); } catch(e){}   /* r：「新しい版にする」で付けた印（Ver1.10.1〜）。使わずに消す */
 
 function call(body){
   if (DEMO) return demoCall(Object.assign({}, body, {k:DEMO_KEYS[demoRole]}));
@@ -879,7 +933,7 @@ function call(body){
 /* 前に見た一覧をこのスマホの中に残す（スタッフ用だけ。合言葉そのものは入れず、見分け用の数字だけ） */
 function hashK(k){ let h = 5381; k = String(k); for (let i = 0; i < k.length; i++) h = ((h * 33) ^ k.charCodeAt(i)) >>> 0; return String(h); }
 function rcDrop(){ try { localStorage.removeItem('goikenbako_rc'); } catch(e){} }
-function rcPut(r){ if (DEMO || !KEY || r.role !== 'staff') return; try { localStorage.setItem('goikenbako_rc', JSON.stringify({h:hashK(KEY), at:Date.now(), max:r.max, opinion:r.opinion === true, posts:r.posts})); } catch(e){} }
+function rcPut(r){ if (DEMO || !KEY || r.role !== 'staff') return; try { localStorage.setItem('goikenbako_rc', JSON.stringify({h:hashK(KEY), at:Date.now(), max:r.max, opinion:r.opinion === true, posts:r.posts, memos:Array.isArray(r.memos) ? r.memos : []})); } catch(e){} }
 function rcGet(){
   if (DEMO || !KEY) return null;
   try { const c = JSON.parse(localStorage.getItem('goikenbako_rc') || 'null'); if (!c) return null;
@@ -892,19 +946,19 @@ function ptPut(t){ if (DEMO){ ptMem = t; return; } try { localStorage.setItem('g
 /* 前に開いたときの役（スタッフ／院長・アプリ管理者）。次に開いたとき、返事を待たずに画面の枠を出すため。合言葉は入れない */
 function roleGet(){ if (DEMO || !KEY) return null; try { const c = JSON.parse(localStorage.getItem('goikenbako_role') || 'null'); return c && c.h === hashK(KEY) && (c.role === 'staff' || c.role === 'dr') ? c : null; } catch(e){ return null; } }
 function rolePut(role, who){ if (DEMO || !KEY) return; try { localStorage.setItem('goikenbako_role', JSON.stringify({h:hashK(KEY), role:role, who:who})); } catch(e){} }
-/* とじた「お知らせ」の番号（同じお知らせを何度も出さないため） */
-let ntMem = '';
-function ntGet(){ if (DEMO) return ntMem; try { return localStorage.getItem('goikenbako_nt') || ''; } catch(e){ return ''; } }
-function ntPut(id){ if (DEMO){ ntMem = id; return; } try { localStorage.setItem('goikenbako_nt', id); } catch(e){} }
+/* 読んだ業務連絡の番号（「新しい」のしるしと、ご意見箱の画面の知らせのため。このスマホの中だけ。GASには送らない） */
+let msMem = {};
+function msGet(){ if (DEMO) return msMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_ms') || 'null'); return c && c.h === hashK(KEY) && c.ids ? c.ids : {}; } catch(e){ return {}; } }
+function msPut(ids){ if (DEMO){ msMem = ids; return; } try { localStorage.setItem('goikenbako_ms', JSON.stringify({h:hashK(KEY), ids:ids})); } catch(e){} }
 let agMem = {};   /* 見本のときは、この画面の中だけで覚える */
 function agGet(){ if (DEMO) return agMem; try { const c = JSON.parse(localStorage.getItem('goikenbako_ag') || 'null'); return c && c.h === hashK(KEY) && c.ids ? c.ids : {}; } catch(e){ return {}; } }
 function agPut(ids){ if (DEMO){ agMem = ids; return; } try { localStorage.setItem('goikenbako_ag', JSON.stringify({h:hashK(KEY), ids:ids})); } catch(e){} }
 
 /* ===== 画面 ===== */
 let ROLE = '', WHO = '', POSTS = [], POLLS = [], MAXT = 400, MAXR = 400;   /* WHO：'as'＝アプリ管理者のQRで開いている */
-let NOTICE = null, GASVER = '', loaded = false;   /* loaded：GASの返事が1回でも届いたか */
+let MEMOS = [], msNew = {}, GASVER = '', loaded = false;   /* msNew：この回に開いたとき、まだ読んでいなかった業務連絡 */   /* loaded：GASの返事が1回でも届いたか */
 let sel = {}, nm = {}, voteBusy = false;   /* アンケートでえらんでいる途中のもの（この画面の中だけ） */
-let tab = 'list', loading = false, stale = '', failed = '', busy = false;
+let tab = homeTab('staff'), loading = false, stale = '', failed = '', busy = false;
 let draft = {cat:'', text:'', want:false};
 const ICON = {
   list:'<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
@@ -914,9 +968,9 @@ const ICON = {
   hide:'<svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M9 3v4M15 3v4M8 12h8"/></svg>',
   poll:'<svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>'
 };
-const TABS = {staff:[['list','みんなの投書'],['poll','アンケート'],['write','書く']], dr:[['new','新しい投書'],['pub','公開中'],['hide','公開しない'],['poll','アンケート']]};
+const TABS = {staff:[['list','みんなの投書'],['write','書く']], dr:[['new','新しい投書'],['pub','公開中'],['hide','公開しない']]};   /* アンケートは別のファイル（下のタブなし） */
 function nav(){
-  const el = $('nav'), T = TABS[ROLE];
+  const el = $('nav'), T = MODE === 'box' ? TABS[ROLE] : null;
   if (!T){ el.style.display = 'none'; return; }
   const nNew = ROLE === 'dr' ? POSTS.filter(p => p.pub === '').length : 0;
   const nPoll = ROLE === 'staff' ? POLLS.filter(p => p.open && !p.mine).length : 0;
@@ -925,14 +979,19 @@ function nav(){
     + (t[0] === 'new' && nNew ? '<span class="badge num">'+nNew+'</span>' : '')+(t[0] === 'poll' && nPoll ? '<span class="badge num">'+nPoll+'</span>' : '')+'</button>').join('');
 }
 function head(lead){
-  return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hver">Ver'+APP_VER+'</div><div class="hrow"><div class="ttl">ご意見箱'+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
+  return '<div class="head"><div class="brand">SKY MEDICAL CLINIC</div><div class="hver">Ver'+APP_VER+'</div><div class="hrow"><div class="ttl">'+APP_NAME()+(ROLE === 'dr' ? '<small>'+(WHO === 'as' ? 'アプリ管理者用' : '院長用')+'</small>' : '')+'</div>'
     + '<button class="reload" id="reload"'+(loading ? ' disabled' : '')+'>'+(loading ? '更新中…' : '↻ 更新する')+'</button></div>'
     + '<div class="lead">'+esc(lead)+'</div>'
     + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>'
-    + (cmpVer(GASVER, APP_VER) > 0 ? '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>' : '')
-    + (NOTICE && NOTICE.id !== ntGet() ? '<div class="ntc"><b>お知らせ'+(NOTICE.d ? '（'+esc(md(NOTICE.d))+'）' : '')+'</b><div class="nt">'+esc(NOTICE.text)+'</div><div class="nb"><button id="ntClose">とじる</button></div></div>' : '');
+    + (cmpVer(GASVER, APP_VER) > 0 ? (upTried() ? '<div class="ntc up"><b>新しい版に入れ替えられませんでした</b><div class="nt">置き場所のファイルが、まだ古いままのようです（いまの版：Ver'+APP_VER+'）。院長かアプリ管理者に知らせてください。</div><div class="nb"><button id="upGo">もう一度ためす</button></div></div>'
+      : '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>') : '');
 }
-const foot = () => '<div class="ver">ご意見箱 Ver'+APP_VER+'</div>';
+/* 「新しい版にする」（Ver1.10.1〜）：スマホやGoogleの途中に残った古いファイルを使わないよう、毎回ちがう印を付けて開き直す。
+   押したときの版の組をスマホに覚えておき、開き直しても同じ古い版のままなら、案内を「入れ替えられませんでした」に変える（版数だけ。中身・合言葉は入れない） */
+const upMark = () => GASVER + '>' + APP_VER;
+function upTried(){ try { return localStorage.getItem('goikenbako_up') === upMark(); } catch(e){ return false; } }
+function upGo(){ try { localStorage.setItem('goikenbako_up', upMark()); } catch(e){} try { location.replace(location.pathname + '?r=' + Date.now()); } catch(e){ try { location.reload(); } catch(e2){} } }
+const foot = () => '<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
 function cardStaff(p, ag){
   const c = catOf(p.cat), on = !!ag[p.id];
   return '<div class="card">'
@@ -986,14 +1045,22 @@ function render(){
     $('wCat').onclick = e => { const b = e.target.closest('button'); if (!b) return; draft.cat = b.dataset.v; $('wCat').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); ex(); };
     if ($('wWant')) $('wWant').onchange = e => { draft.want = e.target.checked; };
     $('wGo').onclick = confirmSend;
+  } else if (tab === 'memo'){
+    const body = MEMOS.length ? MEMOS.map(m => '<div class="card">'
+        + '<div class="chips">'+(m.imp ? '<span class="chip new">大事</span>' : '')+(msNew[m.id] ? '<span class="chip s-do">新しい</span>' : '')+'<span class="dt num">'+esc(md(m.d))+'</span></div>'
+        + '<div class="tx pq">'+esc(m.title)+'</div><div class="tx">'+esc(m.text)+'</div></div>').join('')
+      : '<div class="empty">'+(!loaded ? '読み込んでいます…' : '業務連絡は、いまはありません。')+'</div>';
+    app.innerHTML = head(ROLE === 'staff' ? '院長からの連絡です' : '書く・直す・消すは、PCのご意見箱管理で')+'<div class="list">'+body+'</div>'+foot();
   } else if (tab === 'poll'){
     const body = POLLS.length ? POLLS.map(p => ROLE === 'staff' ? pollStaff(p) : pollDr(p)).join('')
       : '<div class="empty">'+(!loaded ? '読み込んでいます…' : 'アンケートは、いまはありません。')+'</div>';
     app.innerHTML = head(ROLE === 'staff' ? '院長からのアンケートです' : '結果です。作る・締め切るは、PCのご意見箱管理で')+'<div class="list">'+body+'</div>'+foot();
     app.querySelectorAll('[data-pn]').forEach(i => { i.value = nm[i.dataset.pn] || ''; });
   } else if (ROLE === 'staff'){
-    const ag = agGet();
+    const ag = agGet(), nPoll = POLLS.filter(p => p.open && !p.mine).length, ms = msGet(), nMemo = MEMOS.filter(m => !ms[m.id]).length;
     h = head('院長が読んで、公開した投書です')
+      + (nPoll ? '<div class="ntc up"><b>アンケート</b><div class="nt">まだ答えていないアンケートが '+nPoll+'件あります。</div><div class="nb"><button id="goPoll">アンケートを開く</button></div></div>' : '')
+      + (nMemo ? '<div class="ntc up"><b>業務連絡</b><div class="nt">まだ読んでいない業務連絡が '+nMemo+'件あります。</div><div class="nb"><button id="goMemo">業務連絡を開く</button></div></div>' : '')
       + '<div class="list">'+(POSTS.length ? POSTS.map(p => cardStaff(p, ag)).join('')
         : '<div class="empty">'+(!loaded ? '読み込んでいます…<br>下の「書く」は、もう使えます。' : '公開された投書は、まだありません。<br>下の「書く」から、意見や希望を出せます。')+'</div>')+'</div>'+foot();
     app.innerHTML = h;
@@ -1020,18 +1087,20 @@ async function load(){
   if (r && r.ok && (r.role === 'staff' || r.role === 'dr')){
     const first = ROLE !== r.role;
     const op0 = OPINION; OPINION = r.opinion === true;
-    loaded = true; GASVER = String(r.ver || ''); NOTICE = r.notice && r.notice.id && r.notice.text ? r.notice : null;
+    loaded = true; GASVER = String(r.ver || ''); MEMOS = Array.isArray(r.memos) ? r.memos : [];
     ROLE = r.role; WHO = r.who === 'as' ? 'as' : ''; rolePut(ROLE, WHO); POSTS = Array.isArray(r.posts) ? r.posts : []; POLLS = Array.isArray(r.polls) ? r.polls : [];
     if (tab !== 'poll'){ sel = {}; nm = {}; }
     if (ROLE === 'staff'){ const pt = ptGet(), keep = {}; POLLS.forEach(p => { if (pt[p.id]) keep[p.id] = pt[p.id]; }); ptPut(keep); } MAXT = Number(r.max) || 400; MAXR = Number(r.maxReply) || 400; stale = '';
+    { const ms = msGet(), keep = {}; MEMOS.forEach(m => { if (ms[m.id]) keep[m.id] = 1; else if (MODE === 'memo') msNew[m.id] = 1; });   /* 業務連絡を開いたら、出ているものを「読んだ」として覚える */
+      if (MODE === 'memo') MEMOS.forEach(m => { keep[m.id] = 1; }); msPut(keep); }
     if (DEMO) demoBar();
     if (ROLE === 'staff'){
       rcPut(r);
       const ag = agGet(), keep = {}; POSTS.forEach(p => { if (ag[p.id]) keep[p.id] = 1; }); agPut(keep);
-      if (first && tab !== 'write') tab = 'list';
-    } else { rcDrop(); if (first) tab = 'new'; }
-  } else if (r && r.bad){ rcDrop(); try { localStorage.removeItem('goikenbako_role'); } catch(e){} ROLE = ''; WHO = ''; NOTICE = null; POLLS = []; POSTS = []; stale = ''; failed = r.error || 'このQRコードは使えません。'; }
-  else if (ROLE){ stale = ROLE === 'staff' && !DEMO ? 'つながりませんでした。前に見た内容を出しています' : 'つながりませんでした。「更新する」を押してください'; }
+      if (first && tab !== 'write') tab = homeTab('staff');
+    } else { rcDrop(); if (first) tab = homeTab('dr'); }
+  } else if (r && r.bad){ rcDrop(); try { localStorage.removeItem('goikenbako_role'); } catch(e){} ROLE = ''; WHO = ''; MEMOS = []; POLLS = []; POSTS = []; stale = ''; failed = r.error || 'このQRコードは使えません。'; }
+  else if (ROLE){ stale = ROLE === 'staff' && !DEMO && MODE !== 'poll' ? 'つながりませんでした。前に見た内容を出しています' : 'つながりませんでした。「更新する」を押してください'; }
   else failed = (r && r.error) || 'つながりませんでした。電波のよい所で、もう一度ためしてください。';
   if (ROLE === 'staff' && tab === 'write' && $('wText') && !!$('wWant') === OPINION){ paintReload(); nav(); } else render();
 }
@@ -1102,8 +1171,9 @@ async function agree(id, btn){
 document.addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
   if (t.id === 'reload') return load();
-  if (t.id === 'ntClose'){ if (NOTICE) ntPut(NOTICE.id); return render(); }
-  if (t.id === 'upGo'){ try { location.reload(); } catch(e){} return; }
+  if (t.id === 'goMemo'){ if (DEMO){ MODE = 'memo'; demoBar(); return restart(); } try { location.href = 'renraku.html'; } catch(e){} return; }
+  if (t.id === 'goPoll'){ if (DEMO){ MODE = 'poll'; demoBar(); return restart(); } try { location.href = 'anketo.html'; } catch(e){} return; }
+  if (t.id === 'upGo'){ if (DEMO) return; upGo(); return; }
   if (t.dataset.go) return goTab(t.dataset.go);
   if (t.dataset.ag) return agree(t.dataset.ag, t);
   if (t.dataset.vote && ROLE === 'staff') return vote(t.dataset.vote, t);
@@ -1128,8 +1198,8 @@ document.addEventListener('input', e => { const t = e.target; if (t && t.dataset
 /* ===== QRコードなしで開いたとき・見本（プレビュー） ===== */
 function noKeyView(){
   ROLE = ''; $('nav').style.display = 'none';
-  $('app').innerHTML = '<div class="msg"><b style="font-size:17px;color:var(--ink)">院長に見せてもらったQRコードから開いてください</b>'
-    + '<p style="font-size:13px">はじめての人は、スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。</p>'
+  $('app').innerHTML = '<div class="msg"><b style="font-size:17px;color:var(--ink)">'+(MODE !== 'box' ? '先に「ご意見箱」のQRコードを読み取ってください' : '院長に見せてもらったQRコードから開いてください')+'</b>'
+    + '<p style="font-size:13px">'+(MODE !== 'box' ? 'スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。1回読み取ると、この「'+APP_NAME()+'」も開けるようになります。' : 'はじめての人は、スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。')+'</p>'
     + '<button id="demoGo" style="margin-top:18px;border:none;background:var(--sky);color:#fff;border-radius:14px;padding:13px 22px;font-size:15px;font-weight:700">見本で見てみる（プレビュー）</button></div>'+foot();
   $('demoGo').onclick = () => { DEMO = true; demoBar(); restart(); };
 }
@@ -1137,27 +1207,28 @@ function demoBar(){
   const el = $('demoBar');
   if (!DEMO){ el.style.display = 'none'; return; }
   el.style.display = '';
-  el.innerHTML = '<div>見本（プレビュー）です。書いても、どこにも送られません</div><div class="dt2">見る人：'
+  try { document.title = APP_NAME()+(PREVIEW ? ' 見本（プレビュー）' : ''); } catch(e){}
+  el.innerHTML = '<div>見本（プレビュー）です。書いても、どこにも送られません</div>'
+    + '<div class="dt2">アプリ：<button data-md="box" class="'+(MODE === 'box' ? 'on' : '')+'">ご意見箱</button><button data-md="poll" class="'+(MODE === 'poll' ? 'on' : '')+'">アンケート</button><button data-md="memo" class="'+(MODE === 'memo' ? 'on' : '')+'">業務連絡</button></div><div class="dt2">見る人：'
     + [['staff','スタッフ'],['dr','院長'],['as','アプリ管理者']].map(x => '<button data-r="'+x[0]+'" class="'+(demoRole === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')
     + '<button id="demoReset">最初に戻す</button>'+(PREVIEW ? '' : '<button id="demoEnd">終わる</button>')+'</div>'
-    + '<div class="dt2">お知らせ：<button id="demoNt">'+(NOTICE ? '消す' : '見本を出す')+'</button></div>'
     + '<div class="dt2">「みんなの意見を聞く」機能：<button data-op="0" class="'+(OPINION ? '' : 'on')+'">使わない（保留）</button><button data-op="1" class="'+(OPINION ? 'on' : '')+'">使う</button></div>';
   el.querySelectorAll('[data-op]').forEach(b => b.onclick = async ev => { ev.stopPropagation(); await demoCall({a:'setOpt', admin:DEMO_KEYS.admin, opinion:b.dataset.op === '1'}); OPINION = b.dataset.op === '1'; demoBar(); restart(); });
+  el.querySelectorAll('[data-md]').forEach(b => b.onclick = ev => { ev.stopPropagation(); MODE = b.dataset.md; demoBar(); restart(); });
   el.querySelectorAll('[data-r]').forEach(b => b.onclick = ev => { ev.stopPropagation(); demoRole = b.dataset.r; demoBar(); restart(); });
-  $('demoNt').onclick = async ev => { ev.stopPropagation(); await demoCall({a:'setNotice', admin:DEMO_KEYS.admin, text:NOTICE ? '' : 'アプリを新しくしました。\nアンケートに「どれもえらばない」が付きました。'}); ntMem = ''; restart(); };
-  $('demoReset').onclick = ev => { ev.stopPropagation(); demoReset(); agMem = {}; ptMem = {}; restart(); };
+  $('demoReset').onclick = ev => { ev.stopPropagation(); demoReset(); agMem = {}; ptMem = {}; msMem = {}; restart(); };
   if ($('demoEnd')) $('demoEnd').onclick = ev => { ev.stopPropagation(); DEMO = false; demoBar(); restart(); };
 }
 function restart(){
-  ROLE = ''; WHO = ''; NOTICE = null; GASVER = ''; loaded = false; POSTS = []; POLLS = []; sel = {}; nm = {}; voteBusy = false; stale = ''; failed = ''; busy = false; loading = false; draft = {cat:'', text:'', want:false}; tab = 'list';
+  ROLE = ''; WHO = ''; MEMOS = []; msNew = {}; GASVER = ''; loaded = false; POSTS = []; POLLS = []; sel = {}; nm = {}; voteBusy = false; stale = ''; failed = ''; busy = false; loading = false; draft = {cat:'', text:'', want:false}; tab = homeTab('staff');
   sheetClose(); start();
 }
 function start(){
   demoBar();
-  const c = rcGet();   /* 前に見た一覧があれば、先に出す */
+  const c = MODE === 'poll' ? null : rcGet();   /* 前に見た一覧があれば、先に出す（ご意見箱だけ） */
   const pr = roleGet();   /* 前に開いたときの役が分かれば、返事を待たずに画面の枠を出す（スタッフは、すぐ「書く」が使える） */
-  if (!c && pr){ ROLE = pr.role; WHO = pr.who === 'as' ? 'as' : ''; tab = ROLE === 'staff' ? 'list' : 'new'; }
-  if (c){ ROLE = 'staff'; OPINION = c.opinion === true; POSTS = c.posts; MAXT = Number(c.max) || 400; stale = '前に見た内容です。新しい内容を取りに行っています'; }
+  if (!c && pr){ ROLE = pr.role; WHO = pr.who === 'as' ? 'as' : ''; tab = homeTab(ROLE); }
+  if (c){ ROLE = 'staff'; tab = homeTab('staff'); OPINION = c.opinion === true; MEMOS = Array.isArray(c.memos) ? c.memos : []; POSTS = c.posts; MAXT = Number(c.max) || 400; stale = '前に見た内容です。新しい内容を取りに行っています'; }
   load();
 }
 start();

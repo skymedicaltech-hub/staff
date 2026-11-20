@@ -161,7 +161,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.9.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.10.1。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -169,7 +169,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.9.0';
+const APP_VER = '1.10.1';
 const PREVIEW = false;
 /* このファイルの役（Ver1.8.0〜）。同じ中身から3つのファイルを作る。
    'box'＝ご意見箱（goikenbako.html：投書を見る・書く）　'poll'＝アンケート（anketo.html：アンケートに答える）
@@ -911,6 +911,7 @@ function demoReset(){ SS.clear(); demoFn = null; }
    ・公開された投書の一覧（開いたときにすぐ出すため）
    ・「同じ意見です」を押した投書の番号（2回押せないようにするため）
    ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、読んだ業務連絡の番号（「新しい」のしるしのため）
+   ・「新しい版にする」を押したときの版の組（例 1.10.1>1.10.0。入れ替えられたかを見分けるため。版数だけ）
    ・アンケートの「自分の回答の番号」（答え直しのため。アンケートごとに別のランダムな番号。名前・えらんだものは覚えない）
    書いている途中の文・送った文は覚えない。院長のQRで開いたときは、投書の中身を覚えない */
 const QS = new URLSearchParams(location.search);
@@ -922,7 +923,7 @@ let KEY = DEMO ? '' : mem('k', okK(QS.get('k')) ? QS.get('k') : '');
 const GAS = DEMO ? '' : mem('s', okS(QS.get('s')) ? QS.get('s') : '');
 const GAS_URL = GAS ? 'https://script.google.com/macros/s/'+GAS+'/exec' : '';
 /* 合言葉を画面のアドレスに出したままにしない（入口アプリが付ける from=portal など、知らない印は使わずに捨てる） */
-try { if (!DEMO && QS.get('k')) history.replaceState(null, '', location.pathname); } catch(e){}
+try { if (!DEMO && (QS.get('k') || QS.get('r'))) history.replaceState(null, '', location.pathname); } catch(e){}   /* r：「新しい版にする」で付けた印（Ver1.10.1〜）。使わずに消す */
 
 function call(body){
   if (DEMO) return demoCall(Object.assign({}, body, {k:DEMO_KEYS[demoRole]}));
@@ -982,8 +983,14 @@ function head(lead){
     + '<button class="reload" id="reload"'+(loading ? ' disabled' : '')+'>'+(loading ? '更新中…' : '↻ 更新する')+'</button></div>'
     + '<div class="lead">'+esc(lead)+'</div>'
     + (stale ? '<div class="stale">'+esc(stale)+'</div>' : '')+'</div>'
-    + (cmpVer(GASVER, APP_VER) > 0 ? '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>' : '');
+    + (cmpVer(GASVER, APP_VER) > 0 ? (upTried() ? '<div class="ntc up"><b>新しい版に入れ替えられませんでした</b><div class="nt">置き場所のファイルが、まだ古いままのようです（いまの版：Ver'+APP_VER+'）。院長かアプリ管理者に知らせてください。</div><div class="nb"><button id="upGo">もう一度ためす</button></div></div>'
+      : '<div class="ntc up"><b>アプリが新しくなりました</b><div class="nt">新しい版に入れ替えます。下のボタンを押してください。</div><div class="nb"><button id="upGo">新しい版にする</button></div></div>') : '');
 }
+/* 「新しい版にする」（Ver1.10.1〜）：スマホやGoogleの途中に残った古いファイルを使わないよう、毎回ちがう印を付けて開き直す。
+   押したときの版の組をスマホに覚えておき、開き直しても同じ古い版のままなら、案内を「入れ替えられませんでした」に変える（版数だけ。中身・合言葉は入れない） */
+const upMark = () => GASVER + '>' + APP_VER;
+function upTried(){ try { return localStorage.getItem('goikenbako_up') === upMark(); } catch(e){ return false; } }
+function upGo(){ try { localStorage.setItem('goikenbako_up', upMark()); } catch(e){} try { location.replace(location.pathname + '?r=' + Date.now()); } catch(e){ try { location.reload(); } catch(e2){} } }
 const foot = () => '<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
 function cardStaff(p, ag){
   const c = catOf(p.cat), on = !!ag[p.id];
@@ -1166,7 +1173,7 @@ document.addEventListener('click', e => {
   if (t.id === 'reload') return load();
   if (t.id === 'goMemo'){ if (DEMO){ MODE = 'memo'; demoBar(); return restart(); } try { location.href = 'renraku.html'; } catch(e){} return; }
   if (t.id === 'goPoll'){ if (DEMO){ MODE = 'poll'; demoBar(); return restart(); } try { location.href = 'anketo.html'; } catch(e){} return; }
-  if (t.id === 'upGo'){ try { location.reload(); } catch(e){} return; }
+  if (t.id === 'upGo'){ if (DEMO) return; upGo(); return; }
   if (t.dataset.go) return goTab(t.dataset.go);
   if (t.dataset.ag) return agree(t.dataset.ag, t);
   if (t.dataset.vote && ROLE === 'staff') return vote(t.dataset.vote, t);
