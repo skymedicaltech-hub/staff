@@ -21,7 +21,7 @@ html{background:#DFEFF9}
 html,body{margin:0}
 body{
   font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;
-  color:var(--ink);font-size:15px;line-height:1.55;background:var(--bg);
+  color:var(--ink);font-size:calc(15px*var(--fs,1));line-height:1.55;background:var(--bg);
   background-image:radial-gradient(ellipse at 100% 0%,rgba(167,218,247,.55),transparent 42%),linear-gradient(165deg,#E8F5FC 0%,#F4FAFE 48%,#E9F5FC 100%);
   background-attachment:fixed;min-height:100vh;
 }
@@ -39,20 +39,20 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 }
 .head::before{content:"";position:absolute;inset:-80px -90px auto 30%;height:185px;border-radius:0 0 45% 80%;transform:rotate(-13deg);background:linear-gradient(145deg,rgba(255,255,255,.50),rgba(255,255,255,0));pointer-events:none;z-index:-1}
 .head::after{content:"";position:absolute;width:230px;height:115px;right:-95px;bottom:-78px;border-radius:50%;background:rgba(255,255,255,.22);pointer-events:none;z-index:-1}
-.brand{position:absolute;top:10px;left:20px;font-size:9px;font-weight:700;letter-spacing:.20em;color:#538AAE}
-.hver{position:absolute;top:9px;right:20px;font-size:10px;font-weight:700;letter-spacing:.06em;color:#538AAE}
+.brand{position:absolute;top:10px;left:20px;font-size:calc(9px*var(--fs,1));font-weight:700;letter-spacing:.20em;color:#538AAE}
+.hver{position:absolute;top:9px;right:20px;font-size:calc(10px*var(--fs,1));font-weight:700;letter-spacing:.06em;color:#538AAE}
 .hrow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.ttl{font-size:24px;font-weight:700;color:#173F5D;letter-spacing:.02em}
-.ttl small{font-size:12px;font-weight:700;color:#4C7590;margin-left:8px;background:#FFFFFFB8;border-radius:999px;padding:2px 10px;vertical-align:3px}
-.reload{border:1px solid #FFFFFFA8;background:#FFFFFFB8;color:#376B8A;border-radius:999px;padding:8px 13px;font-size:13px;font-weight:700;white-space:nowrap}
-.lead{margin-top:8px;font-size:13px;color:#4C7590}
-.stale{margin-top:8px;font-size:12px;color:#84602C;background:#FFF4E6;border:1px solid #F3DFC3;border-radius:10px;padding:5px 10px;display:inline-block}
+.ttl{font-size:calc(24px*var(--fs,1));font-weight:700;color:#173F5D;letter-spacing:.02em}
+.ttl small{font-size:calc(12px*var(--fs,1));font-weight:700;color:#4C7590;margin-left:8px;background:#FFFFFFB8;border-radius:999px;padding:2px 10px;vertical-align:3px}
+.reload{border:1px solid #FFFFFFA8;background:#FFFFFFB8;color:#376B8A;border-radius:999px;padding:8px 13px;font-size:calc(13px*var(--fs,1));font-weight:700;white-space:nowrap}
+.lead{margin-top:8px;font-size:calc(13px*var(--fs,1));color:#4C7590}
+.stale{margin-top:8px;font-size:calc(12px*var(--fs,1));color:#84602C;background:#FFF4E6;border:1px solid #F3DFC3;border-radius:10px;padding:5px 10px;display:inline-block}
 
 /* カード */
 .list{padding:16px 14px 24px}
 .card{background:#fff;border-radius:15px;padding:14px 14px 12px;margin-bottom:10px;border:1px solid #EDF3F8;box-shadow:0 2px 12px rgba(42,105,147,.035)}
 .chips{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:8px}
-.chip{font-size:11.5px;font-weight:700;border-radius:7px;padding:2px 8px;white-space:nowrap}
+.chip{font-size:calc(11.5px*var(--fs,1));font-weight:700;border-radius:7px;padding:2px 8px;white-space:nowrap}
 .chip.c-work{background:#E7F3FA;color:#2579AF}
 .chip.c-item{background:#F6E8DB;color:#A85E32}
 .chip.c-app{background:#EAE6F7;color:#5B4BA8}
@@ -63,105 +63,122 @@ button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px soli
 .chip.s-done{background:#31866D;color:#fff}
 .chip.s-no{background:#E4E9ED;color:#5B6F7E}
 .chip.new{background:var(--no);color:#fff}
-.dt{margin-left:auto;font-size:12px;color:var(--sub)}
-.tx{font-size:15.5px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
-.rp{margin-top:10px;background:#F3F9FD;border-left:3px solid var(--sky);border-radius:0 10px 10px 0;padding:8px 11px;font-size:14px;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
-.rp b{display:block;font-size:11.5px;color:#2579AF;margin-bottom:2px}
+.dt{margin-left:auto;font-size:calc(12px*var(--fs,1));color:var(--sub)}
+.tx{font-size:calc(15.5px*var(--fs,1));line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.rp{margin-top:10px;background:#F3F9FD;border-left:3px solid var(--sky);border-radius:0 10px 10px 0;padding:8px 11px;font-size:calc(14px*var(--fs,1));line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+.rp b{display:block;font-size:calc(11.5px*var(--fs,1));color:#2579AF;margin-bottom:2px}
 .foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:11px}
-.agn{font-size:12.5px;color:var(--sub)}
-.agree{border:1.5px solid #CFE2EF;background:#fff;color:#27658E;border-radius:999px;padding:8px 15px;font-size:13.5px;font-weight:700}
+.agn{font-size:calc(12.5px*var(--fs,1));color:var(--sub)}
+.agree{border:1.5px solid #CFE2EF;background:#fff;color:#27658E;border-radius:999px;padding:8px 15px;font-size:calc(13.5px*var(--fs,1));font-weight:700}
 .agree b{margin-left:6px}
 .agree.on{background:var(--sky-s);border-color:#9BCFEE;color:#216A99}
-.act{border:none;background:var(--sky);color:#fff;border-radius:12px;padding:9px 18px;font-size:14px;font-weight:700;box-shadow:0 4px 12px #287FB826}
-.empty{text-align:center;color:var(--sub);font-size:14px;padding:44px 20px;line-height:1.8}
-.msg{text-align:center;color:var(--sub);font-size:14px;padding:70px 24px;line-height:1.8}
-.ver{text-align:center;color:var(--faint);font-size:11px;padding:6px 0 22px}
+.act{border:none;background:var(--sky);color:#fff;border-radius:12px;padding:9px 18px;font-size:calc(14px*var(--fs,1));font-weight:700;box-shadow:0 4px 12px #287FB826}
+.empty{text-align:center;color:var(--sub);font-size:calc(14px*var(--fs,1));padding:44px 20px;line-height:1.8}
+.msg{text-align:center;color:var(--sub);font-size:calc(14px*var(--fs,1));padding:70px 24px;line-height:1.8}
+.ver{text-align:center;color:var(--faint);font-size:calc(11px*var(--fs,1));padding:6px 0 22px}
 
 /* 書く画面 */
-.caution{background:#FFF1F0;border:1.5px solid #EDB7B4;color:#9B2F2F;border-radius:13px;padding:11px 13px;font-size:14px;font-weight:700;line-height:1.6}
-.caution small{display:block;font-weight:400;font-size:12.5px;color:#8A4A48;margin-top:3px}
+.caution{background:#FFF1F0;border:1.5px solid #EDB7B4;color:#9B2F2F;border-radius:13px;padding:11px 13px;font-size:calc(14px*var(--fs,1));font-weight:700;line-height:1.6}
+.caution small{display:block;font-weight:400;font-size:calc(12.5px*var(--fs,1));color:#8A4A48;margin-top:3px}
 .box{background:#fff;border-radius:15px;padding:14px;margin-top:12px;border:1px solid #ECF2F7;box-shadow:0 2px 10px #3379AC0A}
-.h2{font-size:13px;font-weight:700;color:#55778F;letter-spacing:.025em;margin-bottom:8px}
+.h2{font-size:calc(13px*var(--fs,1));font-weight:700;color:#55778F;letter-spacing:.025em;margin-bottom:8px}
 .pick{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
-.pick button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;padding:13px 4px;font-size:14px;font-weight:700;color:#27475F;min-height:50px}
+.pick button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;padding:13px 4px;font-size:calc(14px*var(--fs,1));font-weight:700;color:#27475F;min-height:50px}
 .pick button.on{background:var(--sky);border-color:var(--sky);color:#fff}
-textarea{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:11px 12px;font-size:16px;line-height:1.6;resize:vertical}
-.cnt{text-align:right;font-size:12px;color:var(--sub);margin-top:3px}
+textarea{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:11px 12px;font-size:calc(16px*var(--fs,1));line-height:1.6;resize:vertical}
+.cnt{text-align:right;font-size:calc(12px*var(--fs,1));color:var(--sub);margin-top:3px}
 .cnt.over{color:var(--no);font-weight:700}
-.chk{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;font-weight:700;cursor:pointer}
+.chk{display:flex;align-items:flex-start;gap:10px;font-size:calc(14.5px*var(--fs,1));font-weight:700;cursor:pointer}
 .chk input{width:22px;height:22px;margin:1px 0 0;flex:none;accent-color:var(--sky)}
-.chk small{display:block;font-weight:400;font-size:12.5px;color:var(--sub)}
-.go{display:block;width:100%;border:none;background:var(--sky);color:#fff;border-radius:13px;padding:15px;font-size:16px;font-weight:700;box-shadow:0 5px 15px #287FB826;margin-top:14px}
+.chk small{display:block;font-weight:400;font-size:calc(12.5px*var(--fs,1));color:var(--sub)}
+.go{display:block;width:100%;border:none;background:var(--sky);color:#fff;border-radius:13px;padding:15px;font-size:calc(16px*var(--fs,1));font-weight:700;box-shadow:0 5px 15px #287FB826;margin-top:14px}
 .go:active{background:var(--sky-d)}
-.b-x{display:block;width:100%;border:none;background:#ECF4FA;color:#376B8A;border-radius:13px;padding:13px;font-size:15px;font-weight:700;margin-top:9px}
-.note{font-size:12.5px;color:var(--sub);margin-top:10px;line-height:1.7}
+.b-x{display:block;width:100%;border:none;background:#ECF4FA;color:#376B8A;border-radius:13px;padding:13px;font-size:calc(15px*var(--fs,1));font-weight:700;margin-top:9px}
+.note{font-size:calc(12.5px*var(--fs,1));color:var(--sub);margin-top:10px;line-height:1.7}
 
 /* 下から出る画面（確かめ・対応） */
 .bg{position:fixed;inset:0;background:rgba(23,49,70,.42);opacity:0;pointer-events:none;transition:opacity .2s;z-index:7}
 .bg.show{opacity:1;pointer-events:auto}
 .sheet{position:fixed;left:50%;bottom:0;transform:translate(-50%,105%);width:100%;max-width:480px;max-height:92vh;overflow:auto;background:#F3F9FD;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));transition:transform .25s;z-index:8;box-shadow:0 -8px 30px rgba(30,70,100,.18)}
 .sheet.show{transform:translate(-50%,0)}
-.sh-h{font-size:17px;font-weight:700;margin-bottom:10px}
-.lb{font-size:12.5px;font-weight:700;color:#55778F;margin:14px 0 6px}
+.sh-h{font-size:calc(17px*var(--fs,1));font-weight:700;margin-bottom:10px}
+.lb{font-size:calc(12.5px*var(--fs,1));font-weight:700;color:#55778F;margin:14px 0 6px}
 .seg{display:grid;gap:6px}
 .seg.n2{grid-template-columns:1fr 1fr}
 .seg.n5{grid-template-columns:repeat(5,1fr)}
-.seg button{border:1.5px solid #D5E3EE;background:#fff;border-radius:11px;padding:11px 2px;font-size:13.5px;font-weight:700;color:#27475F;min-height:46px}
+.seg button{border:1.5px solid #D5E3EE;background:#fff;border-radius:11px;padding:11px 2px;font-size:calc(13.5px*var(--fs,1));font-weight:700;color:#27475F;min-height:46px}
 .seg button.on{background:var(--sky);border-color:var(--sky);color:#fff}
-.seg.n5 button{font-size:12px;padding:10px 0}
+.seg.n5 button{font-size:calc(12px*var(--fs,1));padding:10px 0}
 .quote{background:#fff;border:1px solid #E3ECF3;border-radius:12px;padding:10px 12px;max-height:150px;overflow:auto}
-.del{display:block;margin:16px auto 0;border:none;background:none;color:var(--no);font-size:13.5px;font-weight:700;text-decoration:underline;padding:8px}
+.del{display:block;margin:16px auto 0;border:none;background:none;color:var(--no);font-size:calc(13.5px*var(--fs,1));font-weight:700;text-decoration:underline;padding:8px}
 .go.red{background:var(--no);box-shadow:0 5px 15px #C9575826}
 
 .pq{font-weight:700;margin-bottom:10px}
-.opt,.bar{position:relative;display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px solid #D5E3EE;background:#fff;border-radius:12px;padding:12px 13px;margin-top:7px;font-size:15px;font-weight:700;color:#27475F;min-height:50px;overflow:hidden;isolation:isolate}
-.bar{min-height:42px;padding:9px 13px;font-size:14.5px;cursor:default}
+.opt,.bar{position:relative;display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1.5px solid #D5E3EE;background:#fff;border-radius:12px;padding:12px 13px;margin-top:7px;font-size:calc(15px*var(--fs,1));font-weight:700;color:#27475F;min-height:50px;overflow:hidden;isolation:isolate}
+.bar{min-height:42px;padding:9px 13px;font-size:calc(14.5px*var(--fs,1));cursor:default}
 .opt i,.bar i{position:absolute;left:0;top:0;bottom:0;background:#E3F1FA;z-index:-1;border-radius:0 8px 8px 0}
 .opt span,.bar span{flex:1;overflow-wrap:anywhere}
-.opt b,.bar b{font-size:14px;color:#2579AF;white-space:nowrap}
+.opt b,.bar b{font-size:calc(14px*var(--fs,1));color:#2579AF;white-space:nowrap}
 .opt::before{content:"";flex:none;width:20px;height:20px;border-radius:50%;border:2px solid #B7CCDB;background:#fff}
 .opt.multi::before{border-radius:6px}
 .opt.on{border-color:var(--sky);background:#F2F9FE}
 .opt.on::before{border-color:var(--sky);background:var(--sky);box-shadow:inset 0 0 0 3px #fff}
 .opt.nonebar,.bar.nonebar{border-style:dashed;color:#5B6F7E;font-weight:400}
 .opt.nonebar{font-weight:700}
-.pname{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:12px;font-size:16px;margin-top:8px}
-.rows{margin-top:10px;border-top:1px solid #E6EEF4;padding-top:6px;font-size:13.5px}
+.pname{width:100%;border:1px solid #DDEAF2;background:#F7FBFE;border-radius:12px;padding:12px;font-size:calc(16px*var(--fs,1));margin-top:8px}
+.rows{margin-top:10px;border-top:1px solid #E6EEF4;padding-top:6px;font-size:calc(13.5px*var(--fs,1))}
 .rows div{display:flex;gap:10px;padding:4px 0;border-bottom:1px dashed #EAF0F5}
 .rows b{flex:none;min-width:96px;color:#55778F}
 .rows span{flex:1;overflow-wrap:anywhere}
 .pbtn{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
 
-.ntc{margin:12px 14px 0;background:#FFF8E1;border:1px solid #F0DDA6;border-radius:14px;padding:11px 13px;font-size:14px;line-height:1.65;color:#5C4A12}
-.ntc b{display:block;font-size:12px;color:#8A6A00;margin-bottom:2px}
+.ntc{margin:12px 14px 0;background:#FFF8E1;border:1px solid #F0DDA6;border-radius:14px;padding:11px 13px;font-size:calc(14px*var(--fs,1));line-height:1.65;color:#5C4A12}
+.ntc b{display:block;font-size:calc(12px*var(--fs,1));color:#8A6A00;margin-bottom:2px}
 .ntc .nt{white-space:pre-wrap;overflow-wrap:anywhere}
 .ntc .nb{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
-.ntc button{border:1px solid #E3CF93;background:#fff;color:#6B5200;border-radius:999px;padding:6px 14px;font-size:12.5px;font-weight:700}
+.ntc button{border:1px solid #E3CF93;background:#fff;color:#6B5200;border-radius:999px;padding:6px 14px;font-size:calc(12.5px*var(--fs,1));font-weight:700}
 .ntc.up{background:#E8F4FB;border-color:#BBD9EC;color:#1F557A}
 .ntc.up button{border-color:#9BCFEE;color:#216A99}
 
 /* 短い知らせ */
-.toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px);transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(30,40,51,.93);color:#fff;padding:12px 20px;border-radius:14px;font-size:14px;z-index:9;max-width:88%;text-align:center;line-height:1.6;transition:opacity .2s,transform .2s}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav) + 18px);transform:translate(-50%,20px);opacity:0;pointer-events:none;background:rgba(30,40,51,.93);color:#fff;padding:12px 20px;border-radius:14px;font-size:calc(14px*var(--fs,1));z-index:9;max-width:88%;text-align:center;line-height:1.6;transition:opacity .2s,transform .2s}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 
 /* 見本（プレビュー）の帯 */
-#demoBar{position:sticky;top:0;z-index:6;background:#1E2833;color:#fff;font-size:12px;padding:8px 10px;text-align:center}
+#demoBar{position:sticky;top:0;z-index:6;background:#1E2833;color:#fff;font-size:calc(12px*var(--fs,1));padding:8px 10px;text-align:center}
 #demoBar .dt2{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:5px}
-#demoBar button{border:none;border-radius:999px;padding:4px 11px;font-size:12px;background:#3B4856;color:#fff}
+#demoBar button{border:none;border-radius:999px;padding:4px 11px;font-size:calc(12px*var(--fs,1));background:#3B4856;color:#fff}
 #demoBar button.on{background:#FFE48A;color:#1E2833;font-weight:700}
 #demoBar #demoReset{background:#D2564F}
 
 body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 #nav{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nav);padding-bottom:env(safe-area-inset-bottom,0px);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;background:#FFFFFFF4;border-top:1px solid #E2EDF5;box-shadow:0 -4px 24px rgba(42,101,143,.07);z-index:5}
-#nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11px;font-weight:700;color:#8DA3B4;position:relative;isolation:isolate}
+#nav button{border:none;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:calc(11px*var(--fs,1));font-weight:700;color:#8DA3B4;position:relative;isolation:isolate}
 #nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #nav button.on{color:#287FB8}
 #nav button.on::before{content:"";position:absolute;top:4px;height:33px;width:53px;border-radius:11px;background:#E8F4FB;z-index:-1}
-#nav .badge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+/* 文字の大きさ（Ver1.12.0〜。資料「スタッフアプリの決まり」4-3）：標準／大（1.3倍）／特大（1.6倍）。
+   文字の大きさは、組み立てるときに全部 calc(…px*var(--fs,1)) に直してある（うしろに「=」の印のコメントを付けたものだけ、そのまま）。
+   ロゴ・版数・見本の帯・大きさをえらぶボタンは、大きくしない */
+html[data-fs="l"]{--fs:1.3}
+html[data-fs="xl"]{--fs:1.6}
+.brand{font-size:9px/*=*/}
+.hver{font-size:10px/*=*/}
+.ver{font-size:11px/*=*/}
+#demoBar,#demoBar button{font-size:12px/*=*/}
+.fsz{margin:0 14px;padding:14px 0 12px;border-top:1px solid #DCEAF3}
+.fsz-h{font-size:12.5px/*=*/;font-weight:700;color:#55778F;letter-spacing:.025em;margin-bottom:8px;text-align:center}
+.fsz-b{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.fsz-b button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;height:54px;padding:0;font-weight:700;line-height:1;color:#27475F}
+.fsz-b button.on{background:var(--sky);border-color:var(--sky);color:#fff}
+.fsz-b button[data-fsz=""]{font-size:16px/*=*/}
+.fsz-b button[data-fsz="l"]{font-size:21px/*=*/}
+.fsz-b button[data-fsz="xl"]{font-size:26px/*=*/}
+#nav .badge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-size:calc(11px*var(--fs,1));display:flex;align-items:center;justify-content:center;padding:0 5px}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.10.1。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.12.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -169,7 +186,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.10.1';
+const APP_VER = '1.12.0';
 const PREVIEW = false;
 /* このファイルの役（Ver1.8.0〜）。同じ中身から3つのファイルを作る。
    'box'＝ご意見箱（goikenbako.html：投書を見る・書く）　'poll'＝アンケート（anketo.html：アンケートに答える）
@@ -911,6 +928,7 @@ function demoReset(){ SS.clear(); demoFn = null; }
    ・公開された投書の一覧（開いたときにすぐ出すため）
    ・「同じ意見です」を押した投書の番号（2回押せないようにするため）
    ・前に開いたときの役（スタッフ／院長・アプリ管理者のどちらの画面か）と、読んだ業務連絡の番号（「新しい」のしるしのため）
+   ・文字の大きさ（skyStaff_fs。l か xl の文字だけ。スタッフ向けアプリで共通。Ver1.12.0〜）
    ・「新しい版にする」を押したときの版の組（例 1.10.1>1.10.0。入れ替えられたかを見分けるため。版数だけ）
    ・アンケートの「自分の回答の番号」（答え直しのため。アンケートごとに別のランダムな番号。名前・えらんだものは覚えない）
    書いている途中の文・送った文は覚えない。院長のQRで開いたときは、投書の中身を覚えない */
@@ -991,7 +1009,58 @@ function head(lead){
 const upMark = () => GASVER + '>' + APP_VER;
 function upTried(){ try { return localStorage.getItem('goikenbako_up') === upMark(); } catch(e){ return false; } }
 function upGo(){ try { localStorage.setItem('goikenbako_up', upMark()); } catch(e){} try { location.replace(location.pathname + '?r=' + Date.now()); } catch(e){ try { location.reload(); } catch(e2){} } }
-const foot = () => '<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
+/* ===== 文字の大きさ（Ver1.12.0〜。資料「スタッフアプリの決まり」4-3） =====
+   スタッフ向けアプリで共通の覚え書き skyStaff_fs を読み書きする（l＝大、xl＝特大。標準のときは消す。ほかの中身は標準として扱う）。
+   入れるのはこの文字だけ。GASには送らない。入口アプリなど、ほかのスタッフアプリでえらんだ大きさで開く。
+   デザインは変えない：ボタン（大きさの決まった部品）は、標準のときの大きさに固定して、中の文字だけを、入るところまで大きくする
+   （標準より小さくはしない）。文の箱が縦にのびるのはよい。標準のときは、何もさわらない（前の版と同じ見た目） */
+const FSK = 'skyStaff_fs';
+let fsMem = '', fsBusy = false;
+function fsGet(){ let v = ''; try { v = localStorage.getItem(FSK) || ''; } catch(e){ v = fsMem; } return v === 'l' || v === 'xl' ? v : ''; }
+function fsPut(v){ fsMem = v; try { if (v) localStorage.setItem(FSK, v); else localStorage.removeItem(FSK); } catch(e){} }
+function fsOver(el){
+  const r = el.getBoundingClientRect(), g = document.createRange(); g.selectNodeContents(el);
+  const c = g.getBoundingClientRect(); if (!c.width && !c.height) return false;
+  const cs = getComputedStyle(el), n = k => parseFloat(cs[k]) || 0;
+  return c.left < r.left + n('borderLeftWidth') + n('paddingLeft') - .6 || c.right > r.right - n('borderRightWidth') - n('paddingRight') + .6
+      || c.top < r.top + n('borderTopWidth') - .6 || c.bottom > r.bottom - n('borderBottomWidth') + .6;
+}
+function fsFit(){
+  if (fsBusy) return; fsBusy = true;
+  try {
+    const R = document.documentElement, v = R.getAttribute('data-fs') || '', f0 = v === 'xl' ? 1.6 : v === 'l' ? 1.3 : 1;
+    document.querySelectorAll('[data-fx]').forEach(el => { const st = el.getAttribute('data-fx'); if (st) el.setAttribute('style', st); else el.removeAttribute('style'); el.removeAttribute('data-fx'); });
+    if (f0 === 1) return;
+    const y = window.scrollY, sh = $('sheet'), sy = sh ? sh.scrollTop : 0;
+    const els = Array.from(document.querySelectorAll('#app button:not(.opt):not([data-fsz]), #nav button, #sheet button:not(.opt)'));
+    R.removeAttribute('data-fs');                       /* いったん標準にして、部品の大きさを測る */
+    const box = els.map(el => el.getBoundingClientRect());
+    R.setAttribute('data-fs', v);
+    els.forEach((el, i) => { if (!box[i].width || !box[i].height) return;
+      el.setAttribute('data-fx', el.getAttribute('style') || '');
+      el.style.width = box[i].width+'px'; el.style.height = box[i].height+'px'; el.style.paddingTop = '0'; el.style.paddingBottom = '0'; });
+    els.forEach(el => { if (!el.hasAttribute('data-fx')) return;
+      let f = f0; el.style.setProperty('--fs', f);
+      while (f > 1 && fsOver(el)){ f = Math.max(1, Math.round((f - .05)*100)/100); el.style.setProperty('--fs', f); } });
+    if (sh && sh.scrollTop !== sy) sh.scrollTop = sy;
+    if (window.scrollY !== y) window.scrollTo(0, y);
+  } catch(e){} finally { fsBusy = false; }
+}
+function fsApply(){
+  const v = fsGet(), R = document.documentElement;
+  if ((R.getAttribute('data-fs') || '') !== v){ if (v) R.setAttribute('data-fs', v); else R.removeAttribute('data-fs'); }
+  document.querySelectorAll('[data-fsz]').forEach(b => b.classList.toggle('on', b.getAttribute('data-fsz') === v));
+  fsFit();
+}
+try { localStorage.removeItem('goikenbako_fs'); } catch(e){}   /* Ver1.11.0 の覚え書きは、もう使わないので消す */
+fsApply();
+window.addEventListener('pageshow', fsApply);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) fsApply(); });
+window.addEventListener('storage', e => { if (e.key === FSK || e.key === null) fsApply(); });
+window.addEventListener('resize', fsFit);
+try { const mo = new MutationObserver(fsFit); ['app','nav','sheet'].forEach(id => mo.observe($(id), {childList:true, subtree:true, characterData:true})); } catch(e){}
+const fsBar = () => '<div class="fsz"><div class="fsz-h">文字の大きさ</div><div class="fsz-b">'+[['','標準'],['l','大'],['xl','特大']].map(x => '<button data-fsz="'+x[0]+'" class="'+(fsGet() === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')+'</div></div>';
+const foot = () => fsBar()+'<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
 function cardStaff(p, ag){
   const c = catOf(p.cat), on = !!ag[p.id];
   return '<div class="card">'
@@ -1021,7 +1090,7 @@ function render(){
   const app = $('app');
   nav();
   if (failed && !ROLE){
-    app.innerHTML = '<div class="msg"><b style="font-size:16px;color:var(--ink)">'+esc(failed)+'</b><br><button class="reload" id="reload" style="margin-top:16px;border-color:#C9D6E0;background:#fff">↻ もう一度ためす</button></div>'+foot();
+    app.innerHTML = '<div class="msg"><b style="font-size:calc(16px*var(--fs,1));color:var(--ink)">'+esc(failed)+'</b><br><button class="reload" id="reload" style="margin-top:16px;border-color:#C9D6E0;background:#fff">↻ もう一度ためす</button></div>'+foot();
     return;
   }
   if (!ROLE){ app.innerHTML = '<div class="msg">読み込んでいます…</div>'; return; }
@@ -1170,6 +1239,7 @@ async function agree(id, btn){
 
 document.addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
+  if (t.hasAttribute('data-fsz')){ fsPut(t.getAttribute('data-fsz')); fsApply(); return; }
   if (t.id === 'reload') return load();
   if (t.id === 'goMemo'){ if (DEMO){ MODE = 'memo'; demoBar(); return restart(); } try { location.href = 'renraku.html'; } catch(e){} return; }
   if (t.id === 'goPoll'){ if (DEMO){ MODE = 'poll'; demoBar(); return restart(); } try { location.href = 'anketo.html'; } catch(e){} return; }
@@ -1198,9 +1268,9 @@ document.addEventListener('input', e => { const t = e.target; if (t && t.dataset
 /* ===== QRコードなしで開いたとき・見本（プレビュー） ===== */
 function noKeyView(){
   ROLE = ''; $('nav').style.display = 'none';
-  $('app').innerHTML = '<div class="msg"><b style="font-size:17px;color:var(--ink)">'+(MODE !== 'box' ? '先に「ご意見箱」のQRコードを読み取ってください' : '院長に見せてもらったQRコードから開いてください')+'</b>'
-    + '<p style="font-size:13px">'+(MODE !== 'box' ? 'スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。1回読み取ると、この「'+APP_NAME()+'」も開けるようになります。' : 'はじめての人は、スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。')+'</p>'
-    + '<button id="demoGo" style="margin-top:18px;border:none;background:var(--sky);color:#fff;border-radius:14px;padding:13px 22px;font-size:15px;font-weight:700">見本で見てみる（プレビュー）</button></div>'+foot();
+  $('app').innerHTML = '<div class="msg"><b style="font-size:calc(17px*var(--fs,1));color:var(--ink)">'+(MODE !== 'box' ? '先に「ご意見箱」のQRコードを読み取ってください' : '院長に見せてもらったQRコードから開いてください')+'</b>'
+    + '<p style="font-size:calc(13px*var(--fs,1))">'+(MODE !== 'box' ? 'スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。1回読み取ると、この「'+APP_NAME()+'」も開けるようになります。' : 'はじめての人は、スタッフアプリ（入口アプリ）を開いて、その中のカメラで「ご意見箱」のQRコードを読み取ってください。')+'</p>'
+    + '<button id="demoGo" style="margin-top:18px;border:none;background:var(--sky);color:#fff;border-radius:14px;padding:13px 22px;font-size:calc(15px*var(--fs,1));font-weight:700">見本で見てみる（プレビュー）</button></div>'+foot();
   $('demoGo').onclick = () => { DEMO = true; demoBar(); restart(); };
 }
 function demoBar(){
