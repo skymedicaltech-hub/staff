@@ -580,10 +580,13 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 #rWrap .seg.side{display:flex;margin:14px 0 14px}
 #rWrap .seg.side button{font-size:14px;padding:10px 0}
 
+/* 右上の版数 */
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 11.9.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver11.8.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver11.9.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -613,11 +616,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver11.8.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver11.9.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '11.8.0';
+const VER = '11.9.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）'],
@@ -743,6 +746,7 @@ function viewerRoster_(v){
   const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
   const res = {ok:true, ver:VER, viewer:true, me:{id:v.id, name:v.name, viewer:true, adm:v.adm === true, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:nurses, roster:roster, changes:[], comments:cm, url:appUrl_()};
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
+  res.wish = wishState_();   /* Ver11.9.0 */
   return res;
 }
 function saveClerks_(list){
@@ -894,13 +898,38 @@ function doGet(e){
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
 
+/* Ver11.9.0：希望の受付は、当番管理が送った「受付を始める日時」（設定の open）から。
+   open がない月（前の版の当番管理で始めた月）は、今までどおりすぐ受け付ける */
+function openOf_(r){ try { const o = JSON.parse(r[2] || '{}').open; const d = o ? new Date(o) : null; return d && !isNaN(d) ? d : null; } catch(e){ return null; } }
+const iso_ = v => { const d = new Date(v); return isNaN(d) ? '' : d.toISOString(); };
+/* まだ受付が始まっていない月のうち、いちばん早いもの（スマホに「〇日から入れられます」と出す） */
+function nextWish_(rows){
+  const now = new Date();
+  const L = rows.filter(r => { const o = openOf_(r); return o && now < o; }).sort((a, b) => a[0] < b[0] ? -1 : 1);
+  return L.length ? {ym:L[0][0], open:openOf_(L[0]).toISOString(), deadline:iso_(L[0][1])} : null;
+}
+/* 院長・アプリ管理者のQR用：来月から3か月分の、希望の受付のようす（送った人の数だけ。名前は出さない） */
+function wishState_(){
+  const now = new Date(), ym0 = today_().slice(0,7), rows = read_('months'), W = read_('wishes');
+  const ids = read_('nurses').filter(r => r[3] === '1').map(r => r[0]);   /* テスト用の人は数えない */
+  return [1,2,3].map(i => ymAdd_(ym0, i)).map(ym => {
+    const m = rows.find(r => r[0] === ym);
+    if (!m) return {ym:ym, st:'none'};
+    const o = openOf_(m), dl = new Date(m[1]);
+    const sent = {}; W.forEach(r => { if (r[0] === ym && r[4] === 'sent') sent[r[1]] = 1; });
+    return {ym:ym, st:(o && now < o) ? 'before' : (now > dl ? 'closed' : 'open'), open:o ? o.toISOString() : '', deadline:iso_(m[1]),
+            sent:ids.filter(id => sent[id]).length, total:ids.length};
+  });
+}
+
 /* 画面を開いたときのデータ */
 function getInit(k){ return once_(() => getInit_(k)); }
 function getInit_(k){
   const n = nurseByKey_(k);
   if (!n){ const c = clerkByKey_(k) || viewerByKey_(k); if (c) return {ok:true, ver:VER, clerk:true, viewer:c.viewer === true, id:c.id, name:c.name, now:new Date().toISOString(), months:[], wishes:{}, sent:{}, roster:[], survey:null, url:appUrl_()}; }
   if (!n) return {ok:false, error:BAD_KEY};
-  const months = read_('months').map(r => ({ym:r[0], deadline:r[1], cfg:JSON.parse(r[2] || '{}')}));
+  const mrows = read_('months'), now = new Date();
+  const months = mrows.filter(r => { const o = openOf_(r); return !o || now >= o; }).map(r => ({ym:r[0], deadline:r[1], cfg:JSON.parse(r[2] || '{}')}));
   const wishes = {}, sent = {};
   read_('wishes').forEach(r => {
     if (r[1] !== n.id) return;
@@ -908,7 +937,7 @@ function getInit_(k){
     else if (r[3]) wishes[r[3]] = r[4];
   });
   const roster = read_('roster').map(r => ({ym:r[0], at:r[1], data:JSON.parse(r[2] || '{}')}));
-  return {ok:true, ver:VER, id:n.id, name:n.name, test:n.test === true, now:new Date().toISOString(), months:months, wishes:wishes, sent:sent, roster:roster, survey:surveyOf_(n.id), url:appUrl_()};
+  return {ok:true, ver:VER, id:n.id, name:n.name, test:n.test === true, now:new Date().toISOString(), months:months, next:nextWish_(mrows), wishes:wishes, sent:sent, roster:roster, survey:surveyOf_(n.id), url:appUrl_()};
 }
 
 /* アンケートに答える（しめきりに関係なく、いつでも答え直せる） */
@@ -941,6 +970,7 @@ function saveWishes(k, ym, map){
     if (!n) return {ok:false, error:BAD_KEY};
     const m = read_('months').find(r => r[0] === ym);
     if (!m) return {ok:false, error:'この月の受付はまだ始まっていません。'};
+    const o = openOf_(m); if (o && new Date() < o) return {ok:false, error:'この月の受付はまだ始まっていません。'};
     if (new Date() > new Date(m[1])) return {ok:false, error:'しめきりを過ぎたので、もう直せません。'};
     const cfg = JSON.parse(m[2] || '{}');
     const dayCfg = {}; (cfg.days || []).forEach(d => { dayCfg[d.d] = d; });
@@ -1561,7 +1591,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '11.8.0';
+const APP_VER = '11.9.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -1635,12 +1665,29 @@ function render(){
   const nIn = waitIn().length;
   let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん'+(D.me.test ? '<span class="tst">テスト用</span>' : D.me.viewer ? '<span class="tst">'+(D.me.adm ? 'アプリ管理者用' : '見るだけ')+'</span>' : '')+'</span><button class="reload" id="reload" style="white-space:nowrap;flex-shrink:0">↻ 更新する</button></div>';
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:12.5px;line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
+  if (DM.viewer && !side) h += wishBox();
   if (tab === 'roster') h += rosterHead();
   h += '</div>';
   h += tab === 'roster' ? rosterBody() : reqBody();
   h += '<div class="ver">当番 Ver'+APP_VER+'</div>';
   document.getElementById('rApp').innerHTML = h;
   bind(); navBadge(nIn);
+}
+/* Ver11.9.0：院長・アプリ管理者のQRで開いたとき、看護師の希望の受付のようすを出す（送った人の数だけ） */
+function wishBox(){
+  const L = (DM.wish || []).filter((w, i) => w && /^\d{4}-\d{2}$/.test(w.ym) && (i === 0 || w.st !== 'none'));
+  if (!L.length) return '';
+  const md = s => { const d = new Date(s); return isNaN(d) ? '' : (d.getMonth()+1)+'/'+d.getDate(); };
+  const n = v => Math.max(0, Math.floor(+v || 0));
+  const row = w => {
+    let t;
+    if (w.st === 'open') t = '<b style="color:#1F7A4D">受付中</b><span>しめきり '+md(w.deadline)+'　送った人 '+n(w.sent)+'/'+n(w.total)+'</span>';
+    else if (w.st === 'before') t = '<b style="color:#4C7590">受付前</b><span>'+md(w.open)+'から　しめきり '+md(w.deadline)+'</span>';
+    else if (w.st === 'closed') t = '<b style="color:#7A6A5A">しめきり済み</b><span>送った人 '+n(w.sent)+'/'+n(w.total)+'</span>';
+    else t = '<b style="color:#B3261E">準備がまだです</b><span>院長のPCで当番管理を開くと準備されます</span>';
+    return '<div style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span style="min-width:4.2em;color:#214B68">'+(+w.ym.slice(5,7))+'月の希望</span>'+t+'</div>';
+  };
+  return '<div class="wishst" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:rgba(255,255,255,.72);color:#3D5A6E;font-size:12.5px;line-height:1.75">'+L.map(row).join('')+'</div>';
 }
 function sideHtml(){
   if (!DM.other) return '';
@@ -1894,7 +1941,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; sel = nul
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '11.8.0';
+const APP_VER = '11.9.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -1962,14 +2009,20 @@ function monthBar(ym, idx, len, key){
 }
 
 /* ---------- 希望を入れる ---------- */
+/* Ver11.9.0：受付は毎月1日から自動で始まる。まだ始まっていない次の月の案内 */
+function nextTxt(){
+  const x = D.next; if (!x || !x.ym) return '';
+  const d = new Date(x.open); if (isNaN(d)) return '';
+  return (+x.ym.slice(5,7))+'月の希望は '+(d.getMonth()+1)+'/'+d.getDate()+'（'+DOW[d.getDay()]+'）から入れられます';
+}
 function wishView(){
   const m = D.months[mi];
-  if (!m) return '</div><div class="empty">希望の受付はまだ始まっていません。<br>始まったら院長から声がかかります。</div>';
+  if (!m) return '</div><div class="empty">'+(nextTxt() ? esc(nextTxt())+'。' : '希望の受付はまだ始まっていません。<br>毎月1日から受付が始まります。')+'</div>';
   const dl = new Date(m.deadline), open = isOpen(m);
   const dtx = (dl.getMonth()+1)+'/'+dl.getDate()+'（'+DOW[dl.getDay()]+'）';
   const left = Math.ceil((new Date(dl.getFullYear(),dl.getMonth(),dl.getDate()) - new Date(new Date().toDateString())) / 86400000);
   let st;
-  if (!open) st = '<span class="chip closed">受付は終わりました</span><span>見るだけです</span>';
+  if (!open) st = '<span class="chip closed">受付は終わりました</span><span>'+(nextTxt() ? esc(nextTxt()) : '見るだけです')+'</span>';
   else if (D.sent[m.ym] && !dirty) st = '<span class="chip ok">✓ 送りました</span><span>しめきり '+dtx+' まで直せます</span>';
   else st = '<span class="chip warn">'+(left>0 ? 'しめきりまで あと<span class="num">'+left+'</span>日' : '今日がしめきり')+'</span><span>'+dtx+'　'+(D.sent[m.ym]?'直した分は未送信':'未送信')+'</span>';
   const lim = m.cfg.limits || {}, nw0 = noWorst(m.ym), y = m.ym.slice(0,4);
