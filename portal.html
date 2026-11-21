@@ -347,7 +347,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.4.21';
+const VERSION = 'Ver3.4.23';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -383,6 +383,14 @@ function iconHtml(a, bg){
 document.addEventListener('error', e => {                              // 画像が無いときは 📱 にもどす
   const t = e.target;
   if (t && t.tagName === 'IMG' && t.parentNode && t.parentNode.classList && t.parentNode.classList.contains('img')){
+    // Ver3.4.22〜 電波が一瞬とぎれただけで 📱 にならないよう、少し待って2回まで読み直す
+    const tries = Number(t.dataset.try || 0);
+    if (tries < 2){
+      t.dataset.try = String(tries + 1);
+      const base = t.getAttribute('src').split('?')[0];
+      setTimeout(() => { if (t.isConnected) t.src = base + '?r=' + (tries + 1); }, tries ? 4000 : 1500);
+      return;
+    }
     const p = t.parentNode; p.classList.remove('img'); p.textContent = '📱';
   }
 }, true);
@@ -425,11 +433,28 @@ function demoData(key, role){
 }
 
 /* ---------- 一覧の取得 ---------- */
+// Ver3.4.22〜 電波が一瞬とぎれた・GASの返事がおそいときに、すぐ「通信できない」にしないよう、
+//   1回20秒まで待ち、だめなら少し間をおいて2回までやり直す(合言葉がちがう返事のときはやり直さない)
+async function fetchOnce(key){
+  const u = GAS_URL + '?action=list&k=' + encodeURIComponent(key) + '&t=' + Date.now();
+  const ctl = (typeof AbortController === 'function') ? new AbortController() : null;
+  const tm = ctl ? setTimeout(() => ctl.abort(), 20000) : 0;
+  try {
+    const res = await fetch(u, ctl ? { cache:'no-store', signal:ctl.signal } : { cache:'no-store' });
+    if (!res.ok) throw new Error('http');
+    return await res.json();
+  } finally { clearTimeout(tm); }
+}
 async function fetchList(key, role){
   if (DEMO) return demoData(key, role);
-  const u = GAS_URL + '?action=list&k=' + encodeURIComponent(key) + '&t=' + Date.now();
-  const res = await fetch(u, { cache:'no-store' });
-  return await res.json();
+  const waits = [1500, 3500];
+  for (let n = 0; ; n++){
+    try { return await fetchOnce(key); }
+    catch(e){
+      if (n >= waits.length) throw e;
+      await new Promise(r => setTimeout(r, waits[n]));
+    }
+  }
 }
 
 /* ---------- 画面:アプリ一覧 ---------- */
@@ -868,7 +893,15 @@ async function start(force){
     if (!DEMO) ls.set(LS_CACHE, JSON.stringify({ id:cacheId, data }));
     renderList(data);
   } catch(e){
-    if (cache && cache.id === cacheId) renderList(cache.data, '通信できなかったため、前回の内容を出しています。');
+    const shown = !DEMO && cache && cache.id === cacheId && !force && $('#main .list');
+    if (shown){                                   // Ver3.4.22〜 出ている一覧(アイコン)はそのまま。知らせだけ足す
+      if (!$('#main .netnote')){
+        const d = document.createElement('div'); d.className = 'err netnote';
+        d.textContent = 'いま通信できないため、前回の内容を出しています(アプリは開けます)。';
+        $('#main').insertBefore(d, $('#main').firstChild);
+      }
+    }
+    else if (cache && cache.id === cacheId) renderList(cache.data, 'いま通信できないため、前回の内容を出しています(アプリは開けます)。');
     else {
       $('#main').innerHTML = '<div class="err">読み込めませんでした。電波のよいところで「最新にする」を押してください。</div>'
          + '<div class="foot"><span class="ver">' + VERSION + '</span><button id="reload">↻ 最新にする</button></div>';
