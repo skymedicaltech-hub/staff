@@ -328,21 +328,25 @@
   .list.fsfix > .app{aspect-ratio:auto;gap:0;overflow:hidden}
   .list.fsfix > .app .icon{margin-bottom:-6px}
   .list.fsfix > .app .name{line-height:1.25}
-  .fsz{margin-top:22px;display:flex;align-items:center;gap:8px;padding:10px 12px;
-       background:linear-gradient(135deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,.08) 38%, rgba(255,255,255,0) 60%), rgba(255,255,255,.4)}
-  html[data-fs] .fsz{flex-wrap:wrap}
-  html[data-fs] .fsz span{flex:0 0 100%}
-  html[data-fs] .fsz button{flex:1 1 0}
-  .fsz span{margin-right:auto;font-size:calc(15px*var(--fs,1));font-weight:700;color:#12324A;text-shadow:0 0 6px rgba(255,255,255,.95)}
-  .fsz button{min-width:62px;min-height:50px;padding:4px 10px;border:1px solid #7FB8E4;background:#fff;color:#1F6FB0;
-       font-weight:700;line-height:1.2;cursor:pointer;touch-action:manipulation}
-  .fsz button:active{opacity:.6}
-  .fsz button.on{background:#2F8FD8;color:#fff;border-color:#2F8FD8}
-  .fsz button[data-sz=""]{font-size:16px}
-  .fsz button[data-sz="l"]{font-size:21px}
-  .fsz button[data-sz="xl"]{font-size:26px}
-  .fsz + .foot{margin-top:14px}
-  @media print{ .fsz{display:none} }
+  /* Ver3.5.3〜 文字の大きさの入口は、下の列(最新にする・登録を解除)の中の小さい「ぁあ」の印だけ。
+     押すと、下から「標準・大・特大」を選ぶ画面が出る(ふだんの画面には何も足さない。院長が選んだ形) */
+  .foot .fsbtn{border:1px solid #8FA3B2;background:none;color:#5E7383;font-weight:700;padding:0 7px;line-height:1.5;
+       display:inline-flex;align-items:baseline;gap:1px;cursor:pointer;touch-action:manipulation}
+  .foot .fsbtn span{font-size:calc(11px*var(--fs,1))}
+  .foot .fsbtn b{font-size:calc(17px*var(--fs,1));font-weight:700}
+  .fsbg{position:fixed;inset:0;background:rgba(20,35,50,.35);display:none;align-items:flex-end;justify-content:center;z-index:25}
+  .fsbg.show{display:flex}
+  .fsbox{background:#fff;width:100%;max-width:560px;padding:22px 20px calc(22px + env(safe-area-inset-bottom))}
+  .fsbox h3{margin:0 0 14px;font-size:calc(19px*var(--fs,1));color:#22303A}
+  .fsrow{display:flex;gap:10px}
+  .fsrow button{flex:1 1 0;min-width:0;height:64px;padding:0;border:1px solid #7FB8E4;background:#fff;color:#1F6FB0;font-weight:700;cursor:pointer;touch-action:manipulation}
+  .fsrow button:active,.fsclose:active,.foot .fsbtn:active{opacity:.6}
+  .fsrow button.on{background:#2F8FD8;color:#fff;border-color:#2F8FD8}
+  .fsrow button[data-sz=""]{font-size:16px}
+  .fsrow button[data-sz="l"]{font-size:21px}
+  .fsrow button[data-sz="xl"]{font-size:26px}
+  .fsclose{width:100%;margin-top:14px;padding:13px;border:0;background:#EEF3F7;color:#46535C;font-size:calc(16px*var(--fs,1));cursor:pointer}
+  @media print{ .fsbg{display:none !important} }
 </style>
 </head>
 <body>
@@ -384,7 +388,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.5.2';
+const VERSION = 'Ver3.5.3';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -506,15 +510,23 @@ function fsGet(){ const v = ls.get(LS_FS); return (v === 'l' || v === 'xl') ? v 
 function fsSync(){                         // ほかのアプリで大きさを変えてもどってきたときに合わせる
   const v = fsGet(), cur = document.documentElement.getAttribute('data-fs') || '';
   if (v === cur) return;
-  fsApply(v); fsFit();
-  document.querySelectorAll('.fsz button').forEach(x => { const on = x.dataset.sz === v; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
+  fsApply(v); fsFit(); fsMark();
 }
 function fsApply(v){ const r = document.documentElement; if (v) r.setAttribute('data-fs', v); else r.removeAttribute('data-fs'); }
-function fsHtml(){
-  const v = fsGet();
-  const b = (sz, t) => '<button type="button" data-sz="' + sz + '"' + (v === sz ? ' class="on"' : '') + ' aria-pressed="' + (v === sz) + '">' + t + '</button>';
-  return '<div class="fsz noprint"><span>文字の大きさ</span>' + b('', '標準') + b('l', '大') + b('xl', '特大') + '</div>';
+function fsHtml(){ return '<button type="button" class="fsbtn noprint" aria-label="文字の大きさ"><span>あ</span><b>あ</b></button>'; }
+function fsMark(){ const v = fsGet(); document.querySelectorAll('.fsrow button').forEach(x => { const on = x.dataset.sz === v; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); }); }
+function fsOpen(){
+  let bg = document.getElementById('fsBg');
+  if (!bg){
+    bg = document.createElement('div'); bg.id = 'fsBg'; bg.className = 'fsbg noprint';
+    bg.innerHTML = '<div class="fsbox" role="dialog" aria-label="文字の大きさ"><h3>文字の大きさ</h3><div class="fsrow">'
+      + '<button type="button" data-sz="">標準</button><button type="button" data-sz="l">大</button><button type="button" data-sz="xl">特大</button></div>'
+      + '<button type="button" class="fsclose">とじる</button></div>';
+    document.body.appendChild(bg);
+  }
+  fsMark(); bg.classList.add('show');
 }
+function fsClose(){ const bg = document.getElementById('fsBg'); if (bg) bg.classList.remove('show'); }
 /* タイルの大きさは標準のまま、中の文字だけを、入るかぎり大きくする(Ver3.5.1〜) */
 function fsFit(){
   const list = $('#main .list'); if (!list) return;
@@ -545,13 +557,16 @@ let fsFitT = 0;
 window.addEventListener('resize', () => { clearTimeout(fsFitT); fsFitT = setTimeout(fsFit, 150); });
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fsFit).catch(() => {});
 document.addEventListener('click', e => {
-  const b = e.target && e.target.closest ? e.target.closest('.fsz button') : null;
-  if (!b) return;
-  const v = (b.dataset.sz === 'l' || b.dataset.sz === 'xl') ? b.dataset.sz : '';
-  if (v) ls.set(LS_FS, v); else ls.del(LS_FS);
-  fsApply(v); fsFit();
-  document.querySelectorAll('.fsz button').forEach(x => { const on = x.dataset.sz === v; x.classList.toggle('on', on); x.setAttribute('aria-pressed', String(on)); });
-  b.scrollIntoView({ block:'nearest' });
+  const t = e.target; if (!t || !t.closest) return;
+  if (t.closest('.fsbtn')) return fsOpen();
+  const b = t.closest('.fsrow button');
+  if (b){
+    const v = (b.dataset.sz === 'l' || b.dataset.sz === 'xl') ? b.dataset.sz : '';
+    if (v) ls.set(LS_FS, v); else ls.del(LS_FS);
+    fsApply(v); fsFit(); fsMark();
+    return;                                    // 選んだ大きさをその場で見られるよう、画面は「とじる」まで出したまま
+  }
+  if (t.closest('.fsclose') || t.id === 'fsBg') fsClose();
 });
 
 /* ---------- 画面:アプリ一覧 ---------- */
@@ -593,8 +608,8 @@ function renderList(data, note){
     });
     h += '</div>';
   }
-  h += fsHtml() + '<div class="foot"><span class="ver">' + VERSION + '</span>'
-     +   '<button id="reload">↻ 最新にする</button>'
+  h += '<div class="foot"><span class="ver">' + VERSION + '</span>'
+     +   '<button id="reload">↻ 最新にする</button>' + fsHtml()
      +   (data.staff ? '<button class="reset" id="reset">登録を解除</button>' : '<span></span>') + '</div>';
   if (data._at) h += '<div class="updated">' + esc(data._at) + ' の内容です</div>';
   if (hasQR) h += '<a class="admlink" href="#" id="requr">個人QRを読み取り直す</a>';
@@ -937,7 +952,7 @@ function renderNeedReg(msg){
   $('#main').innerHTML = demoBanner() + (msg ? '<div class="err">' + esc(msg) + '</div>' : '')
     + '<div class="needreg"><div class="big">🔑</div><h2>登録QRを読み取ってください</h2>'
     + '<p>このアプリは、スカイメディカルクリニックのスタッフ専用です。<br>院長からもらった「登録QR」をスマホのカメラで読み取ると使えます。</p></div>'
-    + fsHtml() + '<div class="foot"><span class="ver">' + VERSION + '</span></div>';
+    + '<div class="foot"><span class="ver">' + VERSION + '</span>' + fsHtml() + '</div>';
   bindDemo();
 }
 
