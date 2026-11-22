@@ -157,7 +157,7 @@ body{max-width:480px;margin:0 auto;padding-bottom:var(--nav)}
 #nav button svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #nav button.on{color:#287FB8}
 #nav button.on::before{content:"";position:absolute;top:4px;height:33px;width:53px;border-radius:11px;background:#E8F4FB;z-index:-1}
-/* 文字の大きさ（Ver1.12.0〜。資料「スタッフアプリの決まり」4-3）：標準／大（1.3倍）／特大（1.6倍）。
+/* 文字の大きさ（Ver1.12.0〜。資料「スタッフアプリの決まり」4-3）：標準／大（1.3倍）／特大（1.6倍）。Ver1.12.1〜、入口はいちばん下の「ぁあ」の印。
    文字の大きさは、組み立てるときに全部 calc(…px*var(--fs,1)) に直してある（うしろに「=」の印のコメントを付けたものだけ、そのまま）。
    ロゴ・版数・見本の帯・大きさをえらぶボタンは、大きくしない */
 html[data-fs="l"]{--fs:1.3}
@@ -166,10 +166,19 @@ html[data-fs="xl"]{--fs:1.6}
 .hver{font-size:10px/*=*/}
 .ver{font-size:11px/*=*/}
 #demoBar,#demoBar button{font-size:12px/*=*/}
-.fsz{margin:0 14px;padding:14px 0 12px;border-top:1px solid #DCEAF3}
-.fsz-h{font-size:12.5px/*=*/;font-weight:700;color:#55778F;letter-spacing:.025em;margin-bottom:8px;text-align:center}
-.fsz-b{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.fsz-b button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;height:54px;padding:0;font-weight:700;line-height:1;color:#27475F}
+/* いちばん下の小さい「ぁあ」の印（Ver1.12.1〜。入口アプリ Ver3.5.3 と同じ形）。版数の文字は動かさない */
+.svrow{margin:10px 14px -2px;text-align:right}
+.svrow button{border:1.5px solid #BFD3E2;background:#fff;color:#27475F;border-radius:999px;padding:7px 14px;font-size:calc(12.5px*var(--fs,1));font-weight:700}
+.svbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;background:#FFF4D6;border-bottom:1.5px solid #E8C96A;color:#6B4E00;padding:9px 14px;font-size:calc(13.5px*var(--fs,1));font-weight:700}
+.svbar span{flex:1}
+.svbar small{display:block;font-size:calc(11.5px*var(--fs,1));font-weight:400}
+.svbar button{flex:none;border:1.5px solid #C9A63A;background:#fff;color:#6B4E00;border-radius:999px;padding:7px 14px;font-size:calc(13px*var(--fs,1));font-weight:700}
+.verw{position:relative;display:inline-block}
+.fsm{position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:12px;border:1px solid #8FA3B2;background:none;border-radius:5px;padding:1px 5px 2px;color:#5E7383;font-weight:700;line-height:1.2;white-space:nowrap;font-size:13px/*=*/}
+.fsm small{font-size:9px/*=*/;margin-right:1px}
+.fsm::after{content:"";position:absolute;inset:-12px -14px}
+.fsz-b{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.fsz-b button{border:1.5px solid #D5E3EE;background:#fff;border-radius:13px;height:58px;padding:0;font-weight:700;line-height:1;color:#27475F}
 .fsz-b button.on{background:var(--sky);border-color:var(--sky);color:#fff}
 .fsz-b button[data-fsz=""]{font-size:16px/*=*/}
 .fsz-b button[data-fsz="l"]{font-size:21px/*=*/}
@@ -178,7 +187,7 @@ html[data-fs="xl"]{--fs:1.6}
 </style>
 </head>
 <body>
-<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.12.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
+<!-- スタッフ用「ご意見箱」スマホアプリ Ver1.13.0。GitHub Pages に goikenbako.html として置きます。合言葉・名前はこのファイルに入っていません -->
 <div id="demoBar" style="display:none"></div>
 <div id="app"><div class="msg">読み込んでいます…</div></div>
 <div class="bg" id="bg"></div><div class="sheet" id="sheet"></div>
@@ -186,7 +195,7 @@ html[data-fs="xl"]{--fs:1.6}
 <nav id="nav" style="display:none"></nav>
 <script>
 'use strict';
-const APP_VER = '1.12.0';
+const APP_VER = '1.13.0';
 const PREVIEW = false;
 /* このファイルの役（Ver1.8.0〜）。同じ中身から3つのファイルを作る。
    'box'＝ご意見箱（goikenbako.html：投書を見る・書く）　'poll'＝アンケート（anketo.html：アンケートに答える）
@@ -1032,7 +1041,7 @@ function fsFit(){
     document.querySelectorAll('[data-fx]').forEach(el => { const st = el.getAttribute('data-fx'); if (st) el.setAttribute('style', st); else el.removeAttribute('style'); el.removeAttribute('data-fx'); });
     if (f0 === 1) return;
     const y = window.scrollY, sh = $('sheet'), sy = sh ? sh.scrollTop : 0;
-    const els = Array.from(document.querySelectorAll('#app button:not(.opt):not([data-fsz]), #nav button, #sheet button:not(.opt)'));
+    const els = Array.from(document.querySelectorAll('#app button:not(.opt):not(.fsm), #nav button, #sheet button:not(.opt):not([data-fsz])'));
     R.removeAttribute('data-fs');                       /* いったん標準にして、部品の大きさを測る */
     const box = els.map(el => el.getBoundingClientRect());
     R.setAttribute('data-fs', v);
@@ -1059,8 +1068,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden) fsAp
 window.addEventListener('storage', e => { if (e.key === FSK || e.key === null) fsApply(); });
 window.addEventListener('resize', fsFit);
 try { const mo = new MutationObserver(fsFit); ['app','nav','sheet'].forEach(id => mo.observe($(id), {childList:true, subtree:true, characterData:true})); } catch(e){}
-const fsBar = () => '<div class="fsz"><div class="fsz-h">文字の大きさ</div><div class="fsz-b">'+[['','標準'],['l','大'],['xl','特大']].map(x => '<button data-fsz="'+x[0]+'" class="'+(fsGet() === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')+'</div></div>';
-const foot = () => fsBar()+'<div class="ver">'+APP_NAME()+' Ver'+APP_VER+'</div>';
+function fsOpen(){
+  sheetOpen('<div class="sh-h">文字の大きさ</div><div class="fsz-b">'+[['','標準'],['l','大'],['xl','特大']].map(x => '<button data-fsz="'+x[0]+'" class="'+(fsGet() === x[0] ? 'on' : '')+'">'+x[1]+'</button>').join('')+'</div>'
+    + '<button class="go" id="fsClose">とじる</button>');
+  $('fsClose').onclick = sheetClose;
+}
+const foot = () => '<div class="ver"><span class="verw">'+APP_NAME()+' Ver'+APP_VER+'<button class="fsm" id="fsMark" aria-label="文字の大きさ"><small>ぁ</small>あ</button></span></div>';
 function cardStaff(p, ag){
   const c = catOf(p.cat), on = !!ag[p.id];
   return '<div class="card">'
@@ -1086,7 +1099,41 @@ function pollStaff(p){
     + '<p class="note">'+(p.open ? (p.named ? '' : '名前は記録されません。')+(p.show ? (p.mine ? '' : '答えると、みんなの回答の人数が見えます。') : '結果は院長とアプリ管理者だけが見ます。')+'締め切りまで、答えを変えられます。'
         : (has ? '回答 '+(Number(p.n) || 0)+'人' : ''))+'</p></div>';
 }
+/* ===== スタッフの見え方（Ver1.13.0〜）：院長・アプリ管理者のQRで開いたとき、スタッフ（看護師・事務。どちらも同じ）に見える画面を、見るだけで出す。
+   GASに聞く中身は変えない。院長用にもらった中身から、スタッフに返る形（GASの list_・pollsOut_ と同じ決まり）をスマホの中で作る。入力・送信はできない ===== */
+let SV = false;
+try { SV = !DEMO && sessionStorage.getItem('goikenbako_sv') === '1'; } catch(e){}
+function svSet(on){ SV = !!on; try { if (SV) sessionStorage.setItem('goikenbako_sv', '1'); else sessionStorage.removeItem('goikenbako_sv'); } catch(e){} sel = {}; nm = {}; tab = homeTab(SV ? 'staff' : 'dr'); sheetClose(); render(); window.scrollTo(0, 0); }
+function svPosts(){
+  const L = POSTS.filter(p => p.pub === '1').map(p => { const o = {id:p.id, cat:p.cat, text:p.text, reply:p.reply, st:p.st, pd:p.pd}; if (OPINION) o.ag = Number(p.ag) || 0; return o; });
+  L.sort((a, b) => a.pd < b.pd ? 1 : a.pd > b.pd ? -1 : 0); return L;
+}
+function svPolls(){
+  const t = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s)); return m ? Date.UTC(+m[1], +m[2]-1, +m[3]) : NaN; }, d = new Date(Date.now() + 9*3600000), today = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+  const out = [];
+  POLLS.forEach(p => {
+    if (!p.open && !(p.show && !(Math.round((today - t(p.cd)) / 86400000) > 14))) return;   /* 締め切ったあとは、結果を見せる設定のものだけ14日 */
+    const o = {id:p.id, q:p.q, opts:p.opts, multi:p.multi, named:p.named, show:p.show, open:p.open, none:p.none};
+    if (p.show && !p.open){ o.counts = p.counts; o.noneN = p.noneN; o.n = p.n; }   /* 受付中は「まだ答えていない人」の見え方（人数は出ない） */
+    out.push(o);
+  });
+  return out;
+}
 function render(){
+  if (!(SV && ROLE === 'dr')){
+    renderCore();
+    if (ROLE === 'dr' && !DEMO && $('app').querySelector('.head')) $('app').querySelector('.head').insertAdjacentHTML('afterend', '<div class="svrow"><button id="svOn">スタッフの見え方を見る</button></div>');
+    return;
+  }
+  if (MODE === 'box' && tab !== 'list' && tab !== 'write') tab = 'list';
+  const r = ROLE, ps = POSTS, pl = POLLS;
+  ROLE = 'staff'; POSTS = svPosts(); POLLS = svPolls();
+  try { renderCore(); } finally { ROLE = r; POSTS = ps; POLLS = pl; }
+  const app = $('app');
+  app.querySelectorAll('button:not(#reload):not(#fsMark):not(#goPoll):not(#goMemo), input, textarea').forEach(e => { e.disabled = true; });
+  app.insertAdjacentHTML('afterbegin', '<div class="svbar"><span>スタッフに見える画面です<small>見るだけ（書く・答えるは、できません）</small></span><button id="svOff">もどる</button></div>');
+}
+function renderCore(){
   const app = $('app');
   nav();
   if (failed && !ROLE){
@@ -1239,6 +1286,9 @@ async function agree(id, btn){
 
 document.addEventListener('click', e => {
   const t = e.target.closest('button'); if (!t) return;
+  if (t.id === 'fsMark') return fsOpen();
+  if (t.id === 'svOn' && ROLE === 'dr') return svSet(true);
+  if (t.id === 'svOff') return svSet(false);
   if (t.hasAttribute('data-fsz')){ fsPut(t.getAttribute('data-fsz')); fsApply(); return; }
   if (t.id === 'reload') return load();
   if (t.id === 'goMemo'){ if (DEMO){ MODE = 'memo'; demoBar(); return restart(); } try { location.href = 'renraku.html'; } catch(e){} return; }
