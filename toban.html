@@ -893,9 +893,60 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 /* ---- Ver12.38.0：入口アプリから開いたときの「← スタッフアプリ」（左上。いちばん下の版数の文字と同じ色・太さ） ---- */
 #rWrap .head.bk .hello::before,#wWrap .head.bk .hello::before{display:none}
 .toPortal{position:absolute;top:2px;left:10px;z-index:2;padding:3px 6px;font-size:calc(11px*var(--fs,1));font-weight:400;color:var(--faint);text-decoration:none;line-height:1.2}
+/* ---- Ver12.39.0：今日の画面のカレンダーのコメントを大きく。休み申請のカレンダーの日曜・祝日・休診日は赤い背景（院長が決めた） ---- */
+#rWrap .tdc .dcm .cmi,#rWrap .tdc .dcm .cmn{font-size:calc(17px*var(--fs,1));line-height:1.5}
+#rWrap .acal.lvc .ac.none,#rWrap .acal.lvc .ac.s0{background:#FBE3E3}
+#rWrap .acal.lvc .ac.none .mn,#rWrap .acal.lvc .ac.s0 .mn{color:#C0392B}
+/* ---- Ver12.40.0：休みの人は日付の右（週）・看護師／事務の見出しの右（今日）（院長が決めた） ---- */
+#rWrap .lvi{margin-left:auto;padding-left:6px;display:inline-flex;flex-wrap:wrap;justify-content:flex-end;gap:0 6px;text-align:right;font-size:calc(12.5px*var(--fs,1));font-weight:500;color:#B23A3C;line-height:1.3;align-self:center}
+#rWrap .lvi b{display:inline-block;margin-right:3px;padding:0 4px;border-radius:3px;background:#D2484A;color:#fff;font-size:calc(11px*var(--fs,1));font-weight:700;line-height:1.45}
+#rWrap .lvi .pdn{color:#B0681A}
+#rWrap .lvi b.pd{background:#D9891E}
+#rWrap .wkc .wch{flex-wrap:wrap}
+#rWrap .wkc .wch .lvi{font-size:calc(12px*var(--fs,1))}
+#rWrap .tdh{display:flex;align-items:center}
+#rWrap .tdh .lvi{font-size:calc(14px*var(--fs,1))}
+#rWrap .tdh .lvi b{font-size:calc(12px*var(--fs,1))}
+/* ---- Ver12.41.0：休み申請の画面（今日・週・月）。当番表と同じ形で、色は赤（院長が決めた） ---- */
+html:has(body.lvTheme){background:#FBE9E9}
+body.lvTheme{background:#FCEFEF;background-image:radial-gradient(ellipse at 100% 0%,rgba(247,176,176,.45),transparent 42%),linear-gradient(165deg,#FDF0F0 0%,#FFF8F8 48%,#FCEEEE 100%)}
+#rWrap .head.lvt{background:linear-gradient(143deg,#F5C2C2 0%,#F9D7D7 57%,#FCEAEA 100%);box-shadow:0 7px 20px rgba(171,55,55,.07)}
+#rWrap .head.lvt .hello::before{color:#B06A6A}
+#rWrap .head.lvt .vseg{border-bottom-color:#E9B9B9}
+#rWrap .head.lvt .vseg button.on{color:#B53B3D}
+#rWrap .head.lvt .vseg button.on::after{background:#B53B3D}
+#rWrap .head.lvt .arrows button{color:#B53B3D;border-color:#F0CACA}
+#rWrap .head.lvt .tdnow{background:#C0474A}
+#rWrap .head.lvt .fsTop{border-color:#D99A9A;color:#9E3B3D}
+body.lvTheme #rWrap .hint{color:#9A7676}
+/* 週のカード（休み） */
+#rWrap .lvwk{padding:0}
+#rWrap .lvwk .wcard[data-lvday]{cursor:pointer}
+#rWrap .lvwk .wcard.today{box-shadow:0 0 0 2px #C0474A;background:#FFF5F5}
+#rWrap .lvwk .wcard.today .wtd{background:#C0474A}
+#rWrap .lvwk .wcard.lvoff{background:#FBE3E3}
+#rWrap .lvwk .wcard.lvoff .woff{color:#C0392B}
+#rWrap .lvps{display:flex;flex-direction:column;gap:3px;padding:4px 2px;min-height:calc(56px*var(--fs,1))}
+#rWrap .lvp{display:flex;align-items:center;gap:5px;font-size:calc(16px*var(--fs,1));line-height:1.3;color:#3B2A2A}
+#rWrap .lvp b{flex:none;font-size:calc(11px*var(--fs,1));font-weight:700;color:#fff;background:#D2484A;border-radius:3px;padding:1px 5px}
+#rWrap .lvp.pd b{background:#D9891E}
+#rWrap .lvp.me{font-weight:700}
+#rWrap .lvn{font-size:calc(13px*var(--fs,1));color:#A99090}
+#rWrap .lvdus{display:flex;gap:4px;flex-wrap:wrap;padding:2px 2px 0;border-top:1px dashed #EBD3D3;margin-top:2px;align-items:center}
+#rWrap .lvdu{font-size:calc(11.5px*var(--fs,1));font-weight:700;border-radius:3px;padding:0 6px;background:#fff;border:1px solid #287FB8;color:#287FB8}
+#rWrap .lvdu.E{border-color:#B76839;color:#B76839}
+#rWrap .lvdl2{font-size:calc(12px*var(--fs,1));color:#8A6F6F;margin-right:2px}
+/* 今日（休み） */
+#rWrap .lvtd{padding:12px 14px}
+#rWrap .lvtd .lvp{font-size:calc(19px*var(--fs,1))}
+#rWrap .lvtd .lvp b{font-size:calc(12.5px*var(--fs,1))}
+#rWrap .lvtd.lvoff{background:#FBE3E3;color:#C0392B}
+#rWrap .lvgo{display:block;width:100%;margin:10px 0 4px;padding:13px 0;border:none;border-radius:10px;background:#C0474A;color:#fff;font-size:calc(16px*var(--fs,1));font-weight:700}
+#rWrap .list.wkc.lvwk>*:not(.wcard){grid-column:1/-1}
+#rWrap .list.wkc.lvwk{padding-top:0}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.38.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.41.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -954,7 +1005,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.38.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.41.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2397,6 +2448,7 @@ let curTab = 'roster';
 let goSeq = 0;
 function goTab(t){
   curTab = t;
+  try { document.body.classList.toggle('lvTheme', t === 'leave'); } catch(e){}   /* Ver12.41.0：休み申請の画面は赤 */
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.go === t));
   const my = ++goSeq;
   requestAnimationFrame(() => {
@@ -2604,7 +2656,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.38.0';
+const APP_VER = '12.41.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2721,7 +2773,7 @@ function tdBody(){
   const dayIn = R => { const m = (R || []).find(x => x.ym === ds.slice(0,7)); return m && m.data && m.data.days ? m.data.days[ds] : null; };
   const mine = tdR(DM.roster, !!DM.clerk), oth = DM.other ? tdR(DM.other.roster, !DM.clerk) : null;
   const grp = (title, d, rows, own, has) => {
-    let h = '<div class="tdg"><div class="tdh">'+title+'</div>';
+    let h = '<div class="tdg"><div class="tdh">'+title+lvInl(ds, title === '事務' ? 'j' : 'n')+'</div>';   /* Ver12.40.0：休みの人は見出しの右 */
     if (!has) return h + '<div class="tdn">この当番表は、いま見られません。</div></div>';
     const L = d ? rows.filter(x => d[x[2]] !== undefined) : [];
     if (!L.length) return h + '<div class="tdn">当番はありません。</div></div>';
@@ -2739,8 +2791,8 @@ function tdBody(){
   let h = '<div class="list tdv">';
 
   if (c) h += '<div class="tdc"><div class="dcm">' + (c.important || []).map(x => '<div class="cmi" style="color:'+(CM_COLOR[x.color]||CM_COLOR.black)+'">'+esc(x.text)+'</div>').join('') + (c.normal || []).map(t => '<div class="cmn">'+esc(t)+'</div>').join('') + '</div></div>';
-  h += grp('看護師', dayIn(DM.clerk ? oth : mine), NR, !DM.clerk, DM.clerk ? !!oth : true).replace(/<\/div>$/, lvHtml(ds, 'n')+'</div>');
-  h += grp('事務', dayIn(DM.clerk ? mine : oth), CR, !!DM.clerk, DM.clerk ? true : !!oth).replace(/<\/div>$/, lvHtml(ds, 'j')+'</div>');
+  h += grp('看護師', dayIn(DM.clerk ? oth : mine), NR, !DM.clerk, DM.clerk ? !!oth : true);
+  h += grp('事務', dayIn(DM.clerk ? mine : oth), CR, !!DM.clerk, DM.clerk ? true : !!oth);
   h += '<p class="hint">'+(DM.boss ? '当番を押すと、入れられる人の名前が出ます。えらぶと、すぐ変わります（本人の同意はいりません）。' : (DM.viewer || DM.ro) ? '見るだけです（変えられません）' : DM.clerk ? '事務の当番を押すと、入れる人をえらべます。' : '<b>交換</b>：自分の当番と相手の当番を、1回ずつ押す　<b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す')+'</p></div>';
   h += selBar();
   return h;
@@ -2766,7 +2818,7 @@ function render(){
   const nIn = waitIn().length;
   /* Ver12.19.0：名前のあとに職種（看護師・事務）。院長・アプリ管理者は名前だけ。「更新する」のボタンはなくし、下に引っぱって更新する（院長が決めた） */
   const boss = D.me.pv || D.me.viewer, role = (DM && DM.clerk) ? '事務' : '看護師';   /* Ver12.19.1：院長・アプリ管理者のQRは、どの画面でも名前だけ */
-  let h = '<div class="head'+(tab === 'roster' ? ' stk' : '')+(typeof BK !== 'undefined' && BK ? ' bk' : '')+'">'+(typeof bkHtml === 'function' ? bkHtml() : '')+'<div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
+  let h = '<div class="head'+(tab === 'roster' ? ' stk' : tab === 'leave' && lvTabOn() ? ' stk lvt' : '')+(typeof BK !== 'undefined' && BK ? ' bk' : '')+'">'+(typeof bkHtml === 'function' ? bkHtml() : '')+'<div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:calc(12.5px*var(--fs,1));line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (DM.viewer){
     /* Ver11.15.1：院長・アプリ管理者のQRの最初の画面は、「希望の受付のようす」だけにする。
@@ -2791,6 +2843,7 @@ function render(){
   /* Ver12.5.1：事務も下のタブで切りかえる（上の「当番表｜休み申請」はやめた） */
   if (tab === 'leave' && !lvTabOn()) tab = 'roster';
   if (tab === 'roster') h += rosterHead();
+  else if (tab === 'leave') h += lvHead();   /* Ver12.41.0：休み申請も、当番表と同じ見出し（今日・週・月）。色は赤 */
   h += '</div>';
   h += tab === 'leave' ? lvBody() : tab === 'lvok' ? lvOkBody() : tab === 'roster' ? rosterTools() + calNote() + rosterBody()  + histBlock() : reqBody();
   h += '<div class="ver">当番 Ver'+APP_VER+'</div>';
@@ -2869,7 +2922,7 @@ function rosterBody(){
   const LC = [1,2,3,4,5,6].map(n => addD(wk0, n)).concat(L.filter(ds => pd(ds).getDay() === 0));   /* 月〜土（日曜は当番があるときだけ） */
   LC.forEach(ds => {
     const d = dayOf(ds) || {}, past = ds < D.today, w0 = pd(ds).getDay(), isT = ds === D.today;
-    const cHead = '<div class="wch"><span class="wnum">'+(+ds.slice(5,7))+'/'+(+ds.slice(8,10))+'</span><span class="wdow">（'+DOW[w0]+'）</span>'+(isT ? '<span class="wtd">本日</span>' : '')+'</div>';
+    const cHead = '<div class="wch"><span class="wnum">'+(+ds.slice(5,7))+'/'+(+ds.slice(8,10))+'</span><span class="wdow">（'+DOW[w0]+'）</span>'+(isT ? '<span class="wtd">本日</span>' : '')+lvInl(ds)+'</div>';
     if (!SL.some(t => d[KEYS[t][0]] !== undefined) || d.off === true){ shown++; h += '<div class="wcard off'+(isT?' today':'')+'">'+cHead+'<div class="woff">休診</div></div>'; return; }
     if (past && hidePast) return;
     const mine = SL.some(t => holder(ds,t) === D.me.id);
@@ -2877,7 +2930,7 @@ function rosterBody(){
     const slots = SL.filter(t => d[KEYS[t][0]] !== undefined);
     if (!slots.length) return;
     shown++;
-    h += '<div class="wcard'+(past?' past':'')+(isT?' today':'')+'">'+cHead+cmtHtml(ds)+lvHtml(ds);   /* Ver12.18.0：コメント・休みはいちばん上 */
+    h += '<div class="wcard'+(past?' past':'')+(isT?' today':'')+'">'+cHead+cmtHtml(ds);   /* Ver12.18.0：コメントはいちばん上。Ver12.40.0：休みは日付の右（cHead の中） */
     const chip = t => {
       const id = holder(ds,t), nm = holderName(ds,t), me = id === D.me.id, tap = !calM(ds) && (DM.boss ? !past : (!D.ro && !past && (D.clerk || !!id)));   /* Ver11.23.0：カレンダーで入れた月は押せない */
       const isSel = sel && sel.ds === ds && sel.t === t, cand = sel && !isSel && (DM.boss ? bossCand(sel, ds, t) : !!pairOf(sel, ds, t));
@@ -3255,6 +3308,14 @@ const lvWaitN = () => (DM && DM.leave && DM.leave.leader && !side) ? (DM.leave.w
 const lvOk = g => ((DM && DM.leave && DM.leave.ok) || []).filter(o => !g || o.grp === g);
 const lvPend = g => ((DM && DM.leave && DM.leave.pend) || []).filter(o => !g || o.grp === g);
 /* 当番表に出す休み。受理＝「休」、申請中＝「休み申請中」。どちらの人も、その時間の当番には入れない（交代もできない） */
+/* Ver12.40.0：休みの人を、日付（今日の画面は看護師・事務の見出し）の右に小さく（院長が決めた） */
+function lvInl(ds, g){
+  g = g || (D.clerk ? 'j' : 'n');
+  const nm = o => esc(o.name)+(o.part === 'all' ? '' : '（'+LV_PART[o.part]+'）');
+  const L = lvOk(g).filter(o => o.ds === ds), P = lvPend(g).filter(o => o.ds === ds);
+  if (!L.length && !P.length) return '';
+  return '<span class="lvi">' + (L.length ? '<span><b>休</b>'+L.map(nm).join('・')+'</span>' : '') + (P.length ? '<span class="pdn"><b class="pd">申請中</b>'+P.map(nm).join('・')+'</span>' : '') + '</span>';
+}
 function lvHtml(ds, g){
   g = g || (D.clerk ? 'j' : 'n');
   const nm = o => esc(o.name)+(o.part === 'all' ? '' : '（'+LV_PART[o.part]+'）');
@@ -3320,10 +3381,8 @@ function lvCalHtml(){
   /* Ver12.15.0：休みは白抜き文字で目立たせる（受理＝赤、申請中＝だいだい）。当番は枠だけ。並びは 1段目＝休み、2段目＝早出、3段目＝CS（会計） */
   const tag = (o, pend) => '<span style="display:block;text-align:center;font-size:calc(10.5px*var(--fs,1));font-weight:700;line-height:calc(15px*var(--fs,1));height:calc(16px*var(--fs,1));border-radius:3px;padding:0 1px;white-space:nowrap;overflow:hidden;color:#fff;margin-bottom:1px;'
     + (pend ? 'background:#D9891E' : 'background:#D2484A')+(o.pid === DM.me.id ? ';box-shadow:inset 0 0 0 1.5px #1E2833' : '')+'">'+esc(o.name)+ab(o.part)+'</span>';
-  let h = '<div class="h2" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px"><span>みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</span><span>'
-    + '<button data-lvcal="-1" style="border:1px solid #E2EDF5;background:#fff;border-radius:6px;width:34px;height:30px;color:#287FB8"'+(ym <= cur ? ' disabled' : '')+'>‹</button> '
-    + '<b style="font-size:calc(14px*var(--fs,1));margin:0 6px">'+y+'年'+m+'月</b> <button data-lvcal="1" style="border:1px solid #E2EDF5;background:#fff;border-radius:6px;width:34px;height:30px;color:#287FB8"'+(ym >= maxYm ? ' disabled' : '')+'>›</button></span></div>'
-    + '<div class="mcal acal"><div class="mwk">'+DOW.map((x,i) => '<div class="s'+i+'">'+x+'</div>').join('')+'</div><div class="mgrid">';
+  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div>'   /* Ver12.41.0：月の移動は上の見出しへ */
+    + '<div class="mcal acal lvc"><div class="mwk">'+DOW.map((x,i) => '<div class="s'+i+'">'+x+'</div>').join('')+'</div><div class="mgrid">';
   const wkMax = {}; for (let d = 1; d <= last; d++){ const ds = ym+'-'+pad(d), wk = Math.floor((d - 1 + new Date(y, m-1, 1).getDay()) / 7); wkMax[wk] = Math.max(wkMax[wk] || 0, lvOf(ds).length); }   /* 週ごとに、休みの段の高さをそろえる */
   for (let i = 0; i < new Date(y, m-1, 1).getDay(); i++) h += '<div class="ac blank"></div>';
   for (let d = 1; d <= last; d++){
@@ -3335,11 +3394,69 @@ function lvCalHtml(){
   h += '</div></div><p class="hint">日を押すと、その日の休みを申請できます。<span style="border:1px solid #B76839;color:#B76839;border-radius:3px;padding:0 4px;font-weight:700">早出</span><span style="border:1px solid #287FB8;color:#287FB8;border-radius:3px;padding:0 4px;font-weight:700;margin-left:2px">'+(DM.clerk ? '会計' : 'CS')+'</span>＝自分の当番。<span style="background:#D2484A;color:#fff;border-radius:3px;padding:0 4px;font-weight:700">赤</span>＝休み、<span style="background:#D9891E;color:#fff;border-radius:3px;padding:0 4px;font-weight:700">だいだい</span>＝申請中。前＝午前、後＝午後。</p>';
   return h;
 }
+/* ---------- Ver12.41.0：休み申請の画面も「今日・週・月」（院長が決めた）。見出しは当番表と同じ形で赤。日を押すと申請 ---------- */
+let lvView = mem('lvview') || 'month', lvDay = '';
+function lvFix(){ const td = DM.today, mx = addD(td, 200); if (!lvDay || lvDay < td) lvDay = td; if (lvDay > mx) lvDay = mx; lvCalYm = lvDay.slice(0,7); }
+const lvSun = ds => addD(ds, -pd(ds).getDay());
+function lvHead(){
+  lvFix(); const td = DM.today, mx = addD(td, 200);
+  let t, pv, nx;
+  if (lvView === 'today'){ const w = pd(lvDay).getDay(); t = '<span class="m wkm">'+(+lvDay.slice(5,7))+'/'+(+lvDay.slice(8,10))+'<small>（'+DOW[w]+'）</small></span>'+(lvDay === td ? '<span class="tdnow">今日</span>' : ''); pv = lvDay <= td; nx = lvDay >= mx; }
+  else if (lvView === 'week'){ const a = addD(lvSun(lvDay), 1), b = addD(a, 5); t = '<span class="m wkm">'+(+a.slice(5,7))+'/'+(+a.slice(8,10))+'<small>〜</small>'+(+b.slice(5,7))+'/'+(+b.slice(8,10))+'</span>'; pv = lvSun(lvDay) <= lvSun(td); nx = lvSun(lvDay) >= lvSun(mx); }
+  else { t = '<span class="m">'+(+lvDay.slice(5,7))+'<small>月</small></span><span class="y">'+lvDay.slice(0,4)+'</span>'; pv = lvDay.slice(0,7) <= td.slice(0,7); nx = lvDay.slice(0,7) >= mx.slice(0,7); }
+  return '<div class="month"><div class="t">'+t+'</div><div class="arrows"><button id="lvPrev" '+(pv?'disabled':'')+'>‹</button><button id="lvNext" '+(nx?'disabled':'')+'>›</button></div></div>'
+    + '<div class="vrow"><div class="vseg">'+[['today','今日'],['week','週'],['month','月']].map(v => '<button data-lvview="'+v[0]+'" class="'+(lvView===v[0]?'on':'')+'">'+v[1]+'</button>').join('')+'</div>'
+    + '<div class="filter hf" aria-hidden="true" style="visibility:hidden"><label class="sw"><i></i>自分の当番だけ</label></div></div>';
+}
+function lvMove(k){
+  const td = DM.today;
+  if (lvView === 'today') lvDay = addD(lvDay, k);
+  else if (lvView === 'week') lvDay = addD(lvSun(lvDay), 7*k + 1);
+  else { const p = lvDay.split('-').map(Number), d = new Date(p[0], p[1]-1+k, 1); lvDay = d.getFullYear()+'-'+pad(d.getMonth()+1)+'-01'; }
+  if (lvDay < td) lvDay = td; render();
+}
+function lvMyDuty(ds){
+  const me = DM.me.id, m = (DM.roster || []).find(x => x.ym === ds.slice(0,7)), d = m && m.data && m.data.days ? m.data.days[ds] : null, r = [];
+  if (!d) return r;
+  if (d.eId === me) r.push(['E','早出']);
+  if (DM.clerk){ if (d.lId === me) r.push(['C','会計']); } else if (d.cId === me || d.c2Id === me) r.push(['C','CS']);
+  return r;
+}
+const lvCan = ds => ds > DM.today && !lvOffDay(ds) && ds <= addD(DM.today, 200);
+function lvPeople(ds){
+  const g = DM.clerk ? 'j' : 'n', nm = o => esc(o.name)+(o.part === 'all' ? '' : '（'+LV_PART[o.part]+'）'), me = o => o.pid === DM.me.id ? ' me' : '';
+  return lvOk(g).filter(o => o.ds === ds).map(o => '<span class="lvp ok'+me(o)+'"><b>休</b>'+nm(o)+'</span>')
+    .concat(lvPend(g).filter(o => o.ds === ds).map(o => '<span class="lvp pd'+me(o)+'"><b>申請中</b>'+nm(o)+'</span>'));
+}
+const lvDutyTags = ds => lvMyDuty(ds).map(x => '<span class="lvdu '+x[0]+'">'+x[1]+'</span>').join('');
+function lvWeekHtml(){
+  const td = DM.today, a = addD(lvSun(lvDay), 1);
+  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div>';
+  for (let i = 0; i < 6; i++){
+    const ds = addD(a, i), w = pd(ds).getDay(), off = lvOffDay(ds), can = lvCan(ds), P = lvPeople(ds), du = lvDutyTags(ds);
+    h += '<div class="wcard'+(off ? ' off lvoff' : '')+(ds < td ? ' past' : '')+(ds === td ? ' today' : '')+'"'+(can ? ' data-lvday="'+ds+'"' : '')+'>'
+      + '<div class="wch"><span class="wnum">'+(+ds.slice(5,7))+'/'+(+ds.slice(8,10))+'</span><span class="wdow">（'+DOW[w]+'）</span>'+(ds === td ? '<span class="wtd">本日</span>' : '')+'</div>'
+      + (off ? '<div class="woff">休診</div>' : '<div class="lvps">'+(P.length ? P.join('') : '<span class="lvn">休みの人はいません</span>')+'</div>'+(du ? '<div class="lvdus">'+du+'</div>' : ''))
+      + '</div>';
+  }
+  return h + '<p class="hint">日を押すと、その日の休みを申請できます。</p>';
+}
+function lvTodayHtml(){
+  const ds = lvDay, off = lvOffDay(ds), can = lvCan(ds), P = lvPeople(ds), du = lvMyDuty(ds);
+  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div><div class="tdg lvtd'+(off ? ' lvoff' : '')+'">';
+  if (off) h += '<div class="lvn">休診日です</div>';
+  else h += '<div class="lvps">'+(P.length ? P.join('') : '<span class="lvn">休みの人はいません</span>')+'</div>'
+    + (du.length ? '<div class="lvdus"><span class="lvdl2">自分の当番</span>'+du.map(x => '<span class="lvdu '+x[0]+'">'+x[1]+'</span>').join('')+'</div>' : '');
+  h += '</div>';
+  if (can) h += '<button class="lvgo" data-lvday="'+ds+'">'+md(ds)+'の休みを申請する</button>';
+  else if (!off) h += '<p class="hint">'+(ds <= DM.today ? '今日までの日は、ここから申請できません。' : '申請できない日です。')+'</p>';
+  return h;
+}
 function lvBody(){
   const L = DM.leave, td = DM.today;
-  let h = '<div class="list">'   /* Ver12.14.0：「休み（有給）を申請する」のボタンはなくした。カレンダーの日を押して申請する（院長が決めた） */
+  let h = '<div class="list'+(lvView === 'week' ? ' wkc lvwk' : '')+'">'   /* Ver12.14.0：「休み（有給）を申請する」のボタンはなくした。カレンダーの日を押して申請する（院長が決めた） */
     + '<p class="hint" style="margin-bottom:6px;text-align:left">締め切り：2日前の営業終了時間まで（休診日除く）<br>当番が入っている日は休み申請できません</p>';   /* Ver12.25.1：短くした（院長が決めた） */
-  h += lvCalHtml();
+  h += lvView === 'today' ? lvTodayHtml() : lvView === 'week' ? lvWeekHtml() : lvCalHtml();
   const mine = (L.mine || []).filter(o => o.ds >= td || o.state === 'wait').sort((a,b) => a.ds < b.ds ? -1 : 1);
   if (!DM.clerk) return h + '<p class="hint">自分の休みの申請のようす（許可待ち・結果・取り消し）は、「通知」に出ます。</p></div>';   /* Ver12.16.0：看護師は「通知」の申請の結果へ移した（院長が決めた） */
   h += '<div class="h2">自分の休み</div>' + (mine.length ? mine.map(o => lvCard(o, 'mine')).join('') : '<div class="none">ありません</div>');
@@ -3522,6 +3639,10 @@ function lvBind(){
   document.querySelectorAll('[data-lvday]').forEach(b => b.onclick = () => lvAskSheet(b.dataset.lvday));   /* Ver12.13.0 */
   document.querySelectorAll('[data-lvcal]').forEach(b => b.onclick = () => { const p = lvCalYm.split('-').map(Number), d = new Date(p[0], p[1]-1+(+b.dataset.lvcal), 1); lvCalYm = d.getFullYear()+'-'+pad(d.getMonth()+1); render(); });
   if ($('lvSet')) $('lvSet').onclick = lvSetSheet;
+  document.querySelectorAll('[data-lvview]').forEach(b => b.onclick = () => { lvView = b.dataset.lvview; mem('lvview', lvView); render(); });   /* Ver12.41.0 */
+  if ($('lvPrev')) $('lvPrev').onclick = () => lvMove(-1);
+  if ($('lvNext')) $('lvNext').onclick = () => lvMove(1);
+  try { document.body.classList.toggle('lvTheme', tab === 'leave'); } catch(e){}
   document.querySelectorAll('[data-lvd]').forEach(b => b.onclick = () => { const yes = b.dataset.yes === '1';
     if (!yes && !confirm('この申請を「許可しない」にしますか？')) return;
     const cx = !!b.closest('.req').querySelector('.tp[style*="B3261E"]');
@@ -3540,7 +3661,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.38.0';
+const APP_VER = '12.41.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
