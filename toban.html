@@ -418,7 +418,7 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 }
 #rWrap .hello,#wWrap .hello{color:#4C7590;font-size:calc(13px*var(--fs,1));letter-spacing:.015em}
 #rWrap .hello::before,#wWrap .hello::before{
-  content:"SKY MEDICAL CLINIC";display:block;position:absolute;top:5px;left:20px;
+  content:"sky medical clinic";display:block;position:absolute;top:5px;left:20px;
   font-family:"Outfit",sans-serif;font-size:calc(9px*var(--fs,1));font-weight:600;letter-spacing:.20em;
   color:#538AAE;
 }
@@ -886,9 +886,13 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 #rWrap .alg .acnt b{font-size:calc(15px*var(--fs,1));color:#173A56}
 #rWrap .alg .acnt .E{color:var(--early);font-weight:700}
 #rWrap .alg .acnt .C{color:var(--cs);font-weight:700}
+/* ---- Ver12.37.0：見出しの高さを今日・週・月・自分の当番だけで同じに（院長が決めた） ---- */
+#rWrap .head.stk .month{height:34px;min-height:34px}
+#rWrap .head.stk .vrow{min-height:36px}
+#rWrap .head.stk .hello{min-height:1.8rem}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.36.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.37.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -947,7 +951,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.36.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.37.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2594,7 +2598,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.36.0';
+const APP_VER = '12.37.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2700,7 +2704,7 @@ function tdHead(){
   tdFix(); const r = tdRange(), w = pd(day0).getDay();
   return '<div class="month"><div class="t"><span class="m wkm">'+(+day0.slice(5,7))+'/'+(+day0.slice(8,10))+'<small>（'+DOW[w]+'）</small></span>'+(day0 === DM.today ? '<span class="tdnow">今日</span>' : '')+'</div>'
     + '<div class="arrows"><button id="prev" aria-label="前の日" '+(!r || day0<=r[0]?'disabled':'')+'>‹</button><button id="next" aria-label="次の日" '+(!r || day0>=r[1]?'disabled':'')+'>›</button></div></div>'
-    + vsegHtml('today');
+    + '<div class="vrow">' + vsegHtml('today') + (!D.ro && !DM.boss ? '<div class="filter hf" aria-hidden="true" style="visibility:hidden"><label class="sw"><i></i>自分の当番だけ</label></div>' : '') + '</div>';   /* Ver12.37.0：週・月と同じ高さ・同じ位置にする（「自分の当番だけ」は今日の画面では使わないので見えない場所取りだけ） */
 }
 function selBar(){ return sel ? '<div class="selbar" id="selbar">'+SNAME[sel.t]+' '+md(sel.ds)+' をえらびました。'+(DM.boss ? '入れかえる相手の当番（青い枠）を押してください。同じ当番をもう一度押すと、入れる人をえらべます。' : '交換できる当番（青い枠）を押してください。')+'<span>やめる ✕</span></div>' : ''; }
 /* Ver12.11.0：今日・月の画面でも押せるか（週の画面と同じ決まり）。院長・アプリ管理者は今日から先ならどれでも。看護師・事務は自分たちの当番表で、看護師は名前の入った当番だけ */
@@ -3530,7 +3534,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.36.0';
+const APP_VER = '12.37.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
