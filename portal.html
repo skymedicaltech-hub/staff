@@ -260,7 +260,7 @@
        transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
   .app::after{content:"";position:absolute;inset:0;background:rgba(0,30,60,.14);opacity:0;pointer-events:none;
        transition:opacity .25s ease}
-  .app{touch-action:manipulation;-webkit-tap-highlight-color:transparent}   /* Ver3.4.15〜 形を変えるのはプログラムだけにした(:active は使わない) */
+  .app{touch-action:manipulation;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}   /* Ver3.4.15〜 形を変えるのはプログラムだけにした(:active は使わない) */
   .app.pressed{transform:scale(.96);transition:transform .1s ease-out}
   .app.pressed::after{opacity:1;transition:opacity .1s ease-out}
   .app:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
@@ -388,7 +388,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.5.3';
+const VERSION = 'Ver3.7.0';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -625,20 +625,30 @@ function renderList(data, note){
     const on = () => b.classList.add('pressed');
     const off = () => b.classList.remove('pressed');
     let tDown = 0, waiting = false, sx = 0, sy = 0;
+    // Ver3.7.0〜 個人QRで登録したアプリのタイルを長押し(0.8秒)すると、そのアプリのQRの登録だけを、このスマホから消せる
+    const app = data.apps[+b.dataset.i];
+    let tLong = 0, longDone = false;
     b.addEventListener('pointerdown', e => {
-      sx = e.clientX; sy = e.clientY; waiting = true;
+      sx = e.clientX; sy = e.clientY; waiting = true; longDone = false;
       tDown = setTimeout(() => { waiting = false; on(); }, 60);
+      if (app && app.viaQR) tLong = setTimeout(() => {
+        longDone = true; clearTimeout(tDown); waiting = false; off();
+        setTimeout(() => unregQR(app), 30);
+      }, 800);
     });
     b.addEventListener('pointermove', e => {
-      if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) { clearTimeout(tDown); waiting = false; off(); }
+      if (Math.abs(e.clientX - sx) > 8 || Math.abs(e.clientY - sy) > 8) { clearTimeout(tDown); clearTimeout(tLong); waiting = false; off(); }
     });
+    b.addEventListener('contextmenu', e => { if (app && app.viaQR) e.preventDefault(); });   // 長押しで出るスマホのメニューを出さない
     b.addEventListener('pointerup', () => {
-      clearTimeout(tDown);
+      clearTimeout(tDown); clearTimeout(tLong);
+      if (longDone) return;
       if (waiting) { waiting = false; on(); setTimeout(off, 90); }   // 縮む前にはなした
       else off();                                                     // はなしたら戻る
     });
-    b.addEventListener('pointercancel', () => { clearTimeout(tDown); waiting = false; off(); });
+    b.addEventListener('pointercancel', () => { clearTimeout(tDown); clearTimeout(tLong); waiting = false; off(); });
     b.addEventListener('click', () => {
+      if (longDone) { longDone = false; return; }  // 長押しのあとは開かない
       if (b.dataset.busy) return;                 // すばやい2回押しで2回開かないように
       b.dataset.busy = '1';
       setTimeout(() => { openApp(data.apps[+b.dataset.i]); }, 180);   // 戻る動きが見えてから開く
@@ -804,6 +814,15 @@ function myQR(){
   return {};
 }
 function saveMyQR(urls){ ls.set(purlKey(), JSON.stringify({ k:curKey(), urls:urls })); }
+/* Ver3.7.0〜 1つのアプリの個人QRの登録だけを、このスマホから消す(タイルの長押し)。
+   消すのはこのスマホの中の覚え書きだけ。GASにも相手アプリにも何も送らない。
+   QRそのものは使えるままなので、スマホをなくしたときは、相手アプリで「QRを作り直す」も必要 */
+function unregQR(a){
+  if (!a || !a.viaQR) return;
+  if (!confirm('「' + a.name + '」のQRの登録を、このスマホから消しますか?\nもう一度使うときは、このボタンを押してQRを読み取ります。')) return;
+  const mine = myQR(); delete mine[a.id]; saveMyQR(mine);
+  start(false);
+}
 function curKey(){ return DEMO ? 'demo' : (ls.get(LS_KEY) || ''); }
 function qrFits(url, base){ return !!base && typeof url === 'string' && /^https:\/\/\S+$/.test(url) && (url.indexOf(base + '?') === 0 || url.indexOf(base + '#') === 0) && url.length > base.length + 1; }
 /* GASからもらった一覧に、このスマホが覚えている個人QRをあてはめる */
