@@ -864,7 +864,7 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 #rWrap .head.stk .month{margin-top:6px;gap:12px}
 #rWrap .head.stk .month .m,#rWrap .head.stk .month .m.wkm{font-size:calc(23px*var(--fs,1))}
 #rWrap .head.stk .month .m small,#rWrap .head.stk .month .m.wkm small{font-size:calc(14px*var(--fs,1))}
-#rWrap .head.stk .arrows button{width:calc(34px*var(--fs,1));height:calc(34px*var(--fs,1));font-size:calc(19px*var(--fs,1));padding:0}
+#rWrap .head.stk .arrows button{width:34px;height:34px;font-size:calc(19px*var(--fs,1));padding:0}
 #rWrap .head.stk .tdnow{font-size:calc(11px*var(--fs,1))}
 #rWrap .head.stk .vseg{margin-top:8px;padding:3px;border-radius:10px}
 #rWrap .head.stk .vseg button{padding:5px 0;font-size:calc(13.5px*var(--fs,1))}
@@ -876,9 +876,19 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 /* ---- Ver12.34.0：週の「早出」「CS」と名前の間を広く（院長が決めた） ---- */
 #rWrap .wkc .wa{grid-template-columns:2.15em minmax(0,1fr);column-gap:14px}
 #rWrap .wkc .wa{column-gap:26px}
+/* ---- Ver12.36.0：今日・週・月は下線のタブ（院長が決めた）。月の自分の回数は凡例の左 ---- */
+#rWrap .head.stk .vseg{background:none;border:none;box-shadow:none;padding:0;gap:0;border-bottom:1px solid #B7D5E8;border-radius:0}
+#rWrap .head.stk .vseg button,#rWrap .head.stk .vseg button.on{background:none;box-shadow:none;border:none;border-radius:0;padding:6px 0 7px;font-size:calc(14px*var(--fs,1));font-weight:500;color:#64748B;position:relative}
+#rWrap .head.stk .vseg button.on{color:#217DAD;font-weight:700}
+#rWrap .head.stk .vseg button.on::after{content:'';position:absolute;left:22%;right:22%;bottom:-1px;height:3px;border-radius:2px;background:#217DAD}
+#rWrap .alg{align-items:center}
+#rWrap .alg .acnt{margin-right:auto;font-size:calc(12px*var(--fs,1));color:#475569;white-space:nowrap}
+#rWrap .alg .acnt b{font-size:calc(15px*var(--fs,1));color:#173A56}
+#rWrap .alg .acnt .E{color:var(--early);font-weight:700}
+#rWrap .alg .acnt .C{color:var(--cs);font-weight:700}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.35.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.36.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -937,7 +947,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.35.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.36.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2584,7 +2594,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.35.0';
+const APP_VER = '12.36.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2826,7 +2836,7 @@ function rosterTools(){
   let h = '';   /* Ver12.27.0：看護師｜事務の当番表の切りかえは、当番表の下へ移した（院長が決めた） */
   if (D.ro && DM.stale && !DM.viewer && !side) return '';
   if (D.ro) return '<div class="tools">'+h+'<div class="filter"><span style="font-size:calc(13px*var(--fs,1));color:var(--sub)">見るだけです（変えられません）</span></div></div>';
-  if (!wkv && !DM.boss) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
+  if (!wkv && !DM.boss && onlyMe) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
   /* Ver12.32.0：「自分の当番だけ」は見出しの枠の中へ移した（rosterHead） */
   return h ? '<div class="tools">'+h+'</div>' : '';
 }
@@ -2878,7 +2888,10 @@ function rosterBody(){
 /* Ver11.12.0：「月」＝全員の当番をカレンダーで見せる。ますの中に、その日の当番の人の名前（左の線の色：早出＝茶、CS・会計＝青。自分は黄色）。日を押すと、その週を出す */
 function allCalBody(){
   const ym = month().ym, y = +ym.slice(0,4), m = +ym.slice(5,7), last = new Date(y, m, 0).getDate();
-  let h = '<div class="list"><div class="alg"><span class="an E">早出</span><span class="an C">'+SNAME.C+'</span>'+(D.ro ? '' : '<span class="an me">自分</span>')+'</div>'
+  /* Ver12.36.0：自分の早出・CSの回数は、凡例（早出・CS・自分）の左に小さく（院長が決めた） */
+  let me1 = '';
+  if (!D.ro && !DM.boss){ let e = 0, c = 0; days(ym).forEach(ds => SL.forEach(t => { if (holder(ds,t) === D.me.id){ if (t === 'E') e++; else c++; } })); me1 = '<span class="acnt">自分　<span class="E">早出</span> <b>'+e+'</b>回　<span class="C">'+SNAME.C+'</span> <b>'+c+'</b>回</span>'; }
+  let h = '<div class="list"><div class="alg">'+me1+'<span class="an E">早出</span><span class="an C">'+SNAME.C+'</span>'+(D.ro ? '' : '<span class="an me">自分</span>')+'</div>'
     + '<div class="mcal acal"><div class="mwk">'+DOW.map((x,i) => '<div class="s'+i+'">'+x+'</div>').join('')+'</div><div class="mgrid">';
   for (let i = 0; i < new Date(y, m-1, 1).getDay(); i++) h += '<div class="ac blank"></div>';
   for (let d = 1; d <= last; d++){
@@ -3517,7 +3530,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.35.0';
+const APP_VER = '12.36.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
