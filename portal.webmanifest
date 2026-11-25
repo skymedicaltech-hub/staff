@@ -2,7 +2,7 @@
   "name": "スカイ スタッフアプリ",
   "short_name": "スタッフアプリ",
   "description": "スカイメディカルクリニック スタッフ用アプリの入口",
-  "scope": "./portal",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#CFE8FA",
