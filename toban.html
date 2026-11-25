@@ -829,13 +829,56 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 #rWrap .wkc .wch{min-height:calc(20px*var(--fs,1))}
 #rWrap .tools.sideB{margin-top:12px}
 #rWrap .list:has(+ .tools.sideB){padding-bottom:14px}
-/* ---- Ver12.29.0：看護師⇔事務の切りかえボタン（見出しの名前と「ぁあ」の間） ---- */
-#rWrap .hello .sideT{flex:none;margin-left:auto;margin-right:-2px;display:inline-flex;align-items:center;gap:4px;border:1px solid #217DAD;background:#E8F4FB;border-radius:6px;padding:5px 9px;line-height:1;font-size:.8125rem;color:#94A3B8;font-weight:600}
-#rWrap .hello .sideT b{font-size:.875rem;color:#217DAD}
-#rWrap .hello .sideT .ar{color:#217DAD;font-weight:700}
+/* ---- Ver12.30.0：看護師⇔事務のトグルスイッチ（見出しの名前と「ぁあ」の間） ---- */
+#rWrap .hello .sideT{flex:none;margin-left:auto;margin-right:-2px;position:relative;display:inline-flex;align-items:center;justify-content:flex-end;width:5.6rem;height:2rem;padding:0 .7rem 0 2.1rem;border:1px solid #217DAD;border-radius:999px;background:#E8F4FB;line-height:1}
+#rWrap .hello .sideT i{position:absolute;left:.2rem;top:50%;width:1.55rem;height:1.55rem;margin-top:-.775rem;border-radius:50%;background:#fff;border:1px solid #217DAD;box-sizing:border-box}
+#rWrap .hello .sideT b{font-size:.875rem;color:#217DAD;white-space:nowrap}
+#rWrap .hello .sideT.on{background:#217DAD;justify-content:flex-start;padding:0 2.1rem 0 .85rem}
+#rWrap .hello .sideT.on i{left:auto;right:.2rem;border-color:#fff}
+#rWrap .hello .sideT.on b{color:#fff}
+/* ---- Ver12.31.0：週のカードの文字をもう一段大きく（院長が決めた） ---- */
+#rWrap .wkc .wnum{font-size:calc(23px*var(--fs,1))}
+#rWrap .wkc .wdow{font-size:calc(14.5px*var(--fs,1))}
+#rWrap .wkc .wtd{font-size:calc(12.5px*var(--fs,1))}
+#rWrap .wkc .wa>.wk{font-size:calc(14.5px*var(--fs,1))}
+#rWrap .wkc .wa .sl .nm{font-size:calc(22px*var(--fs,1));line-height:1.15}
+#rWrap .wkc .wa .sl.empty .nm{font-size:calc(17px*var(--fs,1))}
+#rWrap .wkc .wa .sl.mine .nm::after{font-size:calc(12px*var(--fs,1))}
+#rWrap .wkc .dcm,#rWrap .wkc .lvd{font-size:calc(13px*var(--fs,1))}
+#rWrap .wkc .woff{font-size:calc(17px*var(--fs,1))}
+#rWrap .wkc .wa .sl,#rWrap .wkc .wpad{min-height:calc(29px*var(--fs,1))}
+#rWrap .wkc .wch{min-height:calc(23px*var(--fs,1))}
+#rWrap .wkc .wcard{padding:4px 4px}
+#rWrap .list.wkc{padding-left:10px;padding-right:10px}
+/* ---- Ver12.32.0：当番表の見出し（今日・週・月まで）を固定。週の名前の列をそろえ、ふつうの太さに。月の見出しも今日・週と同じ大きさ（院長が決めた） ---- */
+#rWrap .head.stk{position:sticky;top:0;z-index:3}
+#rWrap .month .m{font-size:calc(27px*var(--fs,1))}
+#rWrap .month .m small{font-size:calc(16px*var(--fs,1))}
+#rWrap .head .filter.hf{margin:8px 2px 0;justify-content:flex-end}
+#rWrap .wkc .wa{font-size:calc(14.5px*var(--fs,1));grid-template-columns:2.15em minmax(0,1fr)}
+#rWrap .wkc .wa .sl .nm{font-weight:400}
+#rWrap .wkc .wa .sl.empty .nm{font-weight:400}
+/* ---- Ver12.33.0：当番表の見出しを低く（院長が決めた。.head.stk の中だけ） ---- */
+#rWrap .head.stk{padding:24px 14px 10px;border-radius:0 0 18px 18px}
+#rWrap .head.stk .hello::before{top:4px;left:14px}
+#rWrap .head.stk .month{margin-top:6px;gap:12px}
+#rWrap .head.stk .month .m,#rWrap .head.stk .month .m.wkm{font-size:calc(23px*var(--fs,1))}
+#rWrap .head.stk .month .m small,#rWrap .head.stk .month .m.wkm small{font-size:calc(14px*var(--fs,1))}
+#rWrap .head.stk .arrows button{width:calc(34px*var(--fs,1));height:calc(34px*var(--fs,1));font-size:calc(19px*var(--fs,1));padding:0}
+#rWrap .head.stk .tdnow{font-size:calc(11px*var(--fs,1))}
+#rWrap .head.stk .vseg{margin-top:8px;padding:3px;border-radius:10px}
+#rWrap .head.stk .vseg button{padding:5px 0;font-size:calc(13.5px*var(--fs,1))}
+#rWrap .head.stk .vrow{display:flex;align-items:flex-end;gap:10px}
+#rWrap .head.stk .vrow .vseg{flex:1 1 auto;min-width:0}
+#rWrap .head.stk .vrow .filter.hf{flex:none;margin:0 0 4px;font-size:calc(11.5px*var(--fs,1))}
+#rWrap .head.stk .hello .sideT{height:1.8rem}
+#rWrap .head.stk .fsTop{padding:3px 7px 4px}
+/* ---- Ver12.34.0：週の「早出」「CS」と名前の間を広く（院長が決めた） ---- */
+#rWrap .wkc .wa{grid-template-columns:2.15em minmax(0,1fr);column-gap:14px}
+#rWrap .wkc .wa{column-gap:26px}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.29.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.35.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -894,7 +937,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.29.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.35.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2541,7 +2584,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.29.0';
+const APP_VER = '12.35.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2703,7 +2746,7 @@ function render(){
   const nIn = waitIn().length;
   /* Ver12.19.0：名前のあとに職種（看護師・事務）。院長・アプリ管理者は名前だけ。「更新する」のボタンはなくし、下に引っぱって更新する（院長が決めた） */
   const boss = D.me.pv || D.me.viewer, role = (DM && DM.clerk) ? '事務' : '看護師';   /* Ver12.19.1：院長・アプリ管理者のQRは、どの画面でも名前だけ */
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
+  let h = '<div class="head'+(tab === 'roster' ? ' stk' : '')+'"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:calc(12.5px*var(--fs,1));line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (DM.viewer){
     /* Ver11.15.1：院長・アプリ管理者のQRの最初の画面は、「希望の受付のようす」だけにする。
@@ -2753,9 +2796,9 @@ function wishBox(){
 function sideHtml(){
   if (!DM.other) return '';
   const L = DM.clerk ? ['事務','看護師'] : ['看護師','事務'];
-  /* Ver12.29.0：見出し（名前と「ぁあ」の間）の1つのボタン。押すたびに看護師⇔事務（院長が決めた） */
+  /* Ver12.30.0：見出し（名前と「ぁあ」の間）のトグルスイッチ。いま見ている方（看護師か事務）だけを出し、押すたびに切りかわる（院長が決めた）。看護師＝つまみ左、事務＝つまみ右 */
   const a = side ? L[1] : L[0], b = side ? L[0] : L[1];
-  return '<button class="sideT" data-side="'+(side ? 0 : 1)+'" aria-label="'+b+'の当番表に切りかえる"><b>'+a+'</b><span class="ar">⇄</span><span class="o">'+b+'</span></button>';
+  return '<button class="sideT'+(a === '事務' ? ' on' : '')+'" role="switch" aria-checked="'+(a === '事務')+'" data-side="'+(side ? 0 : 1)+'" aria-label="'+b+'の当番表に切りかえる"><i></i><b>'+a+'</b></button>';
 }
 function rosterHead(){
   if (tdOn()) return tdHead();
@@ -2769,7 +2812,9 @@ function rosterHead(){
     : '<div class="month"><div class="t"><span class="m">'+mo+'<small>月</small></span><span class="y">'+y+'</span></div>'
       + '<div class="arrows"><button id="prev" '+(mi<=0?'disabled':'')+'>‹</button><button id="next" '+(mi>=D.roster.length-1?'disabled':'')+'>›</button></div></div>';
   const cur = onlyMe ? '' : view;
-  return h + vsegHtml(cur);
+  /* Ver12.32.0：「自分の当番だけ」は見出しの枠の中（院長が決めた） */
+  const om = !D.ro && !DM.boss ? '<div class="filter hf"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>' : '';
+  return h + '<div class="vrow">' + vsegHtml(cur) + om + '</div>';   /* Ver12.33.0：今日・週・月と「自分の当番だけ」を1行に（見出しを低く） */
 }
 /* Ver11.14.2：上の水色の所は「日付の見出し」と「今日・週・月」だけにして、どの見かたでも同じ高さにする。
    当番表の切りかえ（看護師・事務）、自分の回数、「自分の当番だけ」は、その下に出す */
@@ -2782,8 +2827,8 @@ function rosterTools(){
   if (D.ro && DM.stale && !DM.viewer && !side) return '';
   if (D.ro) return '<div class="tools">'+h+'<div class="filter"><span style="font-size:calc(13px*var(--fs,1));color:var(--sub)">見るだけです（変えられません）</span></div></div>';
   if (!wkv && !DM.boss) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
-  if (!DM.boss) h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';   /* Ver12.9.0：院長・アプリ管理者には出さない */
-  return '<div class="tools">'+h+'</div>';
+  /* Ver12.32.0：「自分の当番だけ」は見出しの枠の中へ移した（rosterHead） */
+  return h ? '<div class="tools">'+h+'</div>' : '';
 }
 function rosterBody(){
   if (tdOn()) return tdBody();
@@ -3472,7 +3517,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.29.0';
+const APP_VER = '12.35.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
