@@ -815,9 +815,27 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 /* Ver12.25.2：今日の画面の「この日のコメント」 */
 #rWrap .tdcm{padding:8px 10px}
 #rWrap .tdcm .cmi,#rWrap .tdcm .cmn{font-size:calc(14px*var(--fs,1));line-height:1.45;padding:2px 0}
+/* ---- Ver12.27.0：週のカードの文字を大きく（院長が決めた）。切りかえは当番表の下 ---- */
+#rWrap .wkc .wnum{font-size:calc(20px*var(--fs,1))}
+#rWrap .wkc .wdow{font-size:calc(13px*var(--fs,1))}
+#rWrap .wkc .wtd{font-size:calc(11.5px*var(--fs,1))}
+#rWrap .wkc .wa>.wk{font-size:calc(13px*var(--fs,1))}
+#rWrap .wkc .wa .sl .nm{font-size:calc(18.5px*var(--fs,1));line-height:1.2}
+#rWrap .wkc .wa .sl.empty .nm{font-size:calc(15px*var(--fs,1))}
+#rWrap .wkc .wa .sl.mine .nm::after{font-size:calc(11px*var(--fs,1))}
+#rWrap .wkc .dcm,#rWrap .wkc .lvd{font-size:calc(12px*var(--fs,1))}
+#rWrap .wkc .woff{font-size:calc(15px*var(--fs,1))}
+#rWrap .wkc .wa .sl,#rWrap .wkc .wpad{min-height:calc(26px*var(--fs,1))}
+#rWrap .wkc .wch{min-height:calc(20px*var(--fs,1))}
+#rWrap .tools.sideB{margin-top:12px}
+#rWrap .list:has(+ .tools.sideB){padding-bottom:14px}
+/* ---- Ver12.29.0：看護師⇔事務の切りかえボタン（見出しの名前と「ぁあ」の間） ---- */
+#rWrap .hello .sideT{flex:none;margin-left:auto;margin-right:-2px;display:inline-flex;align-items:center;gap:4px;border:1px solid #217DAD;background:#E8F4FB;border-radius:6px;padding:5px 9px;line-height:1;font-size:.8125rem;color:#94A3B8;font-weight:600}
+#rWrap .hello .sideT b{font-size:.875rem;color:#217DAD}
+#rWrap .hello .sideT .ar{color:#217DAD;font-weight:700}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.26.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.29.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -876,7 +894,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.26.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.29.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -912,11 +930,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver12.25.2（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver12.28.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '12.25.2';
+const VER = '12.28.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', jchg:'事務の当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表', leave:'休み'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）','リーダー（休みの許可）'],
@@ -1041,7 +1059,7 @@ function viewerRoster_(v){
   const N = nurseMap_(), R = rosterMap_();
   const nurses = Object.keys(N).map(id => N[id]).filter(x => x.active).map(x => ({id:x.id, name:x.name, canE:x.canE, canC:x.canC, ngE:x.ngE, ngC:x.ngC, ng:both_(x), ok:x.ok}));
   const roster = rosterList_(R);   /* Ver11.23.0：使い始める月より前は、カレンダーで入れた名前 */
-  const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
+  const cm = commentsOf_(cmMonths_(roster.map(x => x.ym))); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
   const res = {ok:true, ver:VER, viewer:true, me:{id:v.id, name:v.name, viewer:true, adm:v.adm === true, canE:false, canC:false, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:nurses, roster:roster, changes:[], comments:cm, url:appUrl_()};
   /* Ver11.15.0：事務の人の一覧も返す（スマホで「事務に見える画面」を見るだけで出すため。事務の人が見ている一覧と同じ） */
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_(), nurses:read_('clerks').filter(r => r[3] === '1').map(r => ({id:r[0], name:r[1], canE:true, canC:true}))};
@@ -1188,7 +1206,7 @@ function clerkRoster_(c){
   const res = {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, test:c.test === true, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:clerks, roster:clerkMonths_(), changes:[], comments:{}, url:appUrl_()};
   if (nr.length) res.other = {roster:nr};
   /* Ver12.25.2：事務のスマホにも、カレンダーの「この日のコメント」（重要・普通。秘密コメントは来ない）を出す（院長が決めた） */
-  { const ms = res.roster.map(x => x.ym).concat(nr.map(x => x.ym)); const cm = commentsOf_(ms.filter((x, i) => ms.indexOf(x) === i)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; }); res.comments = cm; }
+  { const ms = res.roster.map(x => x.ym).concat(nr.map(x => x.ym)); const cm = commentsOf_(cmMonths_(ms)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; }); res.comments = cm; }
   res.leave = leaveFor_({grp:'j', id:c.id, name:c.name, test:c.test === true, leader:c.leader === true});   /* Ver12.0.0 */
   res.hist = jHist_(); res.jmine = jHist_(c.name);   /* Ver12.10.0〜12.12.0：事務の当番の変更履歴（全員・自分。新しい順に5つ） */
   return res;
@@ -1581,6 +1599,9 @@ function calApply_(m){
 /* カレンダーの「この日のコメント」（普通・重要）。担当者の送り物（calstaff）の各日の comments から取り出す。
    秘密コメントはカレンダーが送ってこない。当番アプリでは書きかえない（見るだけ） */
 const CMT_COLOR = {red:1, blue:1, black:1};
+/* Ver12.28.0：当番表がまだない月でも、今月と来月のコメントは出す（前は当番表のある月だけだった） */
+function cmMonths_(L){ const t = today_(), y = +t.slice(0,4), m = +t.slice(5,7), nx = m === 12 ? (y+1)+'-01' : y+'-'+('0'+(m+1)).slice(-2);
+  const a = (L || []).concat([t.slice(0,7), nx]); return a.filter((x, i) => a.indexOf(x) === i); }
 function commentsOf_(months){
   const out = {};
   read_('calstaff').forEach(r => {
@@ -1736,7 +1757,7 @@ function getRoster_(k){
     if (c.state === 'wait' && (c.ds < td || (c.kind === 'swap' && c.ds2 < td))) c.state = 'bad', c.why = '日にちが過ぎました。';
     return c;
   });
-  const cm = commentsOf_(roster.map(x => x.ym)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
+  const cm = commentsOf_(cmMonths_(roster.map(x => x.ym))); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; });
   const res = {ok:true, ver:VER, me:{id:n.id, name:n.name, test:n.test === true, canE:n.canE, canC:n.canC, ngE:n.ngE, ngC:n.ngC, ng:both_(n), ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
   /* Ver11.1.0：事務の当番表も見られる（見るだけ。事務の人が登録されているときだけ） */
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
@@ -2520,7 +2541,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.26.0';
+const APP_VER = '12.29.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2682,7 +2703,7 @@ function render(){
   const nIn = waitIn().length;
   /* Ver12.19.0：名前のあとに職種（看護師・事務）。院長・アプリ管理者は名前だけ。「更新する」のボタンはなくし、下に引っぱって更新する（院長が決めた） */
   const boss = D.me.pv || D.me.viewer, role = (DM && DM.clerk) ? '事務' : '看護師';   /* Ver12.19.1：院長・アプリ管理者のQRは、どの画面でも名前だけ */
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
+  let h = '<div class="head"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:calc(12.5px*var(--fs,1));line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (DM.viewer){
     /* Ver11.15.1：院長・アプリ管理者のQRの最初の画面は、「希望の受付のようす」だけにする。
@@ -2708,7 +2729,7 @@ function render(){
   if (tab === 'leave' && !lvTabOn()) tab = 'roster';
   if (tab === 'roster') h += rosterHead();
   h += '</div>';
-  h += tab === 'leave' ? lvBody() : tab === 'lvok' ? lvOkBody() : tab === 'roster' ? (D.roster.length ? rosterTools() : (sideHtml() ? '<div class="tools">'+sideHtml()+'</div>' : '')) + calNote() + rosterBody() + histBlock() : reqBody();
+  h += tab === 'leave' ? lvBody() : tab === 'lvok' ? lvOkBody() : tab === 'roster' ? rosterTools() + calNote() + rosterBody()  + histBlock() : reqBody();
   h += '<div class="ver">当番 Ver'+APP_VER+'</div>';
   document.getElementById('rApp').innerHTML = h;
   bind(); navSet(NB, lvTabOn(), lvTabOn() && !!DM.leave.leader, lvTabOn(), !!DM.clerk);
@@ -2732,7 +2753,9 @@ function wishBox(){
 function sideHtml(){
   if (!DM.other) return '';
   const L = DM.clerk ? ['事務','看護師'] : ['看護師','事務'];
-  return '<div class="seg side"><button data-side="0" class="'+(side?'':'on')+'">'+L[0]+'の当番表</button><button data-side="1" class="'+(side?'on':'')+'">'+L[1]+'の当番表</button></div>';
+  /* Ver12.29.0：見出し（名前と「ぁあ」の間）の1つのボタン。押すたびに看護師⇔事務（院長が決めた） */
+  const a = side ? L[1] : L[0], b = side ? L[0] : L[1];
+  return '<button class="sideT" data-side="'+(side ? 0 : 1)+'" aria-label="'+b+'の当番表に切りかえる"><b>'+a+'</b><span class="ar">⇄</span><span class="o">'+b+'</span></button>';
 }
 function rosterHead(){
   if (tdOn()) return tdHead();
@@ -2755,8 +2778,8 @@ function rosterTools(){
   if (!D.roster.length) return '';
   const m = month(), wkv = view !== 'month' && !onlyMe;
   let e = 0, c = 0; days(m.ym).forEach(ds => SL.forEach(t => { if (holder(ds,t) === D.me.id){ if (t === 'E') e++; else c++; } }));
-  let h = sideHtml();
-  if (D.ro && DM.stale && !DM.viewer && !side) return h ? '<div class="tools">'+h+'</div>' : '';
+  let h = '';   /* Ver12.27.0：看護師｜事務の当番表の切りかえは、当番表の下へ移した（院長が決めた） */
+  if (D.ro && DM.stale && !DM.viewer && !side) return '';
   if (D.ro) return '<div class="tools">'+h+'<div class="filter"><span style="font-size:calc(13px*var(--fs,1));color:var(--sub)">見るだけです（変えられません）</span></div></div>';
   if (!wkv && !DM.boss) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
   if (!DM.boss) h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';   /* Ver12.9.0：院長・アプリ管理者には出さない */
@@ -3449,7 +3472,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.26.0';
+const APP_VER = '12.29.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
