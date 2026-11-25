@@ -812,9 +812,12 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 #fsBar{display:none}
 /* ---- Ver12.24.0：ボタンを押したときの待ち（ダブルタップで拡大するかを待つ時間）をなくす ---- */
 button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
+/* Ver12.25.2：今日の画面の「この日のコメント」 */
+#rWrap .tdcm{padding:8px 10px}
+#rWrap .tdcm .cmi,#rWrap .tdcm .cmn{font-size:calc(14px*var(--fs,1));line-height:1.45;padding:2px 0}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.25.1";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.25.2";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -873,7 +876,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.25.1（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.25.2（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -909,11 +912,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver12.25.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver12.25.2（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '12.25.0';
+const VER = '12.25.2';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', jchg:'事務の当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表', leave:'休み'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）','リーダー（休みの許可）'],
@@ -1184,6 +1187,8 @@ function clerkRoster_(c){
   const R = rosterMap_(), nr = rosterList_(R);   /* Ver11.23.0 */
   const res = {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, test:c.test === true, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:clerks, roster:clerkMonths_(), changes:[], comments:{}, url:appUrl_()};
   if (nr.length) res.other = {roster:nr};
+  /* Ver12.25.2：事務のスマホにも、カレンダーの「この日のコメント」（重要・普通。秘密コメントは来ない）を出す（院長が決めた） */
+  { const ms = res.roster.map(x => x.ym).concat(nr.map(x => x.ym)); const cm = commentsOf_(ms.filter((x, i) => ms.indexOf(x) === i)); Object.keys(cm).forEach(k => { if (k[0] === '@') delete cm[k]; }); res.comments = cm; }
   res.leave = leaveFor_({grp:'j', id:c.id, name:c.name, test:c.test === true, leader:c.leader === true});   /* Ver12.0.0 */
   res.hist = jHist_(); res.jmine = jHist_(c.name);   /* Ver12.10.0〜12.12.0：事務の当番の変更履歴（全員・自分。新しい順に5つ） */
   return res;
@@ -2229,7 +2234,7 @@ function pvShape(fn, r){
   if (fn === 'getRoster'){
     /* Ver12.8.0：PV＝view は「当番表」タブ（見るだけ）、nurse は「当番変更」タブ（押して変える）。どちらも看護師｜事務を切りかえられる */
     if (PV === 'nurse' || PV === 'view') return {ok:true, ver:r.ver, pv:true, boss:PV === 'nurse', ro:PV === 'view', hist:r.hist || [], jhist:r.jhist || [], me:pvMe(), today:r.today, nurses:r.nurses || [], roster:r.roster || [], changes:[], comments:r.comments || {}, url:r.url, other:r.other, leave:r.leave ? {ok:r.leave.ok || [], pend:r.leave.pend || []} : null};
-    return {ok:true, ver:r.ver, pv:true, boss:true, clerk:true, me:pvMe(), today:r.today, nurses:(r.other && r.other.nurses) || [], roster:(r.other && r.other.roster) || [], changes:[], comments:{}, url:r.url, other:{roster:r.roster || [], nurses:r.nurses || []}, leave:r.leave ? {ok:r.leave.ok || [], pend:r.leave.pend || []} : null};
+    return {ok:true, ver:r.ver, pv:true, boss:true, clerk:true, me:pvMe(), today:r.today, nurses:(r.other && r.other.nurses) || [], roster:(r.other && r.other.roster) || [], changes:[], comments:r.comments || {}, url:r.url, other:{roster:r.roster || [], nurses:r.nurses || []}, leave:r.leave ? {ok:r.leave.ok || [], pend:r.leave.pend || []} : null};
   }
   if (fn === 'getInit') return {ok:true, ver:r.ver, pv:true, id:'@pv', name:PV_NAME.nurse, now:r.now, months:r.months || [], next:r.next, wishes:{}, sent:{}, roster:[], survey:null, url:r.url};
   return r;
@@ -2515,7 +2520,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.25.1';
+const APP_VER = '12.25.2';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2539,7 +2544,7 @@ function start(){
 function setSide(o, keepYm){
   side = o ? 1 : 0;
   const view = side ? !DM.clerk : !!DM.clerk;   /* いま見ているのが事務の当番表か */
-  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : ((DM.viewer || DM.stale) ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
+  D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:DM.comments || {}, ro:true, clerk:view}) : ((DM.viewer || DM.stale) ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
   KEYS.C = view ? ['lId','late'] : ['cId','cs']; SNAME.C = view ? '会計' : 'CS';
   { const nv = document.getElementById('nav'); if (nv) nv.style.display = ''; }   /* Ver12.5.1：事務・院長にも下のタブを出す */
   if (side){ onlyMe = false; sel = null; tab = 'roster'; }
@@ -2634,6 +2639,7 @@ function tdBody(){
   const NR = [['E','早出','eId','early','なし','E'],['C','CS','cId','cs','なし','C'],['C','CS','c2Id','cs2','なし','C2']], CR = [['E','早出','eId','early','未定','E'],['C','会計','lId','late','未定','C']];
   const c = (DM.comments || {})[ds];
   let h = '<div class="list tdv">';
+
   if (c) h += '<div class="tdc"><div class="dcm">' + (c.important || []).map(x => '<div class="cmi" style="color:'+(CM_COLOR[x.color]||CM_COLOR.black)+'">'+esc(x.text)+'</div>').join('') + (c.normal || []).map(t => '<div class="cmn">'+esc(t)+'</div>').join('') + '</div></div>';
   h += grp('看護師', dayIn(DM.clerk ? oth : mine), NR, !DM.clerk, DM.clerk ? !!oth : true).replace(/<\/div>$/, lvHtml(ds, 'n')+'</div>');
   h += grp('事務', dayIn(DM.clerk ? mine : oth), CR, !!DM.clerk, DM.clerk ? true : !!oth).replace(/<\/div>$/, lvHtml(ds, 'j')+'</div>');
@@ -3429,7 +3435,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.25.1';
+const APP_VER = '12.25.2';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
