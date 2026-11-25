@@ -944,9 +944,16 @@ body.lvTheme #rWrap .hint{color:#9A7676}
 #rWrap .lvgo{display:block;width:100%;margin:10px 0 4px;padding:13px 0;border:none;border-radius:10px;background:#C0474A;color:#fff;font-size:calc(16px*var(--fs,1));font-weight:700}
 #rWrap .list.wkc.lvwk>*:not(.wcard){grid-column:1/-1}
 #rWrap .list.wkc.lvwk{padding-top:0}
+/* ---- Ver12.42.0：「← スタッフアプリ」を黒い字で大きく（院長が決めた） ---- */
+.toPortal{top:1px;left:8px;padding:3px 6px;font-size:calc(14px*var(--fs,1));font-weight:600;color:#1E2833}
+/* ---- Ver12.44.0：週のカードの名前を少し小さく（22px→19.5px。院長が決めた） ---- */
+#rWrap .wkc .wa .sl .nm{font-size:calc(19.5px*var(--fs,1))}
+#rWrap .wkc .wa .sl.empty .nm{font-size:calc(16px*var(--fs,1))}
+#rWrap .wkc .wa .sl .nm{font-size:calc(17.5px*var(--fs,1))}
+#rWrap .wkc .wa .sl.empty .nm{font-size:calc(15px*var(--fs,1))}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.41.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.45.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -1005,7 +1012,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.41.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.45.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2536,6 +2543,16 @@ function noKeyView(){
     try { window.__tobanReload(); } catch(e){}
     setTimeout(() => { busy = false; el().style.transform = 'translate(-50%,-48px)'; }, 1200); }, {passive:true});
 })();
+/* Ver12.43.0：左右にはらって（フリック）日・週・月を移る。左へ＝次、右へ＝前（当番表と休み申請の画面。見出しの ‹ › と同じ。窓が開いているときはしない） */
+(function(){
+  let x0 = null, y0 = 0, t0 = 0;
+  const ok = () => { const r = document.getElementById('rWrap'); return r && r.offsetParent !== null && !document.querySelector('.sheet.show,.confirm.show,#ntf'); };
+  window.addEventListener('touchstart', e => { x0 = ok() && e.touches.length === 1 && !e.target.closest('input,textarea,select,#nav') ? e.touches[0].clientX : null; y0 = x0 === null ? 0 : e.touches[0].clientY; t0 = Date.now(); }, {passive:true});
+  window.addEventListener('touchend', e => { if (x0 === null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+    if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5 || Date.now() - t0 > 800) return;
+    const nx = dx < 0, b = document.getElementById(nx ? 'lvNext' : 'lvPrev') || document.getElementById(nx ? 'next' : 'prev');
+    if (b && !b.disabled) b.click(); }, {passive:true});
+})();
 function navSet(nb, lvOn, okOn, any, clerk){
   if (PV){ navBoss(); return; }   /* Ver12.8.0：院長・アプリ管理者の「当番表」「当番変更」では、院長用のタブのまま */
   const nv = document.getElementById('nav'); if (!nv) return;
@@ -2656,7 +2673,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.41.0';
+const APP_VER = '12.45.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -3381,7 +3398,7 @@ function lvCalHtml(){
   /* Ver12.15.0：休みは白抜き文字で目立たせる（受理＝赤、申請中＝だいだい）。当番は枠だけ。並びは 1段目＝休み、2段目＝早出、3段目＝CS（会計） */
   const tag = (o, pend) => '<span style="display:block;text-align:center;font-size:calc(10.5px*var(--fs,1));font-weight:700;line-height:calc(15px*var(--fs,1));height:calc(16px*var(--fs,1));border-radius:3px;padding:0 1px;white-space:nowrap;overflow:hidden;color:#fff;margin-bottom:1px;'
     + (pend ? 'background:#D9891E' : 'background:#D2484A')+(o.pid === DM.me.id ? ';box-shadow:inset 0 0 0 1.5px #1E2833' : '')+'">'+esc(o.name)+ab(o.part)+'</span>';
-  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div>'   /* Ver12.41.0：月の移動は上の見出しへ */
+  let h = '<div class="h2">休暇の申請（'+(DM.clerk ? '事務' : '看護師')+'）</div>'   /* Ver12.41.0：月の移動は上の見出しへ */
     + '<div class="mcal acal lvc"><div class="mwk">'+DOW.map((x,i) => '<div class="s'+i+'">'+x+'</div>').join('')+'</div><div class="mgrid">';
   const wkMax = {}; for (let d = 1; d <= last; d++){ const ds = ym+'-'+pad(d), wk = Math.floor((d - 1 + new Date(y, m-1, 1).getDay()) / 7); wkMax[wk] = Math.max(wkMax[wk] || 0, lvOf(ds).length); }   /* 週ごとに、休みの段の高さをそろえる */
   for (let i = 0; i < new Date(y, m-1, 1).getDay(); i++) h += '<div class="ac blank"></div>';
@@ -3431,7 +3448,7 @@ function lvPeople(ds){
 const lvDutyTags = ds => lvMyDuty(ds).map(x => '<span class="lvdu '+x[0]+'">'+x[1]+'</span>').join('');
 function lvWeekHtml(){
   const td = DM.today, a = addD(lvSun(lvDay), 1);
-  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div>';
+  let h = '<div class="h2">休暇の申請（'+(DM.clerk ? '事務' : '看護師')+'）</div>';
   for (let i = 0; i < 6; i++){
     const ds = addD(a, i), w = pd(ds).getDay(), off = lvOffDay(ds), can = lvCan(ds), P = lvPeople(ds), du = lvDutyTags(ds);
     h += '<div class="wcard'+(off ? ' off lvoff' : '')+(ds < td ? ' past' : '')+(ds === td ? ' today' : '')+'"'+(can ? ' data-lvday="'+ds+'"' : '')+'>'
@@ -3443,7 +3460,7 @@ function lvWeekHtml(){
 }
 function lvTodayHtml(){
   const ds = lvDay, off = lvOffDay(ds), can = lvCan(ds), P = lvPeople(ds), du = lvMyDuty(ds);
-  let h = '<div class="h2">みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</div><div class="tdg lvtd'+(off ? ' lvoff' : '')+'">';
+  let h = '<div class="h2">休暇の申請（'+(DM.clerk ? '事務' : '看護師')+'）</div><div class="tdg lvtd'+(off ? ' lvoff' : '')+'">';
   if (off) h += '<div class="lvn">休診日です</div>';
   else h += '<div class="lvps">'+(P.length ? P.join('') : '<span class="lvn">休みの人はいません</span>')+'</div>'
     + (du.length ? '<div class="lvdus"><span class="lvdl2">自分の当番</span>'+du.map(x => '<span class="lvdu '+x[0]+'">'+x[1]+'</span>').join('')+'</div>' : '');
@@ -3661,7 +3678,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.41.0';
+const APP_VER = '12.45.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
