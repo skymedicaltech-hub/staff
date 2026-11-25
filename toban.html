@@ -61,7 +61,13 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #regBar{text-align:center;padding:20px 16px 28px;font-size:calc(11.5px*var(--fs,1));line-height:1.6;color:var(--sub)}
 #regBar a{display:inline-block;margin-top:10px;color:#287FB8;text-decoration:underline}
 #regBar button{display:inline-block;border:1px solid #C9D6E0;background:#fff;border-radius:999px;padding:8px 16px;font-size:calc(13px*var(--fs,1));font-weight:700;color:#287FB8;margin-bottom:6px}
-#navBadge{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-family:"Outfit",sans-serif;font-size:calc(11px*var(--fs,1));display:flex;align-items:center;justify-content:center;padding:0 5px}
+/* Ver12.5.0：下から出る窓は、下のタブより手前に出す（「やめる」「申請する」がタブにかくれないように） */
+#rWrap .sheet-bg{z-index:8 !important}
+#rWrap .sheet,#rWrap .confirm{z-index:9 !important}
+#nav button{white-space:nowrap}
+#nav.n6 button{font-size:calc(10px*var(--fs,1));letter-spacing:-.02em}
+#navBadge.g,#navBadgeLv.g,#navBadgeOk.g{background:#8FA3B2}
+#navBadge,#navBadgeLv,#navBadgeOk,#navBadgeV{position:absolute;top:5px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:999px;background:var(--no);color:#fff;font-family:"Outfit",sans-serif;font-size:calc(11px*var(--fs,1));display:flex;align-items:center;justify-content:center;padding:0 5px}
 
 /* ---------- 当番表・申し込み ---------- */
 
@@ -158,6 +164,31 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #rWrap .st.wait{color:var(--warn)}
 #rWrap .st.cancel{color:var(--sub)}
 #rWrap .req .why{font-size:calc(12px*var(--fs,1));color:var(--sub);margin-top:2px}
+/* Ver12.0.0：休み */
+#rWrap .lvd{margin-top:6px;font-size:calc(12px*var(--fs,1));color:#7A5418;line-height:1.6}
+#rWrap .lvd b{display:inline-block;background:#F6E7C8;color:#7A5418;border-radius:5px;padding:0 5px;margin-right:4px;font-size:calc(11px*var(--fs,1))}
+#rWrap .badge.g{background:#8FA3B2}
+#rWrap .lvd b.pd{background:#EEF2F5;color:#5E7383}
+#rWrap .lvd .pdn{color:#5E7383}
+#rWrap .lvseg{margin:12px 0 4px}
+#rWrap .lvrow{display:flex;gap:10px;margin-top:14px}
+#rWrap .lvrow button{flex:1;margin:0 !important;width:auto !important}
+#rWrap .lvrow .back{flex:0 0 34%;background:#EEF2F5 !important;color:var(--sub) !important;border:none;border-radius:14px !important;font-size:calc(15px*var(--fs,1));font-weight:700;padding:14px 0 !important}
+#rWrap .lvrow .go:disabled{opacity:.4}
+#rWrap .lvx{position:absolute;top:10px;right:12px;width:36px;height:36px;border:none;border-radius:999px;background:#EEF2F5;color:var(--sub);font-size:calc(20px*var(--fs,1));line-height:1;padding:0}
+#rWrap .lvbtn{display:block;width:100%;border:none;border-radius:14px;background:var(--sky);color:#fff;padding:14px;font-size:calc(16px*var(--fs,1));font-weight:700;margin:14px 0 4px}
+#rWrap .lvp{display:flex;gap:8px;margin:8px 0}
+#rWrap .lvp button{flex:1;border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 4px;font-size:calc(15px*var(--fs,1));font-weight:700;color:var(--ink)}
+#rWrap .lvp button.on{background:var(--sky);border-color:var(--sky);color:#fff}
+#rWrap .lvin{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit;font-size:calc(16px*var(--fs,1));background:#fff}
+#rWrap .lvdl{font-size:calc(13px*var(--fs,1));margin-top:8px;line-height:1.7;color:var(--sub)}
+#rWrap .lvdl.ng{color:var(--no);font-weight:700}
+#rWrap .lvh{display:flex;align-items:center;gap:8px;padding:10px 2px;border-bottom:1px solid var(--line)}
+#rWrap .lvh:last-child{border-bottom:none}
+#rWrap .lvh .m{flex:1;min-width:0;font-size:calc(14px*var(--fs,1));line-height:1.5}
+#rWrap .lvh .w{font-size:calc(12px*var(--fs,1));color:var(--sub)}
+#rWrap .lvh button{border:none;background:#EEF2F5;color:var(--sub);border-radius:9px;padding:7px 12px;font-size:calc(13px*var(--fs,1));font-weight:700}
+#rWrap .tp{font-size:calc(11px*var(--fs,1));font-weight:700;border-radius:5px;padding:1px 6px;margin-left:6px;background:#EEE6F7;color:#5B3F86}
 #rWrap .btns{display:flex;gap:8px;margin-top:12px}
 #rWrap .btns button{flex:1;border:none;border-radius:12px;padding:12px;font-size:calc(15px*var(--fs,1));font-weight:700}
 #rWrap .b-ok{background:var(--sky);color:#fff}
@@ -685,16 +716,110 @@ button:focus-visible, [data-d]:focus-visible {outline:3px solid #79B9DE;outline-
 
 /* ---- Ver11.17.0 院長・アプリ管理者：2つの当番の入れかえの確かめ ---- */
 #rWrap .bossQ2{font-size:calc(16px*var(--fs,1));text-align:left;line-height:2;margin:10px 4px 6px}
+/* Ver12.8.1：院長の「当番変更」で、月の画面の名前を選んだ印 */
+#rWrap .an.sel{background:#287FB8;border-color:#1D5A85;color:#fff}
+#rWrap .an.cand{box-shadow:inset 0 0 0 2px #287FB8}
+#rWrap .an.dim{opacity:.4}
+#rWrap .an[data-mds]{cursor:pointer}
+/* ---- Ver12.17.0：スマホの週の当番表＝日ごとのカード（横2列×縦3段）。#rWrap .list.wkc の中だけ ---- */
+#rWrap .list.wkc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:8px;align-items:stretch}
+#rWrap .list.wkc>.none,#rWrap .list.wkc>.hint,#rWrap .list.wkc>.pick{grid-column:1/-1}
+#rWrap .wkc .wcard{background:#FFFFFF;border:1px solid #DBE5EC;border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0;box-shadow:none}
+#rWrap .wkc .wcard.today{background:#EFF7FF;border-color:#217DAD;box-shadow:0 0 0 1px #217DAD}
+#rWrap .wkc .wcard.past{opacity:.6}
+#rWrap .wkc .wch{display:flex;align-items:baseline;gap:1px;line-height:1.1;padding:0 2px;min-height:20px}
+#rWrap .wkc .wnum{font-size:calc(18px*var(--fs,1));font-weight:700;color:#173A56}
+#rWrap .wkc .wdow{font-size:calc(11.5px*var(--fs,1));color:#64748B;font-weight:600}
+#rWrap .wkc .wcard.today .wnum,#rWrap .wkc .wcard.today .wdow{color:#217DAD}
+#rWrap .wkc .wtd{margin-left:auto;font-size:calc(10.5px*var(--fs,1));font-weight:700;color:#fff;background:#217DAD;border-radius:4px;padding:2px 5px;align-self:center}
+#rWrap .wkc .wa{border-radius:8px;padding:3px 6px;display:flex;flex-direction:column;min-width:0}
+#rWrap .wkc .wE{background:#EDF5FB}
+#rWrap .wkc .wC{background:#F0F3F6}
+#rWrap .wkc .wk{font-size:calc(11px*var(--fs,1));font-weight:700;color:#64748B;line-height:1.3}
+#rWrap .wkc .wa .sl{display:flex;align-items:center;justify-content:flex-start;text-align:left;width:100%;min-height:26px;padding:1px 0;margin:0;background:transparent;border:none;border-radius:6px;box-shadow:none;gap:4px}
+#rWrap .wkc .wa .sl .k{display:none}
+#rWrap .wkc .wa .sl .nm{flex:1 1 auto;min-width:0;font-size:calc(16px*var(--fs,1));font-weight:700;color:#173A56;text-align:left;white-space:normal;overflow-wrap:anywhere;line-height:1.25}
+#rWrap .wkc .wa .sl.empty .nm{color:#64748B;font-weight:600;font-size:calc(14px*var(--fs,1))}
+#rWrap .wkc .wC .sl+.sl,#rWrap .wkc .wC .sl+.wpad{border-top:1px solid #DBE5EC}
+#rWrap .wkc .wpad{min-height:26px}
+#rWrap .wkc .wa .sl.mine .nm{color:#217DAD}
+#rWrap .wkc .wa .sl.mine{box-shadow:inset 3px 0 0 #217DAD;padding-left:5px}
+#rWrap .wkc .wa .sl.sel{background:#217DAD;padding-left:5px}
+#rWrap .wkc .wa .sl.sel .nm{color:#fff}
+#rWrap .wkc .wa .sl.cand{box-shadow:inset 0 0 0 2px #217DAD;padding-left:5px;background:#fff}
+#rWrap .wkc .wa .sl.dim{opacity:.4}
+#rWrap .wkc .wa .sl .ch{flex:0 0 auto;font-size:calc(12px*var(--fs,1))}
+#rWrap .wkc .wcard.off{background:#F3F4F6;border-color:#E2E5EA}
+#rWrap .wkc .wcard.off .wnum{color:#94A3B8}
+#rWrap .wkc .woff{flex:1;display:flex;align-items:center;justify-content:center;color:#94A3B8;font-weight:700;font-size:calc(14px*var(--fs,1));background:#E9ECF0;border-radius:8px;min-height:60px}
+#rWrap .wkc .dcm,#rWrap .wkc .lvd{font-size:calc(11px*var(--fs,1));line-height:1.35;margin:0;padding:3px 2px 0;border-top:1px dashed #DBE5EC;grid-column:auto}
+
+/* ---- Ver12.18.0：週のカードを凝縮（1画面で1週間）。早出＝淡い赤、CS（会計）＝淡い青。業務名は左に小さく、名前は右に ---- */
+#rWrap .list.wkc{gap:6px;padding-top:6px}
+#rWrap .wkc .wcard{padding:5px;gap:3px}
+#rWrap .wkc .wch{min-height:17px}
+#rWrap .wkc .wnum{font-size:calc(16px*var(--fs,1))}
+#rWrap .wkc .wdow{font-size:calc(11px*var(--fs,1))}
+#rWrap .wkc .wtd{font-size:calc(10px*var(--fs,1));padding:1px 4px}
+#rWrap .wkc .wa{display:grid;grid-template-columns:26px minmax(0,1fr);column-gap:2px;padding:1px 5px 1px 4px;align-items:center}
+#rWrap .wkc .wa>.wk{grid-row:1/span 2;grid-column:1;font-size:calc(10.5px*var(--fs,1));line-height:1.2;align-self:center}
+#rWrap .wkc .wa>.sl,#rWrap .wkc .wa>.wpad{grid-column:2}
+#rWrap .wkc .wE{background:#FCEBEB}
+#rWrap .wkc .wE>.wk{color:#B3413E}
+#rWrap .wkc .wC{background:#E5F0FA}
+#rWrap .wkc .wC>.wk{color:#217DAD}
+#rWrap .wkc .wa .sl{min-height:23px;padding:0}
+#rWrap .wkc .wpad{min-height:23px}
+#rWrap .wkc .wa .sl .nm{font-size:calc(15px*var(--fs,1));line-height:1.2}
+#rWrap .wkc .wa .sl.empty .nm{font-size:calc(13px*var(--fs,1))}
+#rWrap .wkc .wC .sl+.sl,#rWrap .wkc .wC .sl+.wpad{border-top:1px solid #C9DCEB}
+#rWrap .wkc .wa .sl.mine,#rWrap .wkc .wa .sl.sel,#rWrap .wkc .wa .sl.cand{padding-left:4px}
+#rWrap .wkc .dcm,#rWrap .wkc .lvd{font-size:calc(10.5px*var(--fs,1));line-height:1.3;padding:0 2px 2px;border-top:none;border-bottom:1px dashed #DBE5EC}
+#rWrap .wkc .woff{min-height:40px;font-size:calc(13px*var(--fs,1))}
+#rWrap .wkc .wa .sl,#rWrap .wkc .wpad{min-height:21px}
+#rWrap .wkc .wch{min-height:16px}
+#rWrap .list.wkc{gap:5px;padding-top:4px}
+#rWrap .wkc .wcard{gap:2px;padding:4px 5px}
+/* ---- Ver12.18.1：自分の当番は左の線ではなく枠で囲む。早出・CSの枠は下にそろえて、同じ段の左右のカードで高さ・位置をそろえる ---- */
+#rWrap .wkc .wa .sl.mine{box-shadow:inset 0 0 0 1.5px #217DAD;border-radius:5px;padding-left:4px}
+#rWrap .wkc .wa .sl.mine.cand{box-shadow:inset 0 0 0 2.5px #217DAD}
+#rWrap .wkc .wcard>.wE{margin-top:auto}
+/* ---- Ver12.18.2：自分の当番は枠も青い字もやめて、名前のあとに小さな「自分」のバッジ ---- */
+#rWrap .wkc .wa .sl.mine{box-shadow:none;padding-left:0}
+#rWrap .wkc .wa .sl.mine .nm{color:#173A56}
+#rWrap .wkc .wa .sl.mine .nm::after{content:'自分';display:inline-block;margin-left:5px;vertical-align:2px;font-size:calc(9.5px*var(--fs,1));font-weight:700;line-height:1;color:#fff;background:#217DAD;border-radius:4px;padding:2px 4px}
+#rWrap .wkc .wa .sl.mine.cand{box-shadow:inset 0 0 0 2px #217DAD;padding-left:4px}
+#rWrap .wkc .wa .sl.mine.sel{padding-left:4px}
+#rWrap .wkc .wa .sl.mine.sel .nm{color:#fff}
+#rWrap .wkc .wa .sl.mine.sel .nm::after{background:#fff;color:#217DAD}
+/* ---- Ver12.19.0：見出し。職種を名前のあとに。月・週・日の表示はまん中、矢印はその左右 ---- */
+#rWrap .hello .role,#wWrap .hello .role{font-size:calc(13px*var(--fs,1));color:#64748B;font-weight:600;margin-left:2px}
+#rWrap .month,#wWrap .month{justify-content:center;gap:14px;min-height:0;margin-top:12px}
+#rWrap .month .arrows,#wWrap .month .arrows{display:contents}
+#rWrap .month .arrows>button:first-child,#wWrap .month .arrows>button:first-child{order:-1}
+#rWrap .month .t,#wWrap .month .t{order:0;justify-content:center;min-width:0}
+#rWrap .month .arrows>button:last-child,#wWrap .month .arrows>button:last-child{order:1}
+#ptr{position:fixed;left:50%;top:0;z-index:40;transform:translate(-50%,-48px);background:#fff;color:#217DAD;font-size:calc(12.5px*var(--fs,1));font-weight:700;border:1px solid #DBE5EC;border-radius:999px;padding:6px 14px;pointer-events:none;transition:transform .15s;white-space:nowrap}
+/* ---- Ver12.20.0：文字を大きくしても崩れにくくする（週のカード・休みのカレンダー）。「ぁあ」は見出しの右 ---- */
+#rWrap .wkc .wa{grid-template-columns:auto minmax(0,1fr);column-gap:5px}
+#rWrap .wkc .wa>.wk{white-space:nowrap}
+#rWrap .wkc .wa .sl,#rWrap .wkc .wpad{min-height:calc(21px*var(--fs,1))}
+#rWrap .wkc .wch{min-height:calc(16px*var(--fs,1));flex-wrap:wrap}
+#rWrap .hello,#wWrap .hello{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fsTop{flex:none;display:inline-flex;align-items:baseline;gap:1px;border:1px solid #8FA3B2;background:#fff;border-radius:6px;padding:4px 8px 5px;color:#5E7383;font-weight:700;line-height:1}
+.fsTop .s{font-size:.625rem}
+.fsTop .b{font-size:.9375rem}
+#fsBar{display:none}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 11.24.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.22.1";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
 html[data-fs="xl"]{--fs:1.6}
 /* 絵・しるし・丸の中の文字・右上の版数は大きくしない */
 #rWrap .arrows button,#wWrap .arrows button{font-size:23px}
-#rWrap .badge,#navBadge{font-size:11px}
+#rWrap .badge,#navBadge,#navBadgeLv,#navBadgeOk,#navBadgeV{font-size:11px}
 #wWrap .pens button b{font-size:13px}
 #wWrap .lk{font-size:10px}
 /* ますの幅が文字で広がらないようにする（大・特大のときだけ） */
@@ -721,20 +846,47 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 #fsPane .fsB button.on{background:#287FB8;border-color:#287FB8;color:#fff}
 #fsPane .fsX{margin-top:12px;width:100%;height:46px;border:none;background:#EDF3F8;color:#55708A;border-radius:13px;font-size:15px;font-weight:700}
 
+/* ---- Ver12.6.0 デザインをそろえる（院長が決めた C：A＋B） ----
+   A：画面の中の切りかえ（今日｜週｜月、看護師｜事務の当番表）を、下のタブと同じ「選んだ所だけ水色の四角」に
+   B：カード・ボタンの丸みを小さくして、影を消し、平らで四角い見た目に
+   下のタブ（#nav）は変えない */
+:root{--r:6px}
+#rWrap .seg,#wWrap .seg,#rWrap .vseg{background:#fff;border:1px solid #E2EDF5;border-radius:8px;padding:3px;box-shadow:none}
+#rWrap .seg button,#wWrap .seg button,#rWrap .vseg button{border-radius:6px;color:#8DA3B4;font-weight:700;box-shadow:none;background:none}
+#rWrap .seg button.on,#wWrap .seg button.on,#rWrap .vseg button.on{background:#E8F4FB;color:#287FB8;box-shadow:none}
+#rWrap .sum div,#rWrap .day,#rWrap .box,#wWrap .pair,#wWrap .qt,#wWrap .duty,#wWrap .all,#rWrap .mcal,#rWrap .tdc,#rWrap .tdg,#rWrap .alert,#rWrap .none,#wWrap .none,#wWrap .golink,#rWrap .summary,#rWrap .calnote,#rWrap .selbar,#rWrap .undo,#wWrap .pens{border-radius:6px;box-shadow:none}
+#rWrap .sum div,#rWrap .mcal,#rWrap .tdc,#rWrap .tdg{border:1px solid #E2EDF5}
+#rWrap .wkv .day{border-radius:0}
+#rWrap .wkv .day:first-of-type{border-radius:6px 6px 0 0}
+#rWrap .wkv .day:last-of-type{border-radius:0 0 6px 6px}
+#rWrap .wkv .day:first-of-type:last-of-type{border-radius:6px}
+#rWrap .b-ok,#rWrap .go,#wWrap .send,#rWrap .big,#rWrap .lvbtn,#rWrap .btns button,#rWrap .pick,.confirm .pick button,#rWrap .lvp button,#rWrap .arrows button,#wWrap .arrows button,#rWrap .reload,#fsPane .fsB button,#fsPane .fsX,#pvBar button,#regBar button{border-radius:6px;box-shadow:none}
+#rWrap .lvrow .back{border-radius:6px !important}
+#rWrap .sl,#rWrap .wkv .sl,#rWrap .mc,#rWrap .ac,#wWrap .d,#wWrap .chip,#wWrap .sgrid button,#wWrap .pseg,#wWrap .pens button,#rWrap .lvh button,#rWrap .lvin,#rWrap .sheet textarea,#wWrap .pair textarea,#rWrap .wsNone,#rWrap .alert button,#rWrap .undo button,#rWrap .pill,#rWrap .req .note{border-radius:4px}
+#wWrap .pseg button{border-radius:3px}
+#rWrap .sheet,#rWrap .confirm,#fsPane{border-radius:10px 10px 0 0}
+.toast{border-radius:6px}
+#rWrap .wishst,#rWrap .stale{border-radius:6px !important}
+
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver11.24.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.22.1（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
 <div id="fsBar"><button id="fsMark" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button></div>
 <div class="toast" id="toast"></div>
 <nav id="nav">
+<button data-go="req" onclick="goTab('req')"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>通知<span id="navBadge" style="display:none"></span></button>
 <button data-go="roster" class="on" onclick="goTab('roster')"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>当番表</button>
-<button data-go="req" onclick="goTab('req')"><svg viewBox="0 0 24 24"><path d="M7 7h12l-3-3M17 17H5l3 3"/></svg>申し込み<span id="navBadge" style="display:none"></span></button>
-<button data-go="wish" onclick="goTab('wish')"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>希望</button>
+<button data-go="leave" onclick="goTab('leave')" style="display:none"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>休み申請<span id="navBadgeLv" style="display:none"></span></button>
+<button data-go="lvok" onclick="goTab('lvok')" style="display:none"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="17" rx="2.5"/><path d="M9 3h6v3H9zM8.5 13l2.5 2.5 4.5-5"/></svg>申請許可<span id="navBadgeOk" style="display:none"></span></button>
+<button data-go="wish" onclick="goTab('wish')"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>当番希望</button>
 <button data-go="sv" onclick="goTab('sv')"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>アンケート</button>
+<button data-go="v_ro" onclick="pvSet('nurse')" style="display:none"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>当番表</button>
+<button data-go="v_lv" onclick="pvSet('lv')" style="display:none"><svg viewBox="0 0 24 24"><rect x="4.5" y="4" width="15" height="17" rx="2.5"/><path d="M9 3h6v3H9zM8.5 13l2.5 2.5 4.5-5"/></svg>休み許可<span id="navBadgeV" style="display:none"></span></button>
+<button data-go="v_wish" onclick="pvSet('')" style="display:none"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>受付のようす</button>
 </nav>
 <script>
 'use strict';
@@ -755,16 +907,18 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver11.24.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver12.12.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '11.24.0';
-const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表'};
+const VER = '12.12.0';
+const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', jchg:'事務の当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表', leave:'休み'};
 const HEAD = {
-  nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）'],
-  clerks: ['id','名前','合言葉','有効'],
+  nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）','リーダー（休みの許可）'],
+  clerks: ['id','名前','合言葉','有効','リーダー（休みの許可）'],
+  leave: ['番号','職種（n＝看護師・j＝事務）','人id','名前','日付','時間（all・am・pm）','理由（院長だけが見る）','状態','申請した日時','決めた人','決めた日時','入れ方（self・dr・pc）','取り消しの申請（日時）'],
   jroster: ['月','更新日時','当番表（事務：早出・会計）'],
+  jchg: ['日付','枠（E＝早出・L＝会計）','前の人','新しい人','変えた人（dr＝院長・adm＝アプリ管理者・pc＝当番管理・cal＝カレンダー・n:名前＝本人たち）','日時'],
   wishes: ['月','看護師id','名前','日付','種類','送った日時'],
   months: ['月','しめきり','設定'],
   roster: ['月','確定日時','当番表'],
@@ -845,13 +999,13 @@ const NO_TEST = 'テスト用の人は、交換や代わりの申し込みはで
 function nurseByKey_(k){
   if (!k) return null;
   const r = read_('nurses').find(x => x[2] === String(k) && ON_(x[3]));
-  return r ? {id:r[0], name:r[1], test:r[3] === 'T', canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7])} : null;
+  return r ? {id:r[0], name:r[1], test:r[3] === 'T', canE:r[4] !== '0', canC:r[5] !== '0', ngE:ngList_(r[6]), ngC:ngList_(r[8]), ok:okList_(r[7]), leader:r[9] === '1'} : null;
 }
 /* 事務（早出・会計）。スマホは当番表を見るだけ */
 function clerkByKey_(k){
   if (!k) return null;
   const r = read_('clerks').find(x => x[2] === String(k) && ON_(x[3]));
-  return r ? {id:r[0], name:r[1], test:r[3] === 'T'} : null;
+  return r ? {id:r[0], name:r[1], test:r[3] === 'T', leader:r[4] === '1'} : null;
 }
 /* Ver11.6.0：院長のQR（見るだけ）。合言葉は院長のPC（当番管理）が作り、スクリプトのプロパティ VIEW_KEY に置く。
    このQRでは、看護師の当番表と事務の当番表を見ることだけができる（交換・希望・アンケート・名前を入れる窓口は、看護師か事務の合言葉でしか通らない） */
@@ -887,10 +1041,19 @@ function viewerRoster_(v){
   /* Ver11.15.0：事務の人の一覧も返す（スマホで「事務に見える画面」を見るだけで出すため。事務の人が見ている一覧と同じ） */
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_(), nurses:read_('clerks').filter(r => r[3] === '1').map(r => ({id:r[0], name:r[1], canE:true, canC:true}))};
   res.wish = wishState_();   /* Ver11.9.0 */
+  res.leave = leaveFor_(v.adm ? {adm:true} : {boss:true});   /* Ver12.0.0：院長は全部（理由も）。アプリ管理者は受理された休みを見るだけ */
+  res.hist = nHist_(N); res.jhist = jHist_();   /* Ver12.9.0〜12.10.0：当番表の下の「変更履歴」（看護師・事務。新しい順に3つ） */
   return res;
 }
+/* Ver12.9.0：成立した看護師の当番の変更を、新しい順に3つ（テスト用の人は出さない。ひとことは出さない） */
+function nHist_(N){
+  const tst = id => !!(N[id] && N[id].test);
+  return read_('changes').map((r, i) => Object.assign(chgObj_(r), {_i:i})).filter(c => c.state === 'done' && !tst(c.from) && !tst(c.to))
+    .sort((a, b) => { const x = String(a.ansAt || a.at), y = String(b.ansAt || b.at); return x === y ? b._i - a._i : (y < x ? -1 : 1); }).slice(0, 5)
+    .map(c => ({kind:c.kind, by:c.kind === 'cal' ? (c.msg === '@dr' ? 'dr' : c.msg === '@adm' ? 'adm' : 'cal') : '', ds:c.ds, slot:c.slot, ds2:c.ds2 || '', slot2:c.slot2 || '', fromName:c.fromName || '', toName:c.toName || '', at:c.ansAt || c.at}));
+}
 function saveClerks_(list){
-  const rows = (Array.isArray(list) ? list : []).slice(0, 100).map(n => [String(n.id), String(n.name).slice(0, 40), String(n.key), act_(n)]);
+  const rows = (Array.isArray(list) ? list : []).slice(0, 100).map(n => [String(n.id), String(n.name).slice(0, 40), String(n.key), act_(n), n.leader === true ? '1' : '']);
   if (JSON.stringify(rows) === JSON.stringify(read_('clerks'))) return;   /* 変わっていなければ書かない */
   write_('clerks', rows); jBump_();
 }
@@ -904,6 +1067,7 @@ function clerkOut_(res, from, cfrom){
   res.clerkFrom = from;
   res.clerkVer = jVer_();
   res.clerks = read_('clerks').filter(r => r[3] === '1').map(r => r[1]);
+  res.leaves = leaveForCal_(from);   /* Ver12.0.0：受理された休み（だれが・いつ・全日／午前／午後だけ。理由は出さない） */
   res.clerkDuties = read_('jroster').filter(r => r[0] >= from).sort((a, c) => a[0] < c[0] ? -1 : 1).map(r => {
     let j; try { j = JSON.parse(r[2]); } catch(e){ return null; }
     const days = {}; Object.keys(j.days || {}).forEach(ds => { const x = j.days[ds] || {}; const at = (nm, t) => String(t || (nm ? '2001-01-01T00:00:00.000Z' : ''));   /* 名前があるのに日時がない（前の版のデータ）ときも、日時を返す */
@@ -913,7 +1077,7 @@ function clerkOut_(res, from, cfrom){
   return res;
 }
 function clerkEdits_(b){
-  if (Array.isArray(b.clerkEdits) && b.clerkEdits.length) jSet_(b.clerkEdits.slice(0, 200).map(e => ({ds:String((e && e.date) || ''), slot:e && e.slot === 'early' ? 'E' : e && e.slot === 'late' ? 'L' : '', name:String((e && e.name) || ''), at:e && e.at})));
+  if (Array.isArray(b.clerkEdits) && b.clerkEdits.length) jSet_(b.clerkEdits.slice(0, 200).map(e => ({ds:String((e && e.date) || ''), slot:e && e.slot === 'early' ? 'E' : e && e.slot === 'late' ? 'L' : '', name:String((e && e.name) || ''), at:e && e.at})), null, 'cal');
 }
 /* ---- 事務の当番（Ver11.0.0：スタッフが自分たちで入れる。組む・確定・交代はなし） ----
    1ます＝日付×（早出・会計）。入れた日時（eAt・lAt）の新しいほうを残す。
@@ -959,16 +1123,28 @@ function jMonth_(ym){
 }
 /* cells：[{ds, slot:'E'か'L', id または name（どちらも空なら「空ける」）, at}]。入れた数を返す。
    out（あれば）.off に、休診日なので入れなかった数を入れる */
-function jSet_(cells, out){
-  const byId = {}, byName = {};
+/* Ver12.10.0：事務の当番の変更の記録（院長が了承）。入っていた人が変わったときと、今月の日に空いていた所へ入れたとき（来月より先の日に空きへ入れたのは残さない）。新しい300件だけ残す */
+function jLog_(logs){
+  if (!logs.length) return;
+  const rows = read_('jchg').concat(logs.map(x => [x.ds, x.slot, x.from, x.to, x.by, x.at]));
+  write_('jchg', rows.slice(-300));
+}
+function jHist_(name){   /* Ver12.12.0：新しい順に5つ。name があれば、その人が前の人・新しい人の記録だけ */
+  return read_('jchg').map((r, i) => ({kind:'j', ds:r[0], slot:r[1], fromName:r[2], toName:r[3], by:r[4], at:r[5], _i:i}))
+    .filter(x => !name || x.fromName === name || x.toName === name)
+    .sort((a, b) => a.at === b.at ? b._i - a._i : (b.at < a.at ? -1 : 1)).slice(0, 5).map(x => { delete x._i; return x; });
+}
+function jSet_(cells, out, by){
+  const byId = {}, byName = {}, LC = {};
   read_('clerks').forEach(r => { const c = {id:r[0], name:r[1], active:r[3] === '1'}; byId[c.id] = c; if (c.active) byName[c.name] = c; });
-  const now = Date.now(), months = {}; let n = 0, F = null;
+  const now = Date.now(), months = {}, logs = [], curYm = today_().slice(0,7); let n = 0, F = null;
   (Array.isArray(cells) ? cells : []).slice(0, 200).forEach(c => {
     if (!c || !/^\d{4}-\d{2}-\d{2}$/.test(String(c.ds)) || !J_SLOT[c.slot]) return;
     let who = {id:'', name:''};
     if (c.id){ who = byId[String(c.id)]; if (!who || !who.active) return; }
     else if (c.name){ who = byName[String(c.name)]; if (!who) return; }   /* 名簿にない名前は入れない */
     if (who.name){ if (!F) F = framesMap_(); if (clerkOff_(c.ds, F)){ if (out) out.off = (out.off || 0) + 1; return; } }   /* Ver11.3.0：休診日には名前を入れない */
+    if (who.id){ const lv = leaveOn_('j', who.id, c.ds, c.slot, LC); if (lv){ if (out){ out.leave = (out.leave || 0) + 1; out.leaveMsg = lvMsg_(who.name, c.ds, lv); } return; } }   /* Ver12.2.0：休みの人は入れない */
     const ym = c.ds.slice(0,7), m = months[ym] || (months[ym] = jMonth_(ym)), K = J_SLOT[c.slot];
     const d = m.days[c.ds] || (m.days[c.ds] = {early:'', eId:'', late:'', lId:''});
     let t = Date.parse(c.at); if (isNaN(t) || t > now) t = now;
@@ -976,9 +1152,12 @@ function jSet_(cells, out){
        → カレンダーの「前からの手入力を移す」（at が 2000年）では上書きされない */
     let old = Date.parse(d[K[2]]); if (isNaN(old) && d[K[0]]) old = Date.parse('2001-01-01T00:00:00.000Z');
     if (!isNaN(old) && t < old) return;
+    const prev = d[K[0]] || '';
+    if (prev !== who.name && (prev || ym <= curYm)) logs.push({ds:c.ds, slot:c.slot, from:prev, to:who.name, by:String(by || ''), at:new Date(now).toISOString()});
     d[K[0]] = who.name; d[K[1]] = who.id; d[K[2]] = new Date(t).toISOString(); m.touched = true; n++;
   });
   Object.keys(months).forEach(ym => { if (months[ym].touched) upsert_('jroster', ym, [ym, isoNow_(), JSON.stringify({days:months[ym].days})]); });
+  jLog_(logs);
   if (n) jBump_();
   return n;
 }
@@ -1003,6 +1182,8 @@ function clerkRoster_(c){
   const R = rosterMap_(), nr = rosterList_(R);   /* Ver11.23.0 */
   const res = {ok:true, ver:VER, clerk:true, me:{id:c.id, name:c.name, test:c.test === true, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]}, today:today_(), nurses:clerks, roster:clerkMonths_(), changes:[], comments:{}, url:appUrl_()};
   if (nr.length) res.other = {roster:nr};
+  res.leave = leaveFor_({grp:'j', id:c.id, name:c.name, test:c.test === true, leader:c.leader === true});   /* Ver12.0.0 */
+  res.hist = jHist_(); res.jmine = jHist_(c.name);   /* Ver12.10.0〜12.12.0：事務の当番の変更履歴（全員・自分。新しい順に5つ） */
   return res;
 }
 /* 事務の人がスマホで入れる（事務の人なら、どの日・だれの名前でも入れられる）。id が空なら「空ける」 */
@@ -1018,7 +1199,7 @@ function setClerkDuty(k, ds, slot, id){
     if (ds < today_()) return {ok:false, error:'過ぎた日は変えられません。'};
     if (ds.slice(0,7) > ymAdd_(today_().slice(0,7), 2)) return {ok:false, error:'入れられるのは、再来月までです。'};
     const out = {};
-    if (!jSet_([{ds:ds, slot:slot, id:String(id || ''), at:''}], out)) return {ok:false, error:out.off ? '休診日には入れられません。' : '入れられませんでした。画面を新しくして、もう一度ためしてください。'};
+    if (!jSet_([{ds:ds, slot:slot, id:String(id || ''), at:''}], out, c ? 'n:'+c.name : v.adm ? 'adm' : 'dr')) return {ok:false, error:out.off ? '休診日には入れられません。' : out.leave ? out.leaveMsg : '入れられませんでした。画面を新しくして、もう一度ためしてください。'};
     return c ? clerkRoster_(c) : viewerRoster_(v);
   } finally {
     lock.releaseLock();
@@ -1160,7 +1341,8 @@ function saveWishes(k, ym, map){
 
 /* ---------- 院長のPCアプリ（TOBAN）からの呼び出し ---------- */
 /* 看護師さんのスマホアプリ（GitHub Pages）から呼べる関数。1つ目の引数はいつも合言葉 */
-const NURSE_FN = {getInit:getInit, getRoster:getRoster, saveWishes:saveWishes, saveSurvey:saveSurvey, askChange:askChange, answerChange:answerChange, cancelChange:cancelChange, setClerkDuty:setClerkDuty, setDutyByBoss:setDutyByBoss, swapDutyByBoss:swapDutyByBoss};
+const NURSE_FN = {getInit:getInit, getRoster:getRoster, saveWishes:saveWishes, saveSurvey:saveSurvey, askChange:askChange, answerChange:answerChange, cancelChange:cancelChange, setClerkDuty:setClerkDuty, setDutyByBoss:setDutyByBoss, swapDutyByBoss:swapDutyByBoss,
+  leaveAsk:leaveAsk, leaveCancel:leaveCancel, leaveDecide:leaveDecide, leaveSetByBoss:leaveSetByBoss, leaveDelByBoss:leaveDelByBoss};
 function doPost(e){
   let res;
   try {
@@ -1193,6 +1375,7 @@ function admin_(b){
     if (b.nurses) saveNurses_(b.nurses);
     if (b.clerks) saveClerks_(b.clerks);
     if (b.viewKey) saveViewKey_(b.viewKey); saveAdmKey_(b.admKey); saveStartYM_(b.startYM);   /* Ver11.23.0 */
+    saveLeaveCfg_(b.leaveCfg);   /* Ver12.0.0 */
     if (b.action === 'nurses') return {ok:true};
     if (b.action === 'admState') return {ok:true, set:!!P.getProperty('ADM_KEY')};   /* アプリ管理者のQRが使えるか（Ver11.8.0） */
     if (b.action === 'publish'){
@@ -1252,7 +1435,12 @@ function admin_(b){
       (Array.isArray(b.months) ? b.months : []).slice(0, 6).forEach(ym => { if (/^\d{4}-\d{2}$/.test(ym)){ out[ym] = jMonth_(ym); out[ym].off = clerkOffList_(ym, F); } });   /* off：休診日（Ver11.3.0） */
       return {ok:true, months:out};
     }
-    if (b.action === 'clerkSet'){ const o = {}, n = jSet_(b.cells, o); return {ok:true, n:n, off:o.off || 0}; }   /* 事務の当番（PCで入れる） */
+    /* Ver12.0.0：休み（当番管理＝院長のPC。理由も見られる） */
+    if (b.action === 'leaveGet') return {ok:true, list:leaveList_(true, '', true), people:leavePeople_()};
+    if (b.action === 'leaveDecide'){ const r = leaveDecide_({boss:true, name:'院長'}, b.id, b.yes === true); return r.ok ? {ok:true, list:leaveList_(true, '', true)} : r; }
+    if (b.action === 'leaveSet'){ const r = leaveSet_(b.leave, 'pc'); return r.ok ? {ok:true, list:leaveList_(true, '', true)} : r; }
+    if (b.action === 'leaveDel'){ const r = leaveDel_(b.id); return r.ok ? {ok:true, list:leaveList_(true, '', true)} : r; }
+    if (b.action === 'clerkSet'){ const o = {}, n = jSet_(b.cells, o, 'pc'); return {ok:true, n:n, off:o.off || 0, leave:o.leave || 0}; }   /* 事務の当番（PCで入れる） */
     if (b.action === 'roster'){
       const st = startYM_(); if (st && String(b.ym) < st) return {ok:false, error:'この月は、当番アプリを使い始める前の月です（看護師の当番は内視鏡カレンダーで入れます）。'};
       upsert_('roster', b.ym, [b.ym, b.at || now_(), JSON.stringify(b.data || {})]);
@@ -1266,7 +1454,7 @@ function admin_(b){
 function saveNurses_(list){
   /* 入れない曜日は早出・CSで別々（Ver10.0.0〜）。前の版のPCアプリは ngDow（両方）だけを送ってくる */
   const ng = (n, k) => (Array.isArray(n[k]) ? n[k] : Array.isArray(n.ngDow) ? n.ngDow : []).join(',');
-  write_('nurses', list.map(n => [n.id, n.name, n.key, act_(n), n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', ng(n,'ngE'), (Array.isArray(n.okDays) ? n.okDays : []).join(','), ng(n,'ngC')]));
+  write_('nurses', list.map(n => [n.id, n.name, n.key, act_(n), n.canE === false ? '0' : '1', n.canC === false ? '0' : '1', ng(n,'ngE'), (Array.isArray(n.okDays) ? n.okDays : []).join(','), ng(n,'ngC'), n.leader === true ? '1' : '']));
 }
 
 /* ================= 内視鏡カレンダーとのやりとり（endoscSync） =================
@@ -1469,6 +1657,13 @@ function holder_(R, ds, t){ const m = R[String(ds).slice(0,7)]; const d = m && m
 
 /* その変更がいま成り立つかを確かめる（成り立たなければ理由を返す） */
 function chgProblem_(c, R, N){
+  /* Ver12.2.0：交代のあと当番に入る人に、その日の休み（申請中・受理）があれば断る */
+  const put = c.kind === 'take' ? [[c.from, c.ds, c.slot]] : c.kind === 'swap' ? [[c.to, c.ds, c.slot], [c.from, c.ds2, c.slot2]] : [[c.to, c.ds, c.slot]];
+  const LC = {};
+  for (const [id, ds, sl] of put){ const lv = id && leaveOn_('n', id, ds, sl, LC); if (lv) return lvMsg_((N[id] || {}).name || '', ds, lv); }
+  return chgProblem0_(c, R, N);
+}
+function chgProblem0_(c, R, N){
   const td = today_();
   if (c.ds < td || (c.kind === 'swap' && c.ds2 < td)) return '過ぎた日の当番なので変えられません。';
   const to = N[c.to], from = N[c.from];
@@ -1531,6 +1726,8 @@ function getRoster_(k){
   const res = {ok:true, ver:VER, me:{id:n.id, name:n.name, test:n.test === true, canE:n.canE, canC:n.canC, ngE:n.ngE, ngC:n.ngC, ng:both_(n), ok:n.ok}, today:td, nurses:nurses, roster:roster, changes:changes, comments:cm, url:appUrl_()};
   /* Ver11.1.0：事務の当番表も見られる（見るだけ。事務の人が登録されているときだけ） */
   if (read_('clerks').some(r => r[3] === '1')) res.other = {roster:clerkMonths_()};
+  res.leave = leaveFor_({grp:'n', id:n.id, name:n.name, test:n.test === true, leader:n.leader === true});   /* Ver12.0.0 */
+  res.hist = nHist_(N);   /* Ver12.10.0：看護師の当番の変更履歴（新しい順に3つ） */
   return res;
 }
 
@@ -1610,6 +1807,7 @@ function answerChange(k, id, yes){
    ・記録は「カレンダーで交代」と同じ形（kind cal）で残す。メモ（msg）に @dr（院長）・@adm（アプリ管理者）と書く。
      こうしておくと、前の版の当番管理（PC）・スマホでも、そのまま当番表に反映される
    ・その当番にかかわる返事待ちの申し込みは、無効にする */
+/* Ver12.8.0：12.7.0 でいったん消したが、院長のスマホの「当番変更」タブのために元にもどした（院長が決めた） */
 function setDutyByBoss(k, ds, slot, id){
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -1623,6 +1821,7 @@ function setDutyByBoss(k, ds, slot, id){
     if (!d || d[SLOT_KEY[slot][0]] === undefined) return {ok:false, error:'その日には、その当番がありません。画面を新しくして、もう一度ためしてください。'};
     const n = id ? N[id] : {id:'', name:''};
     if (!n || (id && (!n.active || n.test))) return {ok:false, error:'入れる人が見つかりません。'};
+    const lv = id && leaveOn_('n', id, ds, slot); if (lv) return {ok:false, error:lvMsg_(n.name, ds, lv)};   /* Ver12.2.0 */
     const curId = d[SLOT_KEY[slot][0]] || '', curName = d[SLOT_KEY[slot][1]] || '';
     if (curId === n.id) return viewerRoster_(v);
     const o = slot === 'C' ? 'C2' : slot === 'C2' ? 'C' : null;
@@ -1661,10 +1860,13 @@ function swapDutyByBoss(k, who, ds1, slot1, ds2, slot2){
       const cur = (ds, sl) => { const d = jMonth_(ds.slice(0,7)).days[ds]; return (d && d[J_SLOT[sl][1]]) || ''; };
       const a = cur(ds1, slot1), b = cur(ds2, slot2);
       if (a === b) return viewerRoster_(v);
+      { const LC = {}, nm = id => { const r = read_('clerks').find(x => x[0] === id); return r ? r[1] : ''; };   /* Ver12.2.0 */
+        const l1 = b && leaveOn_('j', b, ds1, slot1, LC), l2 = a && leaveOn_('j', a, ds2, slot2, LC);
+        if (l1) return {ok:false, error:lvMsg_(nm(b), ds1, l1)}; if (l2) return {ok:false, error:lvMsg_(nm(a), ds2, l2)}; }
       const F = framesMap_();
       if ((b && clerkOff_(ds1, F)) || (a && clerkOff_(ds2, F))) return {ok:false, error:'休診日には入れられません。'};
       const at = new Date().toISOString();
-      if (jSet_([{ds:ds1, slot:slot1, id:b, at:at}, {ds:ds2, slot:slot2, id:a, at:at}], {}) !== 2) return {ok:false, error:'入れかえられませんでした。画面を新しくして、もう一度ためしてください。'};
+      if (jSet_([{ds:ds1, slot:slot1, id:b, at:at}, {ds:ds2, slot:slot2, id:a, at:at}], {}, v.adm ? 'adm' : 'dr') !== 2) return {ok:false, error:'入れかえられませんでした。画面を新しくして、もう一度ためしてください。'};
       return viewerRoster_(v);
     }
     if (!SLOT_KEY[slot1] || !SLOT_KEY[slot2] || typeOf_(slot1) !== typeOf_(slot2)) return {ok:false, error:'入れかえは、早出どうし・CSどうしでできます。'};
@@ -1674,6 +1876,8 @@ function swapDutyByBoss(k, who, ds1, slot1, ds2, slot2){
     if (!d1 || !d2 || d1[SLOT_KEY[slot1][0]] === undefined || d2[SLOT_KEY[slot2][0]] === undefined) return {ok:false, error:'その日には、その当番がありません。画面を新しくして、もう一度ためしてください。'};
     const A = {id:d1[SLOT_KEY[slot1][0]] || '', name:d1[SLOT_KEY[slot1][1]] || ''}, B = {id:d2[SLOT_KEY[slot2][0]] || '', name:d2[SLOT_KEY[slot2][1]] || ''};
     if (A.id === B.id) return viewerRoster_(v);
+    { const LC = {}, l1 = B.id && leaveOn_('n', B.id, ds1, slot1, LC), l2 = A.id && leaveOn_('n', A.id, ds2, slot2, LC);   /* Ver12.2.0 */
+      if (l1) return {ok:false, error:lvMsg_(B.name, ds1, l1)}; if (l2) return {ok:false, error:lvMsg_(A.name, ds2, l2)}; }
     const other = t => t === 'C' ? 'C2' : t === 'C2' ? 'C' : null, o1 = other(slot1), o2 = other(slot2);
     /* 入れかえたあとに、同じ日のCS2人が同じ人にならないように（同じ日のCSどうしの入れかえは、そのまま通す） */
     if (ds1 !== ds2){
@@ -1712,6 +1916,243 @@ function cancelChange(k, id){
   } finally {
     lock.releaseLock();
   }
+}
+
+/* ================= Ver12.0.0：休み（有給の申請と許可） =================
+   ・看護師・事務がスマホで有給（全日・午前・午後）を申請する。締め切りは、休む日の2つ前の診療日の「診療が終わる時刻」まで
+     （休診日は数えない。土曜などの半日の日も1日と数える。時刻は当番管理の設定 leaveCfg：end＝ふつうの日、halfEnd＝半日の日）
+   ・許可できるのは、同じ職種のリーダー（名簿の「リーダー」）と院長。1人が許可したら受理。自分の申請は自分で許可できない
+   ・院長（院長のQR・当番管理）は、締め切りに関係なく、有給・欠勤・病欠を入れられる（入れたらすぐ受理）。消すこともできる
+   ・理由（有給・欠勤・病欠）を見られるのは院長だけ。本人・リーダー・ほかのスタッフ・カレンダーには、全日・午前・午後だけを出す
+   ・テスト用の人の休みは、院長とテスト用のリーダーにだけ出す（カレンダー・ほかのスタッフには出さない） */
+const LV_PART = {all:'全日', am:'午前', pm:'午後'};
+const LV_TYPE = {paid:'有給', absent:'欠勤', sick:'病欠'};
+function saveLeaveCfg_(c){
+  if (!c || typeof c !== 'object') return;
+  const tm = v => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(v || '')) ? String(v) : '';
+  const o = {end:tm(c.end) || '18:00', halfEnd:tm(c.halfEnd) || '12:30', half:(Array.isArray(c.half) ? c.half : []).filter(x => /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-200)};
+  const P = PropertiesService.getScriptProperties(), t = JSON.stringify(o);
+  if (P.getProperty('LEAVE_CFG') !== t) P.setProperty('LEAVE_CFG', t);
+}
+function leaveCfg_(){ try { const o = JSON.parse(PropertiesService.getScriptProperties().getProperty('LEAVE_CFG') || '{}'); return {end:o.end || '18:00', halfEnd:o.halfEnd || '12:30', half:Array.isArray(o.half) ? o.half : []}; } catch(e){ return {end:'18:00', halfEnd:'12:30', half:[]}; } }
+function dsAdd_(ds, n){ const a = ds.split('-').map(Number), d = new Date(a[0], a[1]-1, a[2]+n); return d.getFullYear()+'-'+pad_(d.getMonth()+1)+'-'+pad_(d.getDate()); }
+const halfDs_ = (ds, cfg) => { const a = ds.split('-').map(Number), w = new Date(a[0], a[1]-1, a[2]).getDay(); return w === 3 || w === 6 || cfg.half.indexOf(ds) >= 0; };
+/* 締め切り（日本時間の Date）。休む日の2つ前の診療日の、診療が終わる時刻 */
+function leaveDeadline_(ds, F, cfg){
+  let d = ds, n = 0;
+  for (let i = 0; i < 40 && n < 2; i++){ d = dsAdd_(d, -1); if (!clerkOff_(d, F)) n++; }
+  return new Date(d+'T'+(halfDs_(d, cfg) ? cfg.halfEnd : cfg.end)+':00+09:00');
+}
+function leaveObj_(r){ return {id:r[0], grp:r[1], pid:r[2], name:r[3], ds:r[4], part:r[5], type:r[6], state:r[7], at:r[8], by:r[9], decAt:r[10], src:r[11], cx:r[12] || ''}; }
+const leaveRow_ = o => [o.id, o.grp, o.pid, o.name, o.ds, o.part, o.type, o.state, o.at, o.by || '', o.decAt || '', o.src || '', o.cx || ''];
+/* Ver12.1.0：許可を待っているもの（新しい申請、または受理ずみの休みの「取り消しの申請」） */
+const lvPending_ = o => o.state === 'wait' || (o.state === 'ok' && !!o.cx);
+/* Ver12.2.0：休み（申請中・受理）の日に、その時間の当番を入れられないようにする（院長が決めた）。
+   grp 'n'：E（早出）＝全日・午前、C・C2（CS）＝全日・午前・午後。grp 'j'：E（早出）＝全日・午前、L（会計）＝全日・午後（半日の日は午前も）。
+   重なる休みがあれば、その休み（{part, state}）を返す。C：くり返し呼ぶときの入れ物 */
+function leaveOn_(grp, pid, ds, slot, C){
+  if (!pid) return null;
+  C = C || {};
+  const L = C.L || (C.L = read_('leave').map(leaveObj_).filter(o => o.state === 'wait' || o.state === 'ok'));
+  const o = L.find(x => x.grp === grp && x.pid === pid && x.ds === ds); if (!o) return null;
+  if (o.part === 'all') return o;
+  if (grp === 'n') return (slot === 'E' ? o.part === 'am' : true) ? o : null;
+  if (slot === 'E') return o.part === 'am' ? o : null;
+  if (o.part === 'pm') return o;
+  const cfg = C.cfg || (C.cfg = leaveCfg_());
+  return halfDs_(ds, cfg) ? o : null;
+}
+const lvMsg_ = (name, ds, o) => md_(ds)+'は'+name+'さんの休み（'+LV_PART[o.part]+'・'+(o.state === 'wait' ? '申請中' : '受理')+'）があるので、当番に入れられません。';
+/* 人の一覧（id → {grp, name, test, active}） */
+function leaveMen_(){
+  const m = {};
+  read_('nurses').forEach(r => { m['n:'+r[0]] = {grp:'n', id:r[0], name:r[1], test:r[3] === 'T', active:ON_(r[3])}; });
+  read_('clerks').forEach(r => { m['j:'+r[0]] = {grp:'j', id:r[0], name:r[1], test:r[3] === 'T', active:ON_(r[3])}; });
+  return m;
+}
+function leavePeople_(){ const M = leaveMen_(); return Object.keys(M).map(k => M[k]).filter(x => x.active).map(x => ({grp:x.grp, id:x.id, name:x.name, test:x.test})); }
+/* 院長に出す一覧（理由つき）。withType=false のときは理由を消す */
+function leaveList_(withType, from, all){
+  const M = leaveMen_(), td = today_(), f = from || dsAdd_(td, -62);
+  return read_('leave').map((r, i) => Object.assign(leaveObj_(r), {_r:i})).filter(o => o.state !== 'del' && o.ds >= f && (all || o.state !== 'cancel')).map(o => {
+    const p = M[o.grp+':'+o.pid]; const x = {id:o.id, grp:o.grp, pid:o.pid, name:p ? p.name : o.name, ds:o.ds, part:o.part, state:o.state, at:o.at, decAt:o.decAt, row:o._r, by:o.by, src:o.src, test:!!(p && p.test), cx:o.cx ? true : false};
+    if (withType) x.type = o.type;
+    return x;
+  }).sort((a, b) => a.ds < b.ds ? -1 : a.ds > b.ds ? 1 : (a.at < b.at ? -1 : 1));
+}
+/* 当番と重なる休み（交代が必要）。part：all＝全部、am＝早出・CS（事務は早出。半日の日は会計も）、pm＝CS（事務は会計） */
+/* その人のその日の当番のうち、休みと重なるもの（['早出','CS'] など）。看護師は、使い始める前の月はカレンダーで入れた名前 */
+function leaveDutyHit_(grp, pid, ds, part, C){
+  C = C || {}; const hit = [];
+  if (grp === 'n'){
+    const L = C.R || (C.R = rosterList_(rosterMap_())), m = L.find(x => x.ym === ds.slice(0,7)), d = m && m.data && m.data.days && m.data.days[ds]; if (!d) return hit;
+    if (d.eId === pid && part !== 'pm') hit.push('早出');
+    if (d.cId === pid || d.c2Id === pid) hit.push('CS');
+  } else {
+    const ym = ds.slice(0,7), JM = C.J || (C.J = {}), m = JM[ym] || (JM[ym] = jMonth_(ym)), d = m.days[ds], cfg = C.cfg || (C.cfg = leaveCfg_()); if (!d) return hit;
+    if (d.eId === pid && part !== 'pm') hit.push('早出');
+    if (d.lId === pid && (part !== 'am' || halfDs_(ds, cfg))) hit.push('会計');
+  }
+  return hit;
+}
+function leaveSwaps_(list){
+  const td = today_(), out = [], C = {};
+  list.filter(o => o.state === 'ok' && o.ds >= td).forEach(o => {
+    const hit = leaveDutyHit_(o.grp, o.pid, o.ds, o.part, C);
+    if (hit.length) out.push({id:o.id, grp:o.grp, name:o.name, ds:o.ds, part:o.part, slots:hit.join('・')});
+  });
+  return out;
+}
+/* スマホに返す休みの情報。me：{grp,id,name,test,leader} か {boss:true} か {adm:true} */
+function leaveFor_(me){
+  const td = today_(), F = framesMap_(), cfg = leaveCfg_(), all = leaveList_(!!me.boss, '', false);
+  const okAll = all.filter(o => o.state === 'ok');
+  const show = o => !o.test || me.boss || me.test;   /* テスト用の人の休みは、院長とテスト用の人にだけ */
+  const res = {cfg:{end:cfg.end, halfEnd:cfg.halfEnd}, half:cfg.half.filter(x => x >= td), off:[], ok:okAll.filter(show).map(o => ({grp:o.grp, pid:o.pid, name:o.name, ds:o.ds, part:o.part})),
+    pend:all.filter(o => o.state === 'wait' && o.ds >= td).filter(show).map(o => ({grp:o.grp, pid:o.pid, name:o.name, ds:o.ds, part:o.part}))};   /* Ver12.3.0：申請中の休みも当番表に出す（だれが・いつ・全日／午前／午後だけ） */
+  for (let i = 0; i < 6; i++) res.off = res.off.concat(clerkOffList_(ymAdd_(td.slice(0,7), i), F));
+  if (me.adm) return res;
+  if (me.boss){
+    res.boss = true; res.list = all; res.wait = all.filter(o => lvPending_(o) && o.ds >= td);
+    res.swap = leaveSwaps_(all); res.people = leavePeople_(); res.hist = leaveHist_(all, true);
+    return res;
+  }
+  res.mine = all.filter(o => o.grp === me.grp && o.pid === me.id).map(o => ({id:o.id, ds:o.ds, part:o.part, state:o.state, by:o.by, src:o.src, cx:o.cx, decAt:o.decAt || ''}));   /* Ver12.12.0：decAt（通知の並び順） */
+  if (me.leader){
+    const mine = all.filter(o => o.grp === me.grp && (o.test === me.test));
+    res.leader = true;
+    res.wait = mine.filter(o => lvPending_(o) && o.ds >= td).map(o => ({id:o.id, name:o.name, ds:o.ds, part:o.part, at:o.at, cx:o.cx}));   /* Ver12.1.0：自分の申請も自分で許可してよい（院長が決めた） */
+    res.swap = leaveSwaps_(mine); res.hist = leaveHist_(mine, false);
+  }
+  return res;
+}
+/* Ver12.2.0：休みの履歴（受理されたもの。決めた・入れた日時の新しい順に5つ）。how：リーダー許可・院長許可・院長入力 */
+function leaveHist_(list, boss){
+  return list.map((o, i) => ({o:o, i:i, t:String(o.decAt || o.at || '')})).filter(x => x.o.state === 'ok').sort((a, b) => a.t < b.t ? 1 : a.t > b.t ? -1 : (b.o.row || 0) - (a.o.row || 0)).slice(0, 5).map(x => {
+    const o = x.o, how = o.src !== 'self' ? '院長入力' : o.by === '院長' ? '院長許可' : 'リーダー許可';
+    const h = {id:o.id, grp:o.grp, name:o.name, ds:o.ds, part:o.part, how:how, by:o.src === 'self' && o.by !== '院長' ? o.by : '', cx:o.cx};
+    if (boss) h.type = o.type;
+    return h;
+  });
+}
+function leaveId_(){ return 'v'+Date.now().toString(36)+Math.floor(Math.random()*1296).toString(36); }
+function leaveSave_(list){ write_('leave', list.map(leaveRow_)); jBump_(); }
+const dsOk_ = ds => /^\d{4}-\d{2}-\d{2}$/.test(String(ds || ''));
+const md_ = ds => (+ds.slice(5,7))+'/'+(+ds.slice(8,10));
+/* 申請（本人） */
+function leaveAsk(k, ds, part){
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const n = nurseByKey_(k), c = n ? null : clerkByKey_(k), p = n || c;
+    if (!p) return {ok:false, error:BAD_KEY};
+    ds = String(ds || ''); part = String(part || '');
+    if (!dsOk_(ds) || !LV_PART[part]) return {ok:false, error:'日にちと時間（全日・午前・午後）を選んでください。'};
+    const td = today_(), F = framesMap_(), cfg = leaveCfg_();
+    if (ds <= td) return {ok:false, error:'前の診療日と当日の休みは、スマホからは申請できません。院長に伝えてください。'};
+    if (ds > dsAdd_(td, 200)) return {ok:false, error:'半年より先の休みは、まだ申請できません。'};
+    if (clerkOff_(ds, F)) return {ok:false, error:md_(ds)+'は休診日です。'};
+    if (new Date() > leaveDeadline_(ds, F, cfg)) return {ok:false, error:md_(ds)+'の申請の締め切りは過ぎました（2つ前の診療日の診療が終わるまで）。院長に伝えてください。'};
+    const grp = n ? 'n' : 'j', list = read_('leave').map(leaveObj_);
+    if (list.some(o => o.grp === grp && o.pid === p.id && o.ds === ds && (o.state === 'wait' || o.state === 'ok'))) return {ok:false, error:md_(ds)+'は、もう申請しています。'};
+    const hit = leaveDutyHit_(grp, p.id, ds, part);   /* Ver12.1.0：当番と重なる日は申請できない（先に交代する。院長が決めた） */
+    if (hit.length) return {ok:false, error:md_(ds)+'は'+hit.join('・')+'の当番が入っています。先に「申し込み」で交代してから、休みを申請してください。'};
+    list.push({id:leaveId_(), grp:grp, pid:p.id, name:p.name, ds:ds, part:part, type:'paid', state:'wait', at:now_(), by:'', decAt:'', src:'self'});
+    leaveSave_(list);
+  } finally { lock.releaseLock(); }
+  return getRoster_(k);
+}
+/* 取り消し（本人。許可される前だけ） */
+function leaveCancel(k, id){
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const n = nurseByKey_(k), c = n ? null : clerkByKey_(k), p = n || c;
+    if (!p) return {ok:false, error:BAD_KEY};
+    const grp = n ? 'n' : 'j', list = read_('leave').map(leaveObj_), o = list.find(x => x.id === String(id || ''));
+    if (!o || o.grp !== grp || o.pid !== p.id) return {ok:false, error:'その申請が見つかりません。'};
+    if (o.state === 'wait'){ o.state = 'cancel'; o.decAt = now_(); leaveSave_(list); }
+    else if (o.state === 'ok'){
+      /* Ver12.1.0：受理された休みの取り消しは「取り消しの申請」。リーダーか院長が許可すると取り消し。締め切りは申請と同じ */
+      if (o.src !== 'self') return {ok:false, error:'院長が入れた休みは、院長に伝えてください。'};
+      if (o.cx) return {ok:false, error:'もう取り消しを申請しています。許可を待ってください。'};
+      if (o.ds <= today_() || new Date() > leaveDeadline_(o.ds, framesMap_(), leaveCfg_())) return {ok:false, error:md_(o.ds)+'の取り消しの締め切りは過ぎました（2つ前の診療日の診療が終わるまで）。院長に伝えてください。'};
+      o.cx = now_(); leaveSave_(list);
+    }
+    else return {ok:false, error:'その申請は、もう取り消されています。'};
+  } finally { lock.releaseLock(); }
+  return getRoster_(k);
+}
+/* 許可・許可しない。actor：{boss:true, name} か {grp, id, name, test, leader} */
+function leaveDecide_(actor, id, yes){
+  const list = read_('leave').map(leaveObj_), o = list.find(x => x.id === String(id || ''));
+  if (!o || o.state === 'del') return {ok:false, error:'その申請が見つかりません。画面を新しくしてください。'};
+  if (!lvPending_(o)) return {ok:false, error:'この申請は、もう'+(o.state === 'ok' ? (o.by || 'だれか')+'さんが許可しています。' : o.state === 'ng' ? '許可しないことになっています。' : '取り消されています。')};
+  if (!actor.boss){
+    if (!actor.leader || actor.grp !== o.grp) return {ok:false, error:'この申請を許可することはできません。'};
+    const M = leaveMen_(), p = M[o.grp+':'+o.pid]; if (!!(p && p.test) !== !!actor.test) return {ok:false, error:'この申請を許可することはできません。'};
+  }
+  if (o.ds < today_()) return {ok:false, error:'日にちが過ぎました。'};
+  const who = actor.boss ? '院長' : actor.name;
+  if (o.state === 'ok'){   /* Ver12.1.0：取り消しの申請 */
+    if (yes){ o.state = 'cancel'; o.by = who+'（取り消し）'; } o.cx = ''; o.decAt = now_();
+    leaveSave_(list); return {ok:true};
+  }
+  if (yes){ const hit = leaveDutyHit_(o.grp, o.pid, o.ds, o.part); if (hit.length) return {ok:false, error:o.name+'さんの'+md_(o.ds)+'には'+hit.join('・')+'の当番が入っています。先に交代してもらってから許可してください。'}; }
+  o.state = yes ? 'ok' : 'ng'; o.by = who; o.decAt = now_();
+  leaveSave_(list);
+  return {ok:true};
+}
+function leaveDecide(k, id, yes){
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const n = nurseByKey_(k), c = n ? null : clerkByKey_(k), v = (n || c) ? null : viewerByKey_(k);
+    let actor = null;
+    if (n) actor = {grp:'n', id:n.id, name:n.name, test:n.test, leader:n.leader};
+    else if (c) actor = {grp:'j', id:c.id, name:c.name, test:c.test, leader:c.leader};
+    else if (v && !v.adm) actor = {boss:true, name:'院長'};
+    if (!actor) return {ok:false, error:v ? 'アプリ管理者のQRでは、休みの許可はできません。' : BAD_KEY};
+    const r = leaveDecide_(actor, id, yes === true);
+    if (!r.ok) return r;
+  } finally { lock.releaseLock(); }
+  return getRoster_(k);
+}
+/* 院長が入れる（締め切りなし。すぐ受理）。o：{grp, pid, ds, part, type} */
+function leaveSet_(o, src){
+  o = o || {};
+  const grp = o.grp === 'j' ? 'j' : o.grp === 'n' ? 'n' : '', ds = String(o.ds || ''), part = String(o.part || ''), type = String(o.type || '');
+  if (!grp || !dsOk_(ds) || !LV_PART[part] || !LV_TYPE[type]) return {ok:false, error:'人・日にち・時間・理由を選んでください。'};
+  const td = today_();
+  if (ds < dsAdd_(td, -62) || ds > dsAdd_(td, 200)) return {ok:false, error:'入れられるのは、2か月前から半年先までです。'};
+  const p = leaveMen_()[grp+':'+String(o.pid || '')];
+  if (!p || !p.active) return {ok:false, error:'その人が見つかりません。'};
+  const list = read_('leave').map(leaveObj_), t = now_();
+  list.forEach(x => { if (x.grp === grp && x.pid === p.id && x.ds === ds && (x.state === 'wait' || x.state === 'ok')){ x.state = 'del'; x.decAt = t; } });   /* 同じ日の前の分は置きかえる */
+  list.push({id:leaveId_(), grp:grp, pid:p.id, name:p.name, ds:ds, part:part, type:type, state:'ok', at:t, by:'院長', decAt:t, src:src});
+  leaveSave_(list);
+  return {ok:true};
+}
+function leaveDel_(id){
+  const list = read_('leave').map(leaveObj_), o = list.find(x => x.id === String(id || ''));
+  if (!o || o.state === 'del') return {ok:false, error:'その休みが見つかりません。'};
+  o.state = 'del'; o.decAt = now_(); leaveSave_(list);
+  return {ok:true};
+}
+const BOSS_ONLY = 'これは院長のQRだけでできます。';
+function leaveSetByBoss(k, o){
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try { const v = viewerByKey_(k); if (!v || v.adm) return {ok:false, error:v ? BOSS_ONLY : BAD_KEY}; const r = leaveSet_(o, 'dr'); if (!r.ok) return r; }
+  finally { lock.releaseLock(); }
+  return getRoster_(k);
+}
+function leaveDelByBoss(k, id){
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try { const v = viewerByKey_(k); if (!v || v.adm) return {ok:false, error:v ? BOSS_ONLY : BAD_KEY}; const r = leaveDel_(id); if (!r.ok) return r; }
+  finally { lock.releaseLock(); }
+  return getRoster_(k);
+}
+/* カレンダーに渡す休み（受理されたもの。テスト用の人は出さない。理由は出さない） */
+function leaveForCal_(from){
+  const f = /^\d{4}-\d{2}$/.test(String(from || '')) ? from+'-01' : dsAdd_(today_(), -31);
+  return leaveList_(false, f, false).filter(o => o.state === 'ok' && !o.test).map(o => ({date:o.ds, who:o.grp === 'n' ? 'nurse' : 'clerk', name:o.name, part:o.part}));
 }
 
   PropertiesService.getScriptProperties().setProperty('VIEW_KEY','kV0123456789abcdef');   /* 見本の「院長」（見るだけのQR） */
@@ -1769,31 +2210,37 @@ let demoFn = null;
    PV＝いま見ている画面（''＝いつもの画面、nurse＝看護師、clerk＝事務）。スマホの中にも覚えない（開くたびに、いつもの画面から）。
    ・本物の当番表と受付の内容を、だれでもない人（id @pv）の画面として出す。だれかの希望・申し込み・アンケートの答えは出ない（空）
    ・押しても、GASへは何も送らない（読むだけの getRoster・getInit だけを通す）。GASも、このQRからの書きこみは受け付けない */
-let PV = '', PV_OK = false, PV_CLERK = false;
+let PV = '', PV_OK = false, PV_CLERK = false, PVL = false, PV_BOSS = false, PV_NW = 0;   /* PVL：院長の「休み許可」の画面 */
+function pvLvOn(){ return PVL && !PV && PV_BOSS; }
 const PV_NAME = {nurse:'看護師', clerk:'事務'};
 let PV_ADM = false;
-const pvMe = () => ({id:'@pv', name:PV_NAME[PV], pv:true, adm:PV_ADM, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]});
+const pvMe = () => ({id:'@pv', name:(PV_ADM ? 'アプリ管理者' : '院長'), pv:true, adm:PV_ADM, canE:true, canC:true, ngE:[], ngC:[], ng:[], ok:[]});
 function pvShape(fn, r){
   if (!PV || !r || !r.ok || r.viewer !== true) return r;
   if (fn === 'getRoster'){
-    if (PV === 'nurse') return {ok:true, ver:r.ver, pv:true, boss:true, me:pvMe(), today:r.today, nurses:r.nurses || [], roster:r.roster || [], changes:[], comments:r.comments || {}, url:r.url, other:r.other};
-    return {ok:true, ver:r.ver, pv:true, boss:true, clerk:true, me:pvMe(), today:r.today, nurses:(r.other && r.other.nurses) || [], roster:(r.other && r.other.roster) || [], changes:[], comments:{}, url:r.url, other:{roster:r.roster || [], nurses:r.nurses || []}};
+    /* Ver12.8.0：PV＝view は「当番表」タブ（見るだけ）、nurse は「当番変更」タブ（押して変える）。どちらも看護師｜事務を切りかえられる */
+    if (PV === 'nurse' || PV === 'view') return {ok:true, ver:r.ver, pv:true, boss:PV === 'nurse', ro:PV === 'view', hist:r.hist || [], jhist:r.jhist || [], me:pvMe(), today:r.today, nurses:r.nurses || [], roster:r.roster || [], changes:[], comments:r.comments || {}, url:r.url, other:r.other, leave:r.leave ? {ok:r.leave.ok || [], pend:r.leave.pend || []} : null};
+    return {ok:true, ver:r.ver, pv:true, boss:true, clerk:true, me:pvMe(), today:r.today, nurses:(r.other && r.other.nurses) || [], roster:(r.other && r.other.roster) || [], changes:[], comments:{}, url:r.url, other:{roster:r.roster || [], nurses:r.nurses || []}, leave:r.leave ? {ok:r.leave.ok || [], pend:r.leave.pend || []} : null};
   }
   if (fn === 'getInit') return {ok:true, ver:r.ver, pv:true, id:'@pv', name:PV_NAME.nurse, now:r.now, months:r.months || [], next:r.next, wishes:{}, sent:{}, roster:[], survey:null, url:r.url};
   return r;
 }
 function pvSet(m){
-  PV = (m === 'nurse' || (m === 'clerk' && PV_CLERK)) ? m : '';
+  PVL = m === 'lv' && PV_BOSS;
+  PV = (!PVL && (m === 'nurse' || m === 'view')) ? m : '';   /* Ver12.8.0：view＝当番表、nurse＝当番変更 */
   document.querySelectorAll('#rWrap .show, #wWrap .show').forEach(e => e.classList.remove('show'));   /* 開いたままの板を閉じる */
   pvBar(); restartAll();
 }
 function pvBar(){
   let el = document.getElementById('pvBar');
+  if (el) el.remove(); return;   /* Ver12.7.0：上の濃い青の帯はなくした（院長が決めた。切りかえは下のタブだけ） */
   if (!PV_OK){ if (el) el.remove(); return; }
   if (!el){ el = document.createElement('div'); el.id = 'pvBar'; const d = document.getElementById('demoBar'); document.body.insertBefore(el, d ? d.nextSibling : document.body.firstChild); }
-  const B = [['','受付のようす'],['nurse','看護師の画面']].concat(PV_CLERK ? [['clerk','事務の画面']] : []);
+  const B = [['','受付のようす']].concat(PV_BOSS ? [['lv','休み許可']] : []).concat([['nurse','看護師の画面']]).concat(PV_CLERK ? [['clerk','事務の画面']] : []);
+  const on = k => k === 'lv' ? pvLvOn() : (PV === k && !pvLvOn());
   el.innerHTML = '<div class="pt1">見る画面（院長・アプリ管理者だけに出ます）</div><div class="pt2">'
-    + B.map(x => '<button data-pv="'+x[0]+'" class="'+(PV===x[0]?'on':'')+'">'+x[1]+'</button>').join('') + '</div>'
+    + B.map(x => '<button data-pv="'+x[0]+'" class="'+(on(x[0])?'on':'')+'" style="position:relative">'+x[1]+(x[0]==='lv' && PV_NW ? '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:999px;background:#D2484A;color:#fff;font-size:calc(11px*var(--fs,1));margin-left:5px;padding:0 5px">'+PV_NW+'</span>' : '')+'</button>').join('') + '</div>'
+    + (pvLvOn() ? '<div class="pt3">休みの申請の許可と、休みの登録（有給・欠勤・病欠）ができます。</div>' : '')
     + (PV ? '<div class="pt3">'+PV_NAME[PV]+'に見える画面です。<span class="ed">当番を押す → 相手の当番を押すと入れかえ。同じ当番をもう一度押すと、入れる人をえらべます（本人の同意なしで、すぐ変わります）。</span>'+(PV === 'nurse' ? '希望・申し込み・アンケートは見るだけで、送られません。' : '')+'</div>' : '');
   el.querySelectorAll('[data-pv]').forEach(b => b.onclick = () => pvSet(b.dataset.pv));
 }
@@ -1804,10 +2251,10 @@ window.google = {script:{
     if (fn === 'withFailureHandler') return f => mk(ok, f);
     return (...args) => {
       /* Ver11.15.0：看護師・事務の画面を見ているときは、読むだけの命令のほかは送らない */
-      const bossFn = !!PV && (fn === 'setDutyByBoss' || fn === 'setClerkDuty' || fn === 'swapDutyByBoss');   /* 当番の入れかえだけは送る（GASが院長・アプリ管理者の合言葉を確かめる） */
+      const bossFn = PV === 'nurse' && (fn === 'setDutyByBoss' || fn === 'setClerkDuty' || fn === 'swapDutyByBoss');   /* 当番の入れかえだけは送る（GASが院長・アプリ管理者の合言葉を確かめる） */
       if (PV && !bossFn && fn !== 'getRoster' && fn !== 'getInit'){ setTimeout(() => ok && ok({ok:false, error:'見るだけの画面です。送られません。'}), 60); return; }
       const ok2 = r => {
-        if (fn === 'getRoster'){ PV_OK = !!(r && r.ok && r.viewer === true); PV_ADM = PV_OK && !!(r.me && r.me.adm); PV_CLERK = PV_OK && !!(r.other && r.other.roster); if (!PV_OK) PV = ''; pvBar(); }
+        if (fn === 'getRoster'){ PV_OK = !!(r && r.ok && r.viewer === true); PV_ADM = PV_OK && !!(r.me && r.me.adm); PV_CLERK = PV_OK && !!(r.other && r.other.roster); PV_BOSS = PV_OK && !!(r.leave && r.leave.boss); PV_NW = PV_BOSS ? (r.leave.wait || []).length : 0; if (!PV_OK) PV = ''; if (!PV_BOSS) PVL = false; pvBar(); }
         ok && ok(pvShape(bossFn ? 'getRoster' : fn, r));
       };
       if (DEMO){   /* プレビュー中は、見本のデータで答える */
@@ -1849,9 +2296,10 @@ function rcGet(k){
 let curTab = 'roster';
 function goTab(t){
   curTab = t;
-  document.getElementById('rWrap').style.display = (t === 'roster' || t === 'req') ? '' : 'none';
+  const rt = t === 'roster' || t === 'req' || t === 'leave' || t === 'lvok';
+  document.getElementById('rWrap').style.display = rt ? '' : 'none';
   document.getElementById('wWrap').style.display = (t === 'wish' || t === 'sv') ? '' : 'none';
-  if (t === 'roster' || t === 'req') R.show(t); else { wKick(); W.show(t); }
+  if (rt) R.show(t); else { wKick(); W.show(t); }
   document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.go === t));
   regBar(); fsSoon();
   window.scrollTo(0,0);
@@ -1916,7 +2364,44 @@ function noKeyView(){
     + '<button onclick="startDemo()" style="margin-top:18px;border:none;background:var(--sky);color:#fff;border-radius:14px;padding:13px 22px;font-size:calc(15px*var(--fs,1));font-weight:700">見本で見てみる（プレビュー）</button></div>';
   document.getElementById('rApp').innerHTML = h; document.getElementById('nav').style.display = 'none';
 }
-function navBadge(n){ const b = document.getElementById('navBadge'); if (b){ b.textContent = n || ''; b.style.display = n ? '' : 'none'; } }
+/* Ver12.5.0：下のタブの数字（赤＝見てほしいもの、灰色＝返事・許可を待っている自分の申請）と、「休み申請」「申請許可」のタブの出し入れ */
+/* Ver12.19.0：下に引っぱって更新（当番表・通知・休み申請の画面。いちばん上で 70px 以上引っぱって離す。窓が開いているときはしない） */
+(function(){
+  let y0 = null, dy = 0, busy = false; const el = () => { let e = document.getElementById('ptr'); if (!e){ e = document.createElement('div'); e.id = 'ptr'; document.body.appendChild(e); } return e; };
+  const ok = () => { const r = document.getElementById('rWrap'); return !busy && r && r.offsetParent !== null && typeof window.__tobanReload === 'function' && !document.querySelector('.sheet.show,.confirm.show,#ntf') && window.scrollY <= 0; };
+  window.addEventListener('touchstart', e => { y0 = ok() && e.touches.length === 1 ? e.touches[0].clientY : null; dy = 0; }, {passive:true});
+  window.addEventListener('touchmove', e => { if (y0 === null) return; dy = e.touches[0].clientY - y0; if (dy <= 0 || window.scrollY > 0){ el().style.transform = 'translate(-50%,-48px)'; return; }
+    const p = Math.min(dy, 110); el().textContent = dy > 70 ? '↻ 離すと更新します' : '↓ 引っぱって更新'; el().style.transform = 'translate(-50%,'+(p/2)+'px)'; }, {passive:true});
+  window.addEventListener('touchend', () => { if (y0 === null) return; const go = dy > 70; y0 = null;
+    if (!go){ el().style.transform = 'translate(-50%,-48px)'; return; }
+    busy = true; el().textContent = '↻ 更新中…'; el().style.transform = 'translate(-50%,24px)';
+    try { window.__tobanReload(); } catch(e){}
+    setTimeout(() => { busy = false; el().style.transform = 'translate(-50%,-48px)'; }, 1200); }, {passive:true});
+})();
+function navSet(nb, lvOn, okOn, any, clerk){
+  if (PV){ navBoss(); return; }   /* Ver12.8.0：院長・アプリ管理者の「当番表」「当番変更」では、院長用のタブのまま */
+  const nv = document.getElementById('nav'); if (!nv) return;
+  const set = (id, x) => { const g = document.getElementById(id); if (!g) return; const n = x.r || x.g || 0; g.textContent = n || ''; g.style.display = n ? '' : 'none'; g.classList.toggle('g', !x.r && !!x.g); };
+  set('navBadge', nb.req); set('navBadgeLv', nb.leave); set('navBadgeOk', nb.ok);
+  /* Ver12.5.1：事務は「当番表・休み申請・（リーダーだけ）申請許可」。看護師は全部。院長用のタブはかくす */
+  const on = {roster:true, req:!clerk, leave:lvOn, lvok:okOn, wish:!clerk, sv:!clerk};
+  let n = 0;
+  nv.querySelectorAll('button').forEach(b => { const v = !!on[b.dataset.go]; b.style.display = v ? '' : 'none'; if (v) n++; });
+  nv.style.gridTemplateColumns = 'repeat('+n+',1fr)';
+  nv.classList.toggle('n6', n >= 6);
+  nv.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.go === curTab));
+  if (!on[curTab]) goTab('roster');
+}
+/* Ver12.5.1：院長・アプリ管理者のQRの最初の画面の下のタブ（受付のようす・休み許可・看護師の画面・事務の画面）。上の帯と同じ切りかえ */
+function navBoss(){
+  const nv = document.getElementById('nav'); if (!nv) return;
+  const on = {v_ro:true, v_lv:PV_BOSS, v_wish:true};   /* Ver12.9.0：当番表（押して変えられる）・休み許可（院長だけ）・受付のようす。「当番変更」は当番表にまとめた */
+  const cur = PV ? 'v_ro' : pvLvOn() ? 'v_lv' : 'v_wish';
+  let n = 0;
+  nv.querySelectorAll('button').forEach(b => { const v = !!on[b.dataset.go]; b.style.display = v ? '' : 'none'; if (v) n++; b.classList.toggle('on', b.dataset.go === cur); });
+  nv.style.gridTemplateColumns = 'repeat('+n+',1fr)'; nv.classList.remove('n6');
+  const g = document.getElementById('navBadgeV'); if (g){ g.textContent = PV_NW || ''; g.style.display = PV_NW ? '' : 'none'; }
+}
 
 /* ===== Ver11.11.0：文字の大きさ（標準・大・特大）。資料「スタッフアプリの決まり」4-3 =====
    覚え書きは、スタッフ向けアプリで共通の skyStaff_fs（このスマホの中だけ。l=大、xl=特大、標準のときは消す）。
@@ -2013,7 +2498,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '11.24.0';
+const APP_VER = '12.22.1';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2039,7 +2524,7 @@ function setSide(o, keepYm){
   const view = side ? !DM.clerk : !!DM.clerk;   /* いま見ているのが事務の当番表か */
   D = side ? Object.assign({}, DM, {roster:(DM.other && DM.other.roster) || [], changes:[], comments:{}, ro:true, clerk:view}) : ((DM.viewer || DM.stale) ? Object.assign({}, DM, {ro:true}) : DM);   /* Ver11.6.0：院長のQRは、どちらの当番表も見るだけ */
   KEYS.C = view ? ['lId','late'] : ['cId','cs']; SNAME.C = view ? '会計' : 'CS';
-  { const nv = document.getElementById('nav'); if (nv) nv.style.display = (DM.clerk || DM.viewer) ? 'none' : ''; }
+  { const nv = document.getElementById('nav'); if (nv) nv.style.display = ''; }   /* Ver12.5.1：事務・院長にも下のタブを出す */
   if (side){ onlyMe = false; sel = null; tab = 'roster'; }
   let i = keepYm ? D.roster.findIndex(x => x.ym === keepYm) : -1;
   if (i < 0){ const cur = D.today.slice(0,7); i = D.roster.findIndex(x => x.ym >= cur); if (i < 0) i = D.roster.length - 1; }
@@ -2108,6 +2593,10 @@ function tdHead(){
     + '<div class="arrows"><button id="prev" aria-label="前の日" '+(!r || day0<=r[0]?'disabled':'')+'>‹</button><button id="next" aria-label="次の日" '+(!r || day0>=r[1]?'disabled':'')+'>›</button></div></div>'
     + vsegHtml('today');
 }
+function selBar(){ return sel ? '<div class="selbar" id="selbar">'+SNAME[sel.t]+' '+md(sel.ds)+' をえらびました。'+(DM.boss ? '入れかえる相手の当番（青い枠）を押してください。同じ当番をもう一度押すと、入れる人をえらべます。' : '交換できる当番（青い枠）を押してください。')+'<span>やめる ✕</span></div>' : ''; }
+/* Ver12.11.0：今日・月の画面でも押せるか（週の画面と同じ決まり）。院長・アプリ管理者は今日から先ならどれでも。看護師・事務は自分たちの当番表で、看護師は名前の入った当番だけ */
+const tapOK = (ds, id, cal) => !cal && ds >= DM.today && (DM.boss || (!D.ro && (D.clerk || !!id)));
+const candOK = (ds, t) => !!sel && (DM.boss ? bossCand(sel, ds, t) : !!pairOf(sel, ds, t));
 function tdBody(){
   tdFix(); const ds = day0;
   const dayIn = R => { const m = (R || []).find(x => x.ym === ds.slice(0,7)); return m && m.data && m.data.days ? m.data.days[ds] : null; };
@@ -2118,15 +2607,21 @@ function tdBody(){
     const L = d ? rows.filter(x => d[x[2]] !== undefined) : [];
     if (!L.length) return h + '<div class="tdn">当番はありません。</div></div>';
     return h + L.map(x => { const id = d[x[2]], me = own && id && id === DM.me.id;
-      return '<div class="sl'+(me?' mine':'')+(id?'':' empty')+'"><span class="k '+x[0]+'">'+x[1]+'</span><span class="nm">'+(id ? esc(d[x[3]] || '') : x[4])+'</span></div>'; }).join('') + '</div>';
+      /* Ver12.8.1：院長・アプリ管理者の「当番変更」は、今日の画面でも押して変えられる（g＝0：看護師、1：事務。いま見ている側と同じときだけ選んだ印を出す） */
+      const g = title === '事務' ? 1 : 0, gs = DM.clerk ? 1 - g : g;   /* gs＝その組がどちらの側か（0＝自分たちの当番表） */
+      const bt = !(g === 0 && nCal) && ds >= DM.today && (DM.boss || (gs === 0 && !DM.viewer && !DM.stale && (DM.clerk || !!id)));
+      const on = bt && gs === side, isSel = on && sel && sel.ds === ds && sel.t === x[5], cand = on && sel && !isSel && candOK(ds, x[5]);
+      return '<div class="sl'+(me?' mine':'')+(id?'':' empty')+(isSel?' sel':'')+(cand?' cand':'')+(bt && sel && !isSel && !cand?' dim':'')+'"'+(bt?' data-tds="'+ds+'" data-tt="'+x[5]+'" data-tg="'+gs+'" style="cursor:pointer"':'')+'><span class="k '+x[0]+'">'+x[1]+'</span><span class="nm">'+(id ? esc(d[x[3]] || '') : x[4])+'</span></div>'; }).join('') + '</div>';
   };
-  const NR = [['E','早出','eId','early','なし'],['C','CS','cId','cs','なし'],['C','CS','c2Id','cs2','なし']], CR = [['E','早出','eId','early','未定'],['C','会計','lId','late','未定']];
+  const nCal = !!((((DM.clerk ? oth : mine) || []).find(x => x.ym === ds.slice(0,7)) || {}).data || {}).cal;
+  const NR = [['E','早出','eId','early','なし','E'],['C','CS','cId','cs','なし','C'],['C','CS','c2Id','cs2','なし','C2']], CR = [['E','早出','eId','early','未定','E'],['C','会計','lId','late','未定','C']];
   const c = (DM.comments || {})[ds];
   let h = '<div class="list tdv">';
   if (c) h += '<div class="tdc"><div class="dcm">' + (c.important || []).map(x => '<div class="cmi" style="color:'+(CM_COLOR[x.color]||CM_COLOR.black)+'">'+esc(x.text)+'</div>').join('') + (c.normal || []).map(t => '<div class="cmn">'+esc(t)+'</div>').join('') + '</div></div>';
-  h += grp('看護師', dayIn(DM.clerk ? oth : mine), NR, !DM.clerk, DM.clerk ? !!oth : true);
-  h += grp('事務', dayIn(DM.clerk ? mine : oth), CR, !!DM.clerk, DM.clerk ? true : !!oth);
-  h += '<p class="hint">'+(DM.viewer ? '見るだけです（変えられません）' : DM.clerk ? '当番を入れる・変えるときは、「週」から押してください。' : '交換や代わりは、「週」から押してください。')+'</p></div>';
+  h += grp('看護師', dayIn(DM.clerk ? oth : mine), NR, !DM.clerk, DM.clerk ? !!oth : true).replace(/<\/div>$/, lvHtml(ds, 'n')+'</div>');
+  h += grp('事務', dayIn(DM.clerk ? mine : oth), CR, !!DM.clerk, DM.clerk ? true : !!oth).replace(/<\/div>$/, lvHtml(ds, 'j')+'</div>');
+  h += '<p class="hint">'+(DM.boss ? '当番を押すと、入れられる人の名前が出ます。えらぶと、すぐ変わります（本人の同意はいりません）。' : (DM.viewer || DM.ro) ? '見るだけです（変えられません）' : DM.clerk ? '事務の当番を押すと、入れる人をえらべます。' : '<b>交換</b>：自分の当番と相手の当番を、1回ずつ押す　<b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す')+'</p></div>';
+  h += selBar();
   return h;
 }
 const month = () => D.roster[mi];
@@ -2148,24 +2643,38 @@ function days(ym){ return Object.keys((D.roster.find(x => x.ym === ym) || {data:
 /* ---------- 画面 ---------- */
 function render(){
   const nIn = waitIn().length;
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.me.name)+'</b> さん'+(D.me.pv ? '<span class="tst">'+(D.me.adm ? 'アプリ管理者用' : '院長用')+'</span>' : D.me.test ? '<span class="tst">テスト用</span>' : D.me.viewer ? '<span class="tst">'+(D.me.adm ? 'アプリ管理者用' : '見るだけ')+'</span>' : '')+'</span><button class="reload" id="reload" style="white-space:nowrap;flex-shrink:0">↻ 更新する</button></div>';
+  /* Ver12.19.0：名前のあとに職種（看護師・事務）。院長・アプリ管理者は名前だけ。「更新する」のボタンはなくし、下に引っぱって更新する（院長が決めた） */
+  const boss = D.me.pv || D.me.viewer, role = (DM && DM.clerk) ? '事務' : '看護師';   /* Ver12.19.1：院長・アプリ管理者のQRは、どの画面でも名前だけ */
+  let h = '<div class="head"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:calc(12.5px*var(--fs,1));line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (DM.viewer){
     /* Ver11.15.1：院長・アプリ管理者のQRの最初の画面は、「希望の受付のようす」だけにする。
        当番表は、上の帯の「看護師の画面」「事務の画面」で、スタッフに見えるとおりに見る */
-    h += '<div class="wsT">希望の受付のようす</div>' + (wishBox() || '<div class="wishst wsNone">まだ、受付の予定がありません。</div>') + '</div>'
-      + '<div class="list"><p class="hint">当番表は、上の「看護師の画面」「事務の画面」で見られます（スタッフに見えるとおりの画面です）。</p></div>'
+    /* Ver12.5.0：院長のQRは、上の帯の「休み許可」で、休みの許可と登録の画面に切りかえる */
+    const bossLv = !!(DM.leave && DM.leave.boss) && typeof pvLvOn === 'function' && pvLvOn();
+    if (!bossLv) h += '<div class="wsT">希望の受付のようす</div>' + (wishBox() || '<div class="wishst wsNone">まだ、受付の予定がありません。</div>');
+    h += '</div>'
+      + (bossLv ? lvBossBody() : '')
+      + '<div class="list"><p class="hint">当番表を見る・変えるときは、下の「当番表」を押してください。</p></div>'
       + '<div class="ver">当番 Ver'+APP_VER+'</div>';
     document.getElementById('rApp').innerHTML = h;
     const rb = document.getElementById('reload'); if (rb) rb.onclick = () => { rb.textContent = '…'; load(false); };
+    lvBind(); if (typeof navBoss === 'function') navBoss();
     return;
   }
+  const nLv = lvWaitN();   /* Ver12.0.0：休みのタブ（リーダーには、許可待ちの数） */
+  if (tab === 'lvok' && !(lvTabOn() && DM.leave.leader)) tab = lvTabOn() ? 'leave' : 'roster';
+  ntfCheck();   /* Ver12.11.0：開いたときの知らせ（Ver12.13.0：先に出して、出したものはタブの数字に数えない） */
+  const NB = badges(nIn);   /* Ver12.5.0：タブの数字 */
+  /* Ver12.0.0：事務は下のタブがないので、上に「当番表｜休み」を出す（看護師は下のタブの「休み」） */
+  /* Ver12.5.1：事務も下のタブで切りかえる（上の「当番表｜休み申請」はやめた） */
+  if (tab === 'leave' && !lvTabOn()) tab = 'roster';
   if (tab === 'roster') h += rosterHead();
   h += '</div>';
-  h += tab === 'roster' ? (D.roster.length ? rosterTools() : (sideHtml() ? '<div class="tools">'+sideHtml()+'</div>' : '')) + calNote() + rosterBody() : reqBody();
+  h += tab === 'leave' ? lvBody() : tab === 'lvok' ? lvOkBody() : tab === 'roster' ? (D.roster.length ? rosterTools() : (sideHtml() ? '<div class="tools">'+sideHtml()+'</div>' : '')) + calNote() + rosterBody() + histBlock() : reqBody();
   h += '<div class="ver">当番 Ver'+APP_VER+'</div>';
   document.getElementById('rApp').innerHTML = h;
-  bind(); navBadge(nIn);
+  bind(); navSet(NB, lvTabOn(), lvTabOn() && !!DM.leave.leader, lvTabOn(), !!DM.clerk);
 }
 /* Ver11.9.0：院長・アプリ管理者のQRで開いたとき、看護師の希望の受付のようすを出す（送った人の数だけ） */
 function wishBox(){
@@ -2212,8 +2721,8 @@ function rosterTools(){
   let h = sideHtml();
   if (D.ro && DM.stale && !DM.viewer && !side) return h ? '<div class="tools">'+h+'</div>' : '';
   if (D.ro) return '<div class="tools">'+h+'<div class="filter"><span style="font-size:calc(13px*var(--fs,1));color:var(--sub)">見るだけです（変えられません）</span></div></div>';
-  if (!wkv) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
-  h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';
+  if (!wkv && !DM.boss) h += '<div class="sum"><div><span class="E">自分の早出</span><span><span class="num">'+e+'</span> 回</span></div><div><span class="C">自分の'+SNAME.C+'</span><span><span class="num">'+c+'</span> 回</span></div></div>';
+  if (!DM.boss) h += '<div class="filter"><span></span><label class="sw'+(onlyMe?' on':'')+'" id="onlyMe"><i></i>自分の当番だけ</label></div>';   /* Ver12.9.0：院長・アプリ管理者には出さない */
   return '<div class="tools">'+h+'</div>';
 }
 function rosterBody(){
@@ -2228,31 +2737,36 @@ function rosterBody(){
   let shown = 0;
   const L = wkv ? [0,1,2,3,4,5,6].map(n => addD(wk0, n)).filter(ds => dayOf(ds)) : days(month().ym);
   /* 週：その週に、CSが2人の日がなければ、列を2つ（早出・CS）にする */
-  h += '<div class="list'+(wkv ? ' wkv'+(L.some(ds => { const d = dayOf(ds); return d[KEYS.C[0]] !== undefined && d[KEYS.C2[0]] !== undefined; }) ? '' : ' wk2') : '')+'">';
+  /* Ver12.17.0：スマホの週の当番表は、日ごとのカード（横2列×縦3段＝月〜土）にした（院長が決めた。.wkc の中だけ） */
+  h += '<div class="list'+(wkv ? ' wkv wkc'+(L.some(ds => { const d = dayOf(ds); return d[KEYS.C[0]] !== undefined && d[KEYS.C2[0]] !== undefined; }) ? '' : ' wk2') : '')+'">';
   const nPast = days(month().ym).filter(ds => ds < D.today).length, hidePast = !wkv && !showPast && month().ym === D.today.slice(0,7) && nPast > 0;
   if (hidePast) h += '<button class="pick" id="showPast" style="justify-content:center;color:var(--sub);font-size:calc(13px*var(--fs,1))">過ぎた日も見る（'+nPast+'日）</button>';
-  L.forEach(ds => {
-    const d = dayOf(ds), past = ds < D.today;
+  const LC = [1,2,3,4,5,6].map(n => addD(wk0, n)).concat(L.filter(ds => pd(ds).getDay() === 0));   /* 月〜土（日曜は当番があるときだけ） */
+  LC.forEach(ds => {
+    const d = dayOf(ds) || {}, past = ds < D.today, w0 = pd(ds).getDay(), isT = ds === D.today;
+    const cHead = '<div class="wch"><span class="wnum">'+(+ds.slice(5,7))+'/'+(+ds.slice(8,10))+'</span><span class="wdow">（'+DOW[w0]+'）</span>'+(isT ? '<span class="wtd">本日</span>' : '')+'</div>';
+    if (!SL.some(t => d[KEYS[t][0]] !== undefined) || d.off === true){ shown++; h += '<div class="wcard off'+(isT?' today':'')+'">'+cHead+'<div class="woff">休診</div></div>'; return; }
     if (past && hidePast) return;
     const mine = SL.some(t => holder(ds,t) === D.me.id);
     if (onlyMe && !mine) return;
     const slots = SL.filter(t => d[KEYS[t][0]] !== undefined);
     if (!slots.length) return;
     shown++;
-    const w = pd(ds).getDay();
-    h += '<div class="day'+(past?' past':'')+(ds===D.today?' today':'')+'"><div class="dt s'+w+'"><span class="num">'+(+ds.slice(8,10))+'</span><span class="w">'+DOW[w]+'</span></div><div class="slots">';
+    h += '<div class="wcard'+(past?' past':'')+(isT?' today':'')+'">'+cHead+cmtHtml(ds)+lvHtml(ds);   /* Ver12.18.0：コメント・休みはいちばん上 */
     const chip = t => {
       const id = holder(ds,t), nm = holderName(ds,t), me = id === D.me.id, tap = !calM(ds) && (DM.boss ? !past : (!D.ro && !past && (D.clerk || !!id)));   /* Ver11.23.0：カレンダーで入れた月は押せない */
       const isSel = sel && sel.ds === ds && sel.t === t, cand = sel && !isSel && (DM.boss ? bossCand(sel, ds, t) : !!pairOf(sel, ds, t));
-      return '<button class="sl'+(me?' mine':'')+(isSel?' sel':'')+(cand?' cand':'')+(sel && !isSel && !cand?' dim':'')+(id?'':' empty')+'" '+(tap?'data-ds="'+ds+'" data-t="'+t+'"':'disabled')+'><span class="k '+TY(t)+'">'+SNAME[t]+'</span><span class="nm">'+(id?esc(nm):(D.clerk?'未定':'なし'))+'</span>'
+      return '<button class="sl'+(me?' mine':'')+(isSel?' sel':'')+(cand?' cand':'')+(sel && !isSel && !cand?' dim':'')+(id?'':' empty')+'" '+(tap?'data-ds="'+ds+'" data-t="'+t+'"':'disabled')+'><span class="k '+TY(t)+'">'+SNAME[t]+'</span><span class="nm">'+(id?esc(nm):'未設定')+'</span>'
         + (pendingOn(ds,t) ? '<span class="ch" style="color:var(--warn)" title="申し込み中">待</span>' : changedSlot(ds,t) ? '<span class="ch">⇄</span>' : '') + '</button>';
     };
     const gE = slots.filter(t => t === 'E'), gC = slots.filter(t => t !== 'E');
-    h += '<div class="gE">'+gE.map(chip).join('')+'</div><div class="gC">'+gC.map(chip).join('')+'</div>';
-    h += '</div>'+cmtHtml(ds)+'</div>';
+    const cPad = !D.clerk && gC.length < 2 ? '<div class="wpad"></div>'.repeat(2 - gC.length) : '';   /* CSは2人分の高さをいつも取る */
+    h += '<div class="wa wE"><div class="wk">早出</div>'+(gE.length ? gE.map(chip).join('') : '<div class="wpad"></div>')+'</div>'
+      + '<div class="wa wC"><div class="wk">'+(D.clerk ? '会計' : 'CS')+'</div>'+gC.map(chip).join('')+cPad+'</div>';
+    h += '</div>';
   });
   if (!shown) h += '<div class="none">'+(onlyMe?'この月は、あなたの当番はありません。':wkv?'この週の当番はありません。':'この月の当番はありません。')+'</div>';
-  h += (D.ro ? '' : D.clerk ? '<p class="hint">当番を押すと、入れる人をえらべます。内視鏡カレンダーにも同じ内容が出ます。</p>' : '<p class="hint"><b>交換</b>：自分の当番と相手の当番を、1回ずつ押す<br><b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す</p>')+'</div>';
+  h += (D.ro ? '' : DM.boss ? '<p class="hint">当番を押すと、入れられる人の名前が出ます。えらぶと、すぐ変わります（本人の同意はいりません）。</p>' : D.clerk ? '<p class="hint">当番を押すと、入れる人をえらべます。内視鏡カレンダーにも同じ内容が出ます。</p>' : '<p class="hint"><b>交換</b>：自分の当番と相手の当番を、1回ずつ押す<br><b>代わってもらう／代わってあげる</b>：当番を2回つづけて押す</p>')+'</div>';
   if (sel) h += '<div class="selbar" id="selbar">'+SNAME[sel.t]+' '+md(sel.ds)+' をえらびました。'+(DM.boss ? '入れかえる相手の当番（青い枠）を押してください。同じ当番をもう一度押すと、入れる人をえらべます。' : '交換できる当番（青い枠）を押してください。')+'<span>やめる ✕</span></div>';
   return h;
 }
@@ -2267,12 +2781,17 @@ function allCalBody(){
     const slots = day ? SL.filter(t => day[KEYS[t][0]] !== undefined) : [];
     const cm = cmtOf(ds), dot = cm ? '<span class="mcm" style="background:'+(cm.important && cm.important.length ? (CM_COLOR[cm.important[0].color]||CM_COLOR.black) : '#9FB3C2')+'"></span>' : '';
     h += '<div class="ac s'+w+(slots.length?'':' none')+(ds<D.today?' past':'')+(ds===D.today?' today':'')+'"'+(slots.length?' data-wk="'+ds+'"':'')+'><span class="mn">'+d+'</span>'
-      + slots.map(t => { const id = holder(ds,t), nm = holderName(ds,t); return '<span class="an '+TY(t)+(id && id === D.me.id?' me':'')+(id?'':' emp')+(id && String(nm).length >= 4?' lg':'')+'">'+(id?esc(nm):'―')+'</span>'; }).join('') + dot + '</div>';
+      + slots.map(t => { const id = holder(ds,t), nm = holderName(ds,t);
+          /* Ver12.8.1：院長・アプリ管理者の「当番変更」は、月の画面のまま名前を押して変えられる（週の画面へは移らない） */
+          const bt = tapOK(ds, id, calM(ds)), isSel = bt && sel && sel.ds === ds && sel.t === t, cand = bt && sel && !isSel && candOK(ds, t);
+          return '<span class="an '+TY(t)+(id && id === D.me.id?' me':'')+(id?'':' emp')+(id && String(nm).length >= 4?' lg':'')+(isSel?' sel':'')+(cand?' cand':'')+(bt && sel && !isSel && !cand?' dim':'')+'"'+(bt?' data-mds="'+ds+'" data-mt="'+t+'"':' data-mno="'+(ds < D.today ? 'past' : calM(ds) ? 'cal' : (D.ro || DM.viewer) ? 'ro' : !id ? 'emp' : 'no')+'"')+'>'+(id?esc(nm):'―')+'</span>'; }).join('') + dot + '</div>';
   }
   h += '</div></div>';
   const cds = Object.keys(D.comments || {}).filter(ds => ds.slice(0,7) === ym).sort();
   if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
-  h += '<p class="hint">日を押すと、その週を大きく出します。</p></div>';
+  const lds = [...new Set(lvOk(D.clerk ? 'j' : 'n').concat(lvPend(D.clerk ? 'j' : 'n')).filter(o => o.ds.slice(0,7) === ym).map(o => o.ds))].sort();   /* Ver12.0.0（12.3.0：申請中も） */
+  if (lds.length) h += '<div class="h2">この月の休み</div><div class="box">' + lds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+lvHtml(ds)+'</div>').join('') + '</div>';
+  h += '<p class="hint">'+(DM.boss ? '名前を押すと、入れられる人の名前が出ます。えらぶと、すぐ変わります（本人の同意はいりません）。' : D.ro ? '' : D.clerk ? '名前を押すと、入れる人をえらべます。' : '<b>交換</b>：自分の名前と相手の名前を、1回ずつ押す　<b>代わってもらう／代わってあげる</b>：名前を2回つづけて押す。')+'日付を押すと、その週を出します。</p>'+selBar()+'</div>';
   return h;
 }
 /* 「自分の当番だけ」：自分の当番をカレンダー（月表示）で見せる */
@@ -2319,10 +2838,51 @@ function effHtml(c, who){
   if (f.outS.length) h += '<div class="ln" style="margin-bottom:0"><span class="lb">外れる</span>'+f.outS.map(x => pillHtml(x[0],x[1])).join('')+'</div>';
   return h;
 }
+/* Ver12.9.0：当番の変更を1行で。「12/11（金）　CS　青木さん→伊藤さんに　院長が当番を変えました」 */
+const BYNM = {dr:'院長が当番を変えました', adm:'アプリ管理者が当番を変えました', cal:'内視鏡カレンダーで交代しました', pc:'院長が当番管理で変えました'};
+function chgLine(c){
+  const nm = x => x ? esc(x)+'さん' : 'なし', sn = t => '<span style="display:inline-block;padding:1px 6px;border-radius:4px;color:#fff;font-size:calc(11px*var(--fs,1));font-weight:700;background:'+(TY(t) === 'E' ? '#B76839' : '#287FB8')+'">'+(t === 'E' ? '早出' : t === 'L' ? '会計' : 'CS')+'</span>';
+  const by = c.by || (c.kind === 'cal' ? (c.msg === '@dr' ? 'dr' : c.msg === '@adm' ? 'adm' : 'cal') : '');
+  const sub = t => '<div style="font-size:calc(12px*var(--fs,1));color:var(--sub);margin-top:2px">'+t+'</div>';
+  if (c.kind === 'cal') return '<div>'+md(c.ds)+'　'+sn(c.slot)+'　'+nm(c.fromName)+'→'+nm(c.toName)+'に</div>'+sub(BYNM[by]);
+  if (c.kind === 'j'){   /* Ver12.10.0：事務の当番の変更 */
+    const b = String(c.by || ''), bt = b.slice(0,2) === 'n:' ? esc(b.slice(2))+'さんが入れました' : b === 'cal' ? '内視鏡カレンダーで入れました' : (BYNM[b] || '');
+    return '<div>'+md(c.ds)+'　'+sn(c.slot)+'　'+nm(c.fromName)+'→'+nm(c.toName)+'に</div>'+sub(bt);
+  }
+  if (c.kind === 'swap') return '<div>'+md(c.ds)+'　'+sn(c.slot)+'　'+nm(c.fromName)+' ⇄ '+md(c.ds2)+'　'+sn(c.slot2)+'　'+nm(c.toName)+'</div>'+sub('交換しました');
+  const a = c.kind === 'give' ? c.fromName : c.toName, b = c.kind === 'give' ? c.toName : c.fromName;
+  return '<div>'+md(c.ds)+'　'+sn(c.slot)+'　'+nm(a)+'→'+nm(b)+'に</div>'+sub('代わりました');
+}
+/* Ver12.12.0：当番表の下の交代履歴。ボタン「自分の交代履歴」「全員の交代履歴」で開く（はじめは閉じている。新しい順に5つ）。
+   看護師は看護師の、事務は事務の当番表の下だけ。院長・アプリ管理者は見ている側の「全員の交代履歴」だけ */
+let histOpen = '';
+const myDone = () => (DM.changes || []).filter(c => c.state === 'done' && (c.from === DM.me.id || c.to === DM.me.id)).sort((a, b) => String(b.ansAt || b.at) < String(a.ansAt || a.at) ? -1 : 1).slice(0, 5);
+function histBlock(){
+  if (!DM || DM.stale) return '';
+  let all = null, mine = null;
+  if (DM.pv) all = side ? DM.jhist : DM.hist;
+  else if (!side){ all = DM.hist; mine = DM.clerk ? (DM.jmine || []) : myDone(); }
+  if (!all) return '';
+  const B = (mine ? [['me','自分の交代履歴']] : []).concat([['all','全員の交代履歴']]);
+  if (histOpen && !B.some(b => b[0] === histOpen)) histOpen = '';
+  let h = '<div class="list"><div style="display:flex;gap:8px;margin-top:8px">' + B.map(b => '<button data-hist="'+b[0]+'" style="flex:1;border:1px solid #E2EDF5;border-radius:6px;padding:11px 4px;font-size:calc(14px*var(--fs,1));font-weight:700;background:'+(histOpen === b[0] ? '#E8F4FB' : '#fff')+';color:#287FB8">'+b[1]+(histOpen === b[0] ? ' ▲' : ' ▼')+'</button>').join('') + '</div>';
+  if (histOpen){
+    const L = histOpen === 'me' ? mine : all;
+    h += '<div style="margin-top:8px">' + (L.length ? L.map(c => '<div class="box req"><div class="what" style="display:block">'+chgLine(c)+'</div></div>').join('') : '<div class="none">ありません</div>') + '</div>';
+  }
+  return h + '</div>';
+}
 function reqCard(c, mode){
   const open = c.kind === 'give' && !c.to;
   const other = c.from === D.me.id ? c.toName : c.fromName;
+  if (mode === 'log') return '<div class="box req"><div class="what" style="display:block">'+chgLine(c)+'</div></div>';   /* Ver12.9.0：日付・当番・だれからだれへ、のあとに、だれが変えたか */
   if (c.kind === 'cal') return '<div class="box req"><div class="who">'+(c.msg === '@dr' ? '院長が当番を変えました' : c.msg === '@adm' ? 'アプリ管理者が当番を変えました' : '内視鏡カレンダーで交代しました')+'</div><div class="what" style="display:block">'+effHtml(c, D.me.id)+'</div><div class="st done">'+(c.from===D.me.id?esc(c.toName||'なし')+' さんに':esc(c.fromName||'なし')+' さんから')+'</div></div>';
+  if (mode === 'out'){   /* Ver12.13.2：「遠藤さんに依頼申請中　返事待ち」の下に「11/26（木）CS入る」「11/28（土）CS外れる」（院長が決めた） */
+    const f = effect(open ? Object.assign({}, c, {to:''}) : c, D.me.id), ln = (x, w) => '<div style="font-size:calc(15px*var(--fs,1));margin-top:4px">'+md(x[0])+'　<span class="k '+TY(x[1])+'" style="display:inline-block;padding:1px 6px;border-radius:4px;color:#fff;font-size:calc(11px*var(--fs,1));font-weight:700;background:'+(TY(x[1]) === 'E' ? '#B76839' : '#287FB8')+'">'+SNAME[x[1]]+'</span>　<b>'+w+'</b></div>';
+    return '<div class="box req"><div class="who"><b>'+(open ? 'みんな' : esc(c.toName)+' さん')+'</b>に依頼申請中　<span class="st wait" style="display:inline-block;margin:0">返事待ち</span></div>'
+      + '<div class="what" style="display:block">'+f.inS.map(x => ln(x, '入る')).join('')+f.outS.map(x => ln(x, '外れる')).join('')+'</div>'
+      + '<div class="btns"><button class="b-x" data-cancel="'+c.id+'">取り消す</button></div></div>';
+  }
   const who = open ? (mode === 'in' ? '<b>'+esc(c.fromName)+'</b> さんが、代わってくれる人をさがしています' : '代わってくれる人をさがしています（みんなに）') : '<b>'+esc(other)+'</b> さん'+(mode==='in'?'から':'と');
   let h = '<div class="box req"><div class="who">'+who+'</div><div class="what" style="display:block">'+effHtml(open && mode === 'in' ? Object.assign({}, c, {to:D.me.id}) : c, D.me.id)+'</div>';
   if (mode === 'in' && open) h += '<div class="btns"><button class="b-ok" data-ans="'+c.id+'" data-yes="1">代わる</button></div>';
@@ -2331,20 +2891,38 @@ function reqCard(c, mode){
   else h += '<div class="st '+c.state+'">'+ST[c.state]+'</div>'+(c.why?'<div class="why">'+esc(c.why)+'</div>':'');
   return h + '</div>';
 }
+/* Ver12.12.0：看護師の「通知」タブ（前の「当番交代」）。交代の依頼・申請の結果（交代・休み）・自分の当番の変更履歴 */
+function resList(){
+  const me = D.me.id, R = [];
+  (D.changes || []).forEach(c => { if (c.kind === 'cal' || c.from !== me) return;
+    if (c.state === 'done') R.push({k:'c:'+c.id+':done', at:c.ansAt || c.at, t:'交代が決まりました', ok:true, h:chgLine(c)});
+    else if (c.state === 'no') R.push({k:'c:'+c.id+':no', at:c.ansAt || c.at, t:'交代の申し込みが断られました', h:effHtml(c, me)});
+    else if (c.state === 'bad') R.push({k:'c:'+c.id+':bad', at:c.ansAt || c.at, t:'交代の申し込みが無効になりました', h:effHtml(c, me)+(c.why ? '<div class="why">'+esc(c.why)+'</div>' : '')}); });
+  ((DM.leave && DM.leave.mine) || []).forEach(o => { if (o.state !== 'ok' && o.state !== 'ng') return;
+    R.push({k:'v:'+o.id+':'+o.state, at:o.decAt || '', t:o.state === 'ng' ? '休みが許可されませんでした' : o.src === 'self' ? '休みが許可されました' : '院長が休みを登録しました', ok:o.state === 'ok', h:'<span class="pill">'+mdT(o.ds)+'</span><span class="pill">'+LV_PART[o.part]+'</span>'}); });
+  return R.sort((a, b) => String(b.at) < String(a.at) ? -1 : 1).slice(0, 5);
+}
 function reqBody(){
   const ins = waitIn(), outs = waitOut();
-  const past = D.changes.filter(c => c.state !== 'wait' && (c.from === D.me.id || c.to === D.me.id)).sort((a,b) => (b.ansAt||b.at) < (a.ansAt||a.at) ? -1 : 1).slice(0, 10);
+  const past = D.changes.filter(c => c.state === 'done' && (c.from === D.me.id || c.to === D.me.id)).sort((a,b) => (b.ansAt||b.at) < (a.ansAt||a.at) ? -1 : 1).slice(0, 10);
   let h = '<div class="list">';
-  h += '<div class="h2">届いた申し込み</div>' + (ins.length ? ins.map(c => reqCard(c,'in')).join('') : '<div class="none">ありません</div>');
-  if (outs.length) h += '<div class="h2">送った申し込み</div>' + outs.map(c => reqCard(c,'out')).join('');
-  if (past.length) h += '<div class="h2">これまで</div>' + past.map(c => reqCard(c,'log')).join('');
+  h += '<div class="h2">交代の依頼</div>' + (ins.length ? ins.map(c => reqCard(c,'in')).join('') : '<div class="none">ありません</div>');
+  if (outs.length) h += '<div class="h2">送った交代の申し込み</div>' + outs.map(c => reqCard(c,'out')).join('');
+  const res = DM.clerk ? [] : resList();
+  if (!DM.clerk){   /* Ver12.16.0：自分の休み（許可待ち・これからの休み。取り消し・取り消しの申請もここで） */
+    const td = DM.today, mine = ((DM.leave && DM.leave.mine) || []).filter(o => o.ds >= td || o.state === 'wait').sort((a,b) => a.ds < b.ds ? -1 : 1);
+    h += '<div class="h2">申請中・これからの休み</div>' + (mine.length ? mine.map(o => lvCard(o, 'mine')).join('') : '<div class="none">ありません</div>');
+  }
+  if (!DM.clerk) h += '<div class="h2">申請の結果（新しい順に5つ）</div>' + (res.length ? res.map(x => '<div class="box req"><div class="who" style="color:'+(x.ok ? '#287FB8' : '#B3261E')+';font-weight:700">'+x.t+(newKeys.indexOf(x.k) >= 0 ? '<span class="badge" style="margin-left:6px">新</span>' : '')+'</div><div class="what" style="display:block">'+x.h+'</div></div>').join('') : '<div class="none">ありません</div>');
+  h += '<div class="h2">自分の当番の変更履歴</div>' + (past.length ? past.map(c => reqCard(c,'log')).join('') : '<div class="none">ありません</div>');
   h += '<p class="hint">相手が「OK」を押すと、すぐに当番表が変わります。</p></div>';
   return h;
 }
 
 function bind(){
   const $ = id => document.getElementById(id);
-  $('reload').onclick = () => { $('reload').textContent = '…'; load(false); };
+  window.__tobanReload = () => load(false);   /* Ver12.19.0：下に引っぱって更新で使う */
+  if ($('reload')) $('reload').onclick = () => { $('reload').textContent = '…'; load(false); };
   document.querySelectorAll('[data-side]').forEach(b => b.onclick = () => { const ym = D.roster[mi] ? D.roster[mi].ym : ''; sel = null; setSide(+b.dataset.side, ym); render(); });
   document.querySelectorAll('#rApp [data-tab]').forEach(b => b.onclick = () => goTab(b.dataset.tab));
   const wkv = view !== 'month' && !onlyMe;
@@ -2356,10 +2934,19 @@ function bind(){
   if ($('onlyMe')) $('onlyMe').onclick = () => { onlyMe = !onlyMe; render(); };
   if ($('showPast')) $('showPast').onclick = () => { showPast = true; render(); };
   document.querySelectorAll('.sl[data-ds]').forEach(b => b.onclick = () => tapSlot(b.dataset.ds, b.dataset.t));
+  document.querySelectorAll('[data-hist]').forEach(b => b.onclick = () => { histOpen = histOpen === b.dataset.hist ? '' : b.dataset.hist; render(); });   /* Ver12.12.0 */
+  /* Ver12.18.3：月の画面で、変えられない名前を押しても週の画面には移らない。わけを出す（院長の指摘） */
+  const MNO = {past:'過ぎた日の当番は変えられません。', cal:'この月の看護師の当番は、内視鏡カレンダーで入れたものです（ここでは変えられません）。', ro:'見るだけです（変えられません）。', emp:'空いている当番は、ここでは入れられません。', no:'この当番は変えられません。'};
+  document.querySelectorAll('.an[data-mno]').forEach(b => b.onclick = e => { e.stopPropagation(); toast(MNO[b.dataset.mno] || MNO.no); });
+  document.querySelectorAll('.an[data-mds]').forEach(b => b.onclick = e => { e.stopPropagation(); tapSlot(b.dataset.mds, b.dataset.mt); });   /* Ver12.8.1：月の画面の名前 */
+  document.querySelectorAll('.sl[data-tds]').forEach(b => b.onclick = () => {   /* Ver12.8.1：今日の画面。看護師・事務のちがう側を押したら、その側に切りかえてから */
+    const g = +b.dataset.tg; if (g !== side){ setSide(g, b.dataset.tds.slice(0,7)); }
+    tapSlot(b.dataset.tds, b.dataset.tt); });
   /* 出たばかりの帯は押せないようにする（画面の下のほうの当番を2回つづけて押すとき、2回目が帯に当たらないように） */
   const bar = $('selbar'); if (bar){ bar.style.pointerEvents = 'none'; setTimeout(() => { bar.style.pointerEvents = ''; }, 450); bar.onclick = () => { sel = null; render(); }; }
   document.querySelectorAll('[data-ans]').forEach(b => b.onclick = () => answer(b.dataset.ans, b.dataset.yes === '1'));
   document.querySelectorAll('[data-cancel]').forEach(b => b.onclick = () => cancel(b.dataset.cancel));
+  lvBind();
 }
 
 /* ---------- 下から出る画面 ---------- */
@@ -2416,7 +3003,10 @@ function pickBoss(ds, t){
   const el = document.getElementById('confirm'), bg = document.getElementById('sheetBg'), cur = holder(ds,t) || '', curName = holderName(ds,t) || '';
   const isC = !!D.clerk, none = isC ? '未定' : 'なし';
   const other = t === 'C' ? 'C2' : t === 'C2' ? 'C' : null, oid = (!isC && other) ? (holder(ds, other) || '') : '';
-  const list = ((side ? (DM.other && DM.other.nurses) : DM.nurses) || []).filter(n => n.id !== oid);   /* いま出している当番表の人たち */
+  /* いま出している当番表の人たちのうち、入れられる人だけ（同じ種類の当番にもう入っている人・その日に休み〈申請中も〉の人・その当番ができない人は出さない。Ver12.22.0） */
+  const d0 = dayOf(ds) || {}, sameIds = (isC ? [] : (t === 'E' ? [] : ['cId','c2Id'])).map(k => d0[k]).filter(x => x && x !== cur);
+  const offIds = lvOk(isC ? 'j' : 'n').concat(lvPend(isC ? 'j' : 'n')).filter(o => o.ds === ds).map(o => o.pid);
+  const list = ((side ? (DM.other && DM.other.nurses) : DM.nurses) || []).filter(n => n.id !== oid && (n.id === cur || (sameIds.indexOf(n.id) < 0 && offIds.indexOf(n.id) < 0 && !n.test && (isC || (t === 'E' ? n.canE !== false : n.canC !== false)))));
   const close = () => { el.classList.remove('show'); bg.classList.remove('show'); };
   const ask = id => {
     const nm = id ? ((list.find(n => n.id === id) || {}).name || '') : none;
@@ -2431,11 +3021,14 @@ function pickBoss(ds, t){
       if (isC) run.setClerkDuty(KEY, ds, t === 'E' ? 'E' : 'L', id); else run.setDutyByBoss(KEY, ds, t, id);
     };
   };
-  el.innerHTML = '<div class="ct">'+md(ds)+' の'+SNAME[t]+'　入れる人をえらぶ</div><div class="pick">'
-    + list.map(n => '<button data-id="'+esc(n.id)+'" class="'+(n.id === cur ? 'on' : '')+'">'+esc(n.name)+'</button>').join('')
-    + '<button data-id="" class="none'+(cur ? '' : ' on')+'">'+(isC ? '未定にする' : 'なしにする')+'</button></div><div class="btns"><button class="b-no" id="cfNo">やめる</button></div>';
+  /* Ver12.22.1：「青木 → 伊藤　遠藤」のように、いまの人のあとに入れられる人を並べる（院長が決めた） */
+  el.innerHTML = '<div class="ct">'+md(ds)+' の'+SNAME[t]+'</div>'
+    + '<div style="display:flex;align-items:center;gap:8px;margin:2px 0 8px;font-size:calc(18px*var(--fs,1));font-weight:700;color:#173A56"><span>'+esc(cur ? curName : none)+'</span><span style="color:#217DAD">→</span><span style="font-size:calc(13px*var(--fs,1));font-weight:600;color:#64748B">だれに変えますか</span></div>'
+    + '<div class="pick">'
+    + list.filter(n => n.id !== cur).map(n => '<button data-id="'+esc(n.id)+'">'+esc(n.name)+'</button>').join('')
+    + (cur ? '<button data-id="" class="none">'+(isC ? '未定にする' : 'なしにする')+'</button>' : '')+'</div><p class="bossN" style="margin:6px 0 0">えらぶと、すぐ変わります（本人の同意はいりません）。</p><div class="btns"><button class="b-no" id="cfNo">やめる</button></div>';
   el.classList.add('show'); bg.classList.add('show'); bg.onclick = close; el.querySelector('#cfNo').onclick = close;
-  el.querySelectorAll('.pick button').forEach(b => b.onclick = () => { if (b.dataset.id === cur){ close(); return; } ask(b.dataset.id); });
+  el.querySelectorAll('.pick button').forEach(b => b.onclick = () => { if (b.dataset.id === cur){ close(); return; } ask(b.dataset.id); el.querySelector('#cfOk').click(); });   /* Ver12.22.0：名前をえらんだら、確かめずにすぐ変える */
 }
 /* 事務の人：当番を押すと、入れる人をえらぶ画面が出る（事務の人なら、だれの名前でも入れられる） */
 function pickClerk(ds, t){
@@ -2458,9 +3051,8 @@ function pickClerk(ds, t){
 function tapSlot(ds, t){
   if (DM.boss){
     /* Ver11.17.0：看護師の交換と同じ押し方。1回押す＝えらぶ → 相手の当番（青い枠）を押す＝入れかえ。同じ当番をもう一度押す＝入れる人をえらぶ（一方的な交代） */
-    if (sel && sel.ds === ds && sel.t === t){ sel = null; render(); pickBoss(ds, t); return; }
-    if (sel && bossCand(sel, ds, t)){ bossSwap(sel, {ds, t}); return; }
-    sel = {ds, t}; render(); return;
+    /* Ver12.22.0：院長・アプリ管理者は、1回押すとすぐ、入れられる人の名前が出る（入れかえ＝交換はしない。院長が決めた） */
+    sel = null; pickBoss(ds, t); return;
   }
   if (D.clerk){ pickClerk(ds, t); return; }
   const k = ds+'|'+t, now = Date.now();
@@ -2471,11 +3063,11 @@ function tapSlot(ds, t){
     clearTimeout(swapTimer); swapTimer = setTimeout(() => { swapTimer = null; askConfirm(p, holderName(p.ds2,p.slot2)+' さんと交換しますか？'); }, 400); return;
   }
   if (sel && sel.ds === ds && sel.t === t){ sel = null; render(); return; }
-  if (pendingOn(ds, t)){ toast('申し込み中です。取り消すときは「申し込み」から。'); return; }
+  if (pendingOn(ds, t)){ toast('申し込み中です。取り消すときは「通知」から。'); return; }
   sel = {ds, t}; render();
 }
 function dblSlot(ds, t){
-  if (pendingOn(ds, t)){ toast('申し込み中です。取り消すときは「申し込み」から。'); return; }
+  if (pendingOn(ds, t)){ toast('申し込み中です。取り消すときは「通知」から。'); return; }
   const id = holder(ds, t);
   if (id === D.me.id){ askConfirm({kind:'give', ds, slot:t, to:''}, 'この当番を、だれかに代わってもらいますか？', 'みんなに出して、いちばん先に「代わる」を押した人に決まります。'); return; }
   if (!can(D.me, t)){ toast(SNAME[t]+'に入らない設定なので、代われません。'); return; }
@@ -2523,6 +3115,293 @@ function cancel(id){
     toast('取り消しました。'); load(false);
   }).withFailureHandler(() => { busy = false; toast('取り消せませんでした。'); }).cancelChange(KEY, id);
 }
+/* ================= Ver12.0.0：休み（有給の申請と許可） =================
+   本人：休みのタブから申請（全日・午前・午後）。締め切りは、休む日の2つ前の診療日の、診療が終わる時刻まで（休診日は数えない）
+   リーダー：同じ職種の申請を「許可する／許可しない」。1人が許可したら受理
+   院長のQR：最初の画面で、全員の申請を許可でき、有給・欠勤・病欠を入れられる（理由が見えるのは院長だけ）
+   受理された休みは、当番表（週・今日・月）に「休」で出る（全日・午前・午後だけ。理由は出さない） */
+const LV_PART = {all:'全日', am:'午前', pm:'午後'};
+const LV_TYPE = {paid:'有給', absent:'欠勤', sick:'病欠'};
+const LV_ST = {wait:'許可待ち', ok:'受理', ng:'許可されませんでした', cancel:'取り消し'};
+const lvTabOn = () => !!(DM && DM.leave && !DM.viewer && !DM.pv && !side && !DM.stale);
+const lvWaitN = () => (DM && DM.leave && DM.leave.leader && !side) ? (DM.leave.wait || []).length : 0;
+const lvOk = g => ((DM && DM.leave && DM.leave.ok) || []).filter(o => !g || o.grp === g);
+const lvPend = g => ((DM && DM.leave && DM.leave.pend) || []).filter(o => !g || o.grp === g);
+/* 当番表に出す休み。受理＝「休」、申請中＝「休み申請中」。どちらの人も、その時間の当番には入れない（交代もできない） */
+function lvHtml(ds, g){
+  g = g || (D.clerk ? 'j' : 'n');
+  const nm = o => esc(o.name)+(o.part === 'all' ? '' : '（'+LV_PART[o.part]+'）');
+  const L = lvOk(g).filter(o => o.ds === ds), P = lvPend(g).filter(o => o.ds === ds);
+  if (!L.length && !P.length) return '';
+  return '<div class="lvd">' + (L.length ? '<div><b>休</b>'+L.map(nm).join('・')+'</div>' : '') + (P.length ? '<div class="pdn"><b class="pd">休み申請中</b>'+P.map(nm).join('・')+'</div>' : '') + '</div>';
+}
+const mdT = ds => md(ds);
+/* Ver12.1.0：自分の当番のうち、休みと重なるもの（'早出・CS' など。なければ ''）。全日＝全部、午前＝早出とCS（事務は早出。半日の日は会計も）、午後＝CS（事務は会計） */
+function lvHit(ds, part){
+  const m = (DM.roster || []).find(x => x.ym === ds.slice(0,7)), d = m && m.data && m.data.days && m.data.days[ds], me = DM.me.id; if (!d) return '';
+  const hit = [], half = [3,6].indexOf(pd(ds).getDay()) >= 0 || ((DM.leave && DM.leave.half) || []).indexOf(ds) >= 0;
+  if (d.eId === me && part !== 'pm') hit.push('早出');
+  if (DM.clerk){ if (d.lId === me && (part !== 'am' || half)) hit.push('会計'); }
+  else if (d.cId === me || d.c2Id === me) hit.push('CS');
+  return hit.join('・');
+}
+function lvOffDay(ds){ const L = DM.leave || {}; return (L.off || []).indexOf(ds) >= 0 || (!(L.off || []).some(x => x.slice(0,7) === ds.slice(0,7)) && pd(ds).getDay() === 0); }
+function lvDeadline(ds){
+  const L = DM.leave, cfg = (L && L.cfg) || {end:'18:00', halfEnd:'12:30'};
+  let d = ds, n = 0;
+  for (let i = 0; i < 40 && n < 2; i++){ d = addD(d, -1); if (!lvOffDay(d)) n++; }
+  const half = [3,6].indexOf(pd(d).getDay()) >= 0 || (L.half || []).indexOf(d) >= 0, tm = half ? cfg.halfEnd : cfg.end;
+  return {ds:d, tm:tm, t:new Date(d+'T'+tm+':00+09:00')};
+}
+function lvCard(o, mode){
+  let h = '<div class="box req"><div class="who"><b>'+esc(o.name || DM.me.name)+'</b>'+(mode === 'boss' && o.type ? '<span class="tp">'+LV_TYPE[o.type]+'</span>' : '')+(mode === 'decide' && o.cx ? '<span class="tp" style="background:#FDECEC;color:#B3261E">取り消しの申請</span>' : '')+'</div>'
+    + '<div class="what"><span class="pill">'+mdT(o.ds)+'</span><span class="pill">'+LV_PART[o.part]+'</span></div>';
+  if (mode === 'decide') h += '<div class="btns"><button class="b-no" data-lvd="'+o.id+'" data-yes="0">許可しない</button><button class="b-ok" data-lvd="'+o.id+'" data-yes="1">許可する</button></div>';
+  else if (mode === 'mine'){
+    /* Ver12.1.0：受理された休みは「取り消しを申請する」（リーダーか院長が許可すると取り消し。締め切りは申請と同じ） */
+    const canCx = o.state === 'ok' && o.src === 'self' && !o.cx && o.ds > DM.today && new Date() <= lvDeadline(o.ds).t;
+    h += '<div class="st '+(o.state === 'ok' ? (o.cx ? 'wait' : 'done') : o.state === 'ng' ? 'no' : o.state)+'">'+(o.cx ? '取り消しを申請中（許可待ち）' : (LV_ST[o.state] || '')+(o.state === 'ok' && o.by ? '（'+esc(o.by)+'）' : ''))+'</div>'
+      + (o.state === 'wait' ? '<div class="btns"><button class="b-x" data-lvc="'+o.id+'">取り消す</button></div>' : canCx ? '<div class="btns"><button class="b-x" data-lvc="'+o.id+'" data-cx="1">取り消しを申請する</button></div>' : '');
+  }
+  else if (mode === 'boss') h += '<div class="st '+(o.state === 'ok' ? 'done' : o.state === 'ng' ? 'no' : o.state)+'">'+(LV_ST[o.state] || '')+(o.by ? '（'+esc(o.by)+'）' : '')+'</div>'
+    + (o.state === 'ok' ? '<div class="btns"><button class="b-x" data-lvdel="'+o.id+'">消す</button></div>' : '');
+  return h + '</div>';
+}
+/* Ver12.2.0：休みの履歴（受理されたものを、決めた・入れた順に新しいものから5つ）。院長は全員（理由つき・消せる）、リーダーは同じ職種 */
+function lvHistHtml(L, boss){
+  return '<div class="h2">休みの履歴（新しい順）</div>' + (L.length ? '<div class="box">' + L.map(o => '<div class="lvh"><div class="m"><b>'+mdT(o.ds)+' '+LV_PART[o.part]+'</b>　'+(o.grp === 'j' ? '事務' : '看護師')+' '+esc(o.name)+'さん'
+    + (boss && o.type ? '<span class="tp">'+LV_TYPE[o.type]+'</span>' : '')
+    + '<div class="w">← '+esc(o.how)+(o.by ? '（'+esc(o.by)+'）' : '')+(o.cx ? '・取り消しの申請中' : '')+'</div></div>'
+    + (boss && o.ds >= DM.today ? '<button data-lvdel="'+o.id+'">消す</button>' : '') + '</div>').join('') + '</div>' : '<div class="none">ありません</div>');
+}
+const lvSwapHtml = L => L.length ? '<div class="h2">交代が必要な当番</div>' + L.map(x => '<div class="alert" style="margin:0 0 8px"><span><b>'+esc(x.name)+'</b> さん '+mdT(x.ds)+'（'+LV_PART[x.part]+'の休み）の<b>'+esc(x.slots)+'</b></span></div>').join('') : '';
+/* Ver12.13.0：休み申請の画面のカレンダー。同じ職種のスタッフの休み（受理・申請中）を出す。日を押すと、その日で申請の窓を開く */
+let lvCalYm = '';
+function lvCalHtml(){
+  const td = DM.today, g = DM.clerk ? 'j' : 'n', cur = td.slice(0,7), maxYm = addD(td, 200).slice(0,7);
+  if (!lvCalYm || lvCalYm < cur) lvCalYm = cur; if (lvCalYm > maxYm) lvCalYm = maxYm;
+  const ym = lvCalYm, y = +ym.slice(0,4), m = +ym.slice(5,7), last = new Date(y, m, 0).getDate();
+  const ok = lvOk(g), pe = lvPend(g), ab = p => p === 'am' ? '前' : p === 'pm' ? '後' : '';
+  /* Ver12.14.0：自分の当番も出す（看護師：早出・CS、事務：早出・会計） */
+  const me = DM.me.id, dayOf2 = ds => { const m = (DM.roster || []).find(x => x.ym === ds.slice(0,7)); return m && m.data && m.data.days ? m.data.days[ds] : null; };
+  const myDuty = ds => { const d = dayOf2(ds); if (!d) return []; const r = [];
+    if (d.eId === me) r.push(['E','早出']);
+    if (DM.clerk){ if (d.lId === me) r.push(['C','会計']); } else if (d.cId === me || d.c2Id === me) r.push(['C','CS']);
+    return r; };
+  const dTag = x => x ? '<span style="display:block;text-align:center;font-size:calc(10.5px*var(--fs,1));font-weight:700;line-height:calc(14px*var(--fs,1));height:calc(16px*var(--fs,1));border-radius:3px;background:#fff;color:'+(x[0] === 'E' ? '#B76839' : '#287FB8')+';border:1px solid '+(x[0] === 'E' ? '#B76839' : '#287FB8')+';margin-bottom:1px;box-sizing:border-box">'+x[1]+'</span>' : '<span style="display:block;height:calc(16px*var(--fs,1));margin-bottom:1px"></span>';
+  const lvOf = ds => ok.filter(o => o.ds === ds).map(o => tag(o, false)).concat(pe.filter(o => o.ds === ds).map(o => tag(o, true)));
+  /* Ver12.15.0：休みは白抜き文字で目立たせる（受理＝赤、申請中＝だいだい）。当番は枠だけ。並びは 1段目＝休み、2段目＝早出、3段目＝CS（会計） */
+  const tag = (o, pend) => '<span style="display:block;text-align:center;font-size:calc(10.5px*var(--fs,1));font-weight:700;line-height:calc(15px*var(--fs,1));height:calc(16px*var(--fs,1));border-radius:3px;padding:0 1px;white-space:nowrap;overflow:hidden;color:#fff;margin-bottom:1px;'
+    + (pend ? 'background:#D9891E' : 'background:#D2484A')+(o.pid === DM.me.id ? ';box-shadow:inset 0 0 0 1.5px #1E2833' : '')+'">'+esc(o.name)+ab(o.part)+'</span>';
+  let h = '<div class="h2" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px"><span>みんなの休み（'+(DM.clerk ? '事務' : '看護師')+'）</span><span>'
+    + '<button data-lvcal="-1" style="border:1px solid #E2EDF5;background:#fff;border-radius:6px;width:34px;height:30px;color:#287FB8"'+(ym <= cur ? ' disabled' : '')+'>‹</button> '
+    + '<b style="font-size:calc(14px*var(--fs,1));margin:0 6px">'+y+'年'+m+'月</b> <button data-lvcal="1" style="border:1px solid #E2EDF5;background:#fff;border-radius:6px;width:34px;height:30px;color:#287FB8"'+(ym >= maxYm ? ' disabled' : '')+'>›</button></span></div>'
+    + '<div class="mcal acal"><div class="mwk">'+DOW.map((x,i) => '<div class="s'+i+'">'+x+'</div>').join('')+'</div><div class="mgrid">';
+  const wkMax = {}; for (let d = 1; d <= last; d++){ const ds = ym+'-'+pad(d), wk = Math.floor((d - 1 + new Date(y, m-1, 1).getDay()) / 7); wkMax[wk] = Math.max(wkMax[wk] || 0, lvOf(ds).length); }   /* 週ごとに、休みの段の高さをそろえる */
+  for (let i = 0; i < new Date(y, m-1, 1).getDay(); i++) h += '<div class="ac blank"></div>';
+  for (let d = 1; d <= last; d++){
+    const ds = ym+'-'+pad(d), w = pd(ds).getDay(), off = lvOffDay(ds), can = ds > td && !off && ds <= addD(td, 200);
+    const wk = Math.floor((d - 1 + new Date(y, m-1, 1).getDay()) / 7), du = myDuty(ds), hasE = du.find(x => x[0] === 'E'), hasC = du.find(x => x[0] === 'C');
+    const L = '<div style="min-height:calc('+(wkMax[wk] * 17)+'px*var(--fs,1))">'+lvOf(ds).join('')+'</div>' + (off ? '' : dTag(hasE) + dTag(hasC));
+    h += '<div class="ac s'+w+(ds < td ? ' past' : '')+(ds === td ? ' today' : '')+(off ? ' none' : '')+'"'+(can ? ' data-lvday="'+ds+'" style="cursor:pointer"' : '')+'><span class="mn">'+d+'</span>'+L+'</div>';
+  }
+  h += '</div></div><p class="hint">日を押すと、その日の休みを申請できます。<span style="border:1px solid #B76839;color:#B76839;border-radius:3px;padding:0 4px;font-weight:700">早出</span><span style="border:1px solid #287FB8;color:#287FB8;border-radius:3px;padding:0 4px;font-weight:700;margin-left:2px">'+(DM.clerk ? '会計' : 'CS')+'</span>＝自分の当番。<span style="background:#D2484A;color:#fff;border-radius:3px;padding:0 4px;font-weight:700">赤</span>＝休み、<span style="background:#D9891E;color:#fff;border-radius:3px;padding:0 4px;font-weight:700">だいだい</span>＝申請中。前＝午前、後＝午後。</p>';
+  return h;
+}
+function lvBody(){
+  const L = DM.leave, td = DM.today;
+  let h = '<div class="list">'   /* Ver12.14.0：「休み（有給）を申請する」のボタンはなくした。カレンダーの日を押して申請する（院長が決めた） */
+    + '<p class="hint" style="margin-bottom:6px">締め切りは、休む日の2つ前の診療日の、診療が終わるまで（休診日は数えません）。<br>当番が入っている日は、先に当番表で交代してから申請してください。<br>前の診療日と当日の休み・急な病気の休みは、院長に伝えてください。</p>';
+  h += lvCalHtml();
+  const mine = (L.mine || []).filter(o => o.ds >= td || o.state === 'wait').sort((a,b) => a.ds < b.ds ? -1 : 1);
+  if (!DM.clerk) return h + '<p class="hint">自分の休みの申請のようす（許可待ち・結果・取り消し）は、「通知」に出ます。</p></div>';   /* Ver12.16.0：看護師は「通知」の申請の結果へ移した（院長が決めた） */
+  h += '<div class="h2">自分の休み</div>' + (mine.length ? mine.map(o => lvCard(o, 'mine')).join('') : '<div class="none">ありません</div>');
+  h += '<p class="hint">リーダーか院長が1人「許可」すると受理されて、当番表と内視鏡カレンダーに出ます。受理されたあとにやめるときは「取り消しを申請する」（締め切りは申請と同じ）。</p></div>';
+  return h;
+}
+/* Ver12.5.0：リーダーの「申請許可」のタブ（同じ職種の休みの申請・取り消しの申請を許可する） */
+function lvOkBody(){
+  const L = DM.leave, W = L.wait || [];
+  return '<div class="list"><div class="h2">許可待ちの申請（'+(DM.clerk ? '事務' : '看護師')+'）</div>' + (W.length ? W.map(o => lvCard(o, 'decide')).join('') : '<div class="none">ありません</div>')
+    + lvSwapHtml(L.swap || []) + lvHistHtml(L.hist || [], false) + '</div>';
+}
+/* Ver12.5.0：タブの数字。赤＝見てほしいもの（届いた申し込み・許可待ちの申請・自分の申請の結果が出た）、灰色＝返事・許可を待っている自分の申請の数。
+   「結果を見た」しるしは、このスマホの中だけ（toban_seen。番号と状態だけ。名前・合言葉は入れない）。そのタブを開いたら見たことにする。はじめて使うときは、今ある結果は見たことにする */
+let newKeys = [];   /* Ver12.12.0：「通知」を開いたときに、まだ見ていなかったもの（「新」の印） */
+function seenLoad(){ try { const a = JSON.parse(localStorage.getItem('toban_seen') || 'null'); return Array.isArray(a) ? a : null; } catch(e){ return null; } }
+function seenSave(a){ try { localStorage.setItem('toban_seen', JSON.stringify(a.slice(-300))); } catch(e){} }
+const bd = x => x.r ? '<span class="badge">'+x.r+'</span>' : x.g ? '<span class="badge g">'+x.g+'</span>' : '';
+function badges(nIn){
+  const z = {req:{r:nIn, g:0}, leave:{r:0, g:0}, ok:{r:0, g:0}};
+  if (!DM || DM.viewer || DM.pv || DM.stale) return z;
+  const me = DM.me.id, C = DM.changes || [], L = lvTabOn() ? DM.leave : null;
+  const rq = C.filter(c => c.from === me && (c.state === 'done' || c.state === 'no' || c.state === 'bad')).map(c => 'c:'+c.id+':'+c.state);
+  const lv = L ? (L.mine || []).filter(o => o.state === 'ok' || o.state === 'ng').map(o => 'v:'+o.id+':'+o.state) : [];
+  let seen = seenLoad();
+  if (!seen){ seen = rq.concat(lv); seenSave(seen); }
+  const w = document.getElementById('rWrap'), vis = !w || w.style.display !== 'none';
+  const fresh = a => a.filter(k => seen.indexOf(k) < 0), mark = a => { const f = fresh(a); if (f.length){ seen = seen.concat(f); seenSave(seen); } };
+  /* Ver12.12.0：看護師は、休みの申請の結果も「通知」のタブに出す（「休み申請」のタブは灰色の数字だけ） */
+  const nur = !DM.clerk;
+  /* Ver12.13.0：届いた交代の依頼も、一度「通知」を開いたら数えない（院長が決めた。一度読んだら数字は消す）。灰色の数字（返事待ち）も「通知」には出さない */
+  const D0 = D; if (side) D = DM; const ik = waitIn().map(c => 'i:'+c.id); D = D0;
+  if (vis && tab === 'req' && !side){ newKeys = fresh(rq.concat(nur ? lv : [])); mark(rq.concat(ik)); if (nur) mark(lv); }
+  if (vis && tab === 'leave' && !nur) mark(lv);
+  z.req = {r:fresh(ik).length + fresh(rq).length + (nur ? fresh(lv).length : 0), g:0};
+  if (L){ z.leave = {r:nur ? 0 : fresh(lv).length, g:(L.mine || []).filter(o => o.state === 'wait' || (o.state === 'ok' && o.cx)).length}; if (L.leader) z.ok = {r:(L.wait || []).length, g:0}; }
+  return z;
+}
+/* Ver12.11.0：アプリを開いたときの知らせ（院長が決めた）。休みの許可・不許可（院長の登録も）、自分の交代の申し込みの結果、院長・アプリ管理者が自分の当番を変えたとき。
+   知らせたしるしは、このスマホの中だけ（toban_ntf。番号と状態だけ）。はじめて使うときは、今ある結果は知らせたことにする。タブの数字（toban_seen）とは別 */
+function ntfLoad(){ try { const a = JSON.parse(localStorage.getItem('toban_ntf') || 'null'); return Array.isArray(a) ? a : null; } catch(e){ return null; } }
+function ntfSave(a){ try { localStorage.setItem('toban_ntf', JSON.stringify(a.slice(-300))); } catch(e){} }
+function ntfCheck(){
+  if (!DM || DM.viewer || DM.pv || DM.stale || document.getElementById('ntf')) return;
+  const me = DM.me.id, items = [];
+  (DM.changes || []).forEach(c => {
+    if (c.kind === 'cal'){ if ((c.msg === '@dr' || c.msg === '@adm') && (c.from === me || c.to === me) && c.state === 'done') items.push({k:'c:'+c.id+':done', t:c.msg === '@dr' ? '院長が当番を変えました' : 'アプリ管理者が当番を変えました', h:chgLine(c)}); return; }
+    if (c.from !== me) return;
+    if (c.state === 'done') items.push({k:'c:'+c.id+':done', t:'交代が決まりました', h:chgLine(c)});
+    else if (c.state === 'no') items.push({k:'c:'+c.id+':no', t:'交代の申し込みが断られました', h:md(c.ds)+'　'+SNAME[c.slot]});
+    else if (c.state === 'bad') items.push({k:'c:'+c.id+':bad', t:'交代の申し込みが無効になりました', h:md(c.ds)+'　'+SNAME[c.slot]+(c.why ? '<div style="font-size:calc(12px*var(--fs,1));color:var(--sub)">'+esc(c.why)+'</div>' : '')});
+  });
+  ((DM.leave && DM.leave.mine) || []).forEach(o => {
+    if (o.state !== 'ok' && o.state !== 'ng') return;
+    items.push({k:'v:'+o.id+':'+o.state, t:o.state === 'ng' ? '休みが許可されませんでした' : o.src === 'self' ? '休みが許可されました' : '院長が休みを登録しました', h:mdT(o.ds)+'　'+LV_PART[o.part]});
+  });
+  let done = ntfLoad();
+  if (!done){ ntfSave(items.map(x => x.k)); return; }
+  const fresh = items.filter(x => done.indexOf(x.k) < 0);
+  if (!fresh.length) return;
+  ntfSave(done.concat(fresh.map(x => x.k)));
+  { const sn = seenLoad(); if (sn){ const add = fresh.map(x => x.k).filter(k => sn.indexOf(k) < 0); if (add.length) seenSave(sn.concat(add)); } }   /* Ver12.13.0：お知らせで出したものは「見た」ことにする（通知のタブに数字を付けない） */
+  const el = document.createElement('div'); el.id = 'ntf';
+  el.style.cssText = 'position:fixed;inset:0;z-index:30;background:rgba(30,40,51,.45);display:flex;align-items:center;justify-content:center;padding:20px';
+  el.innerHTML = '<div style="background:#fff;border-radius:10px;width:100%;max-width:400px;max-height:80vh;overflow:auto;padding:18px 16px 14px;box-shadow:0 10px 30px rgba(0,0,0,.2)">'
+    + '<div style="font-size:calc(16px*var(--fs,1));font-weight:700;color:var(--ink);margin-bottom:10px">お知らせ</div>'
+    + fresh.map(x => '<div style="border-top:1px solid #E6EEF4;padding:10px 2px"><div style="font-weight:700;color:'+(/断られ|されません|無効/.test(x.t) ? '#B3261E' : '#287FB8')+';margin-bottom:4px">'+x.t+'</div><div style="font-size:calc(14px*var(--fs,1));color:var(--ink)">'+x.h+'</div></div>').join('')
+    + '<button id="ntfOk" style="margin-top:10px;width:100%;height:46px;border:none;border-radius:6px;background:#287FB8;color:#fff;font-size:calc(15px*var(--fs,1));font-weight:700">OK</button></div>';
+  document.body.appendChild(el);
+  document.getElementById('ntfOk').onclick = () => el.remove();
+}
+function lvBossBody(){
+  const L = DM.leave, td = DM.today;
+  let h = '<div class="list"><button class="lvbtn" id="lvSet">休みを登録する（有給・欠勤・病欠）</button><div class="h2">休みの申請（許可待ち）</div>' + ((L.wait || []).length ? L.wait.map(o => lvCard(o, 'decide').replace('<div class="who"><b>'+esc(o.name)+'</b>', '<div class="who"><b>'+esc(o.name)+'</b><span class="tp" style="background:#E5F1F8;color:#2A5F80">'+(o.grp === 'j' ? '事務' : '看護師')+'</span>')).join('') : '<div class="none">ありません</div>');
+  h += lvSwapHtml(L.swap || []);
+  h += lvHistHtml(L.hist || [], true);   /* Ver12.2.0：これからの休み → 休みの履歴（新しい順に5つ） */
+  h += '<p class="hint">理由（有給・欠勤・病欠）が見えるのは院長だけです。リーダー・スタッフ・カレンダーには、全日・午前・午後だけが出ます。</p></div>';
+  return h;
+}
+let lvPart = 'all', lvType = 'paid', lvSub = '', vSub = '';
+function lvAskSheet(preDs){
+  const td = DM.today, mn = addD(td, 1), mx = addD(td, 200);
+  lvPart = 'all';
+  const pre = typeof preDs === 'string' && preDs;   /* Ver12.13.1：カレンダーから開いたときは、見出しに日付を入れて、日付の入力欄は出さない */
+  const s = sheet('<button class="lvx" data-close aria-label="閉じる">×</button><h3>'+(pre ? md(preDs)+'の休み（有給）を申請する' : '休み（有給）を申請する')+'</h3><div class="sub">'+(pre ? '時間を選んで「申請する」を押してください。' : '日にちと時間を選んで「申請する」を押してください。')+'</div>'
+    + '<input type="date" class="lvin" id="lvDs" min="'+mn+'" max="'+mx+'"'+(pre ? ' style="display:none"' : '')+'>'
+    + '<div class="lvp">'+Object.keys(LV_PART).map(k => '<button data-lvp="'+k+'" class="'+(k===lvPart?'on':'')+'">'+LV_PART[k]+'</button>').join('')+'</div>'
+    + '<div class="lvdl" id="lvDl">日にちを選んでください。</div>'
+    + '<div class="lvrow"><button class="back" data-close>やめる</button><button class="go" id="lvGo" disabled>申請する</button></div>');
+  const ck = () => {
+    const ds = s.querySelector('#lvDs').value, dl = s.querySelector('#lvDl'), go = s.querySelector('#lvGo');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)){ dl.className = 'lvdl'; dl.textContent = '日にちを選んでください。'; go.disabled = true; return; }
+    if (ds <= td){ dl.className = 'lvdl ng'; dl.textContent = '今日より前・今日の休みは申請できません。院長に伝えてください。'; go.disabled = true; return; }
+    if (lvOffDay(ds)){ dl.className = 'lvdl ng'; dl.textContent = md(ds)+'は休診日です。'; go.disabled = true; return; }
+    /* Ver12.16.0：当番があって選べない時間（全日・午前・午後）は薄くして押せなくする。選んでいた時間が選べないときは、選べる時間に移す */
+    { const P = Object.keys(LV_PART), ng = {}; P.forEach(k => ng[k] = !!lvHit(ds, k));
+      if (ng[lvPart]){ const f = P.find(k => !ng[k]); if (f) lvPart = f; }
+      s.querySelectorAll('[data-lvp]').forEach(b => { const n = ng[b.dataset.lvp]; b.disabled = n && P.some(k => !ng[k]); b.style.opacity = n ? '.35' : ''; b.classList.toggle('on', b.dataset.lvp === lvPart); }); }
+    const d = lvDeadline(ds), late = new Date() > d.t, hit = lvHit(ds, lvPart);
+    dl.className = 'lvdl'+(late || hit ? ' ng' : ''); dl.textContent = '締め切り：'+md(d.ds)+' '+d.tm+(late ? '　締め切りを過ぎています。院長に伝えてください。' : 'まで')
+      + (hit && !late ? '\n'+md(ds)+'は'+hit+'の当番が入っています。先に当番表で交代してから申請してください。' : '');
+    dl.style.whiteSpace = 'pre-line';
+    go.disabled = late || !!hit;   /* Ver12.4.0：当番と重なるときも押せない */
+  };
+  s.querySelector('#lvDs').onchange = ck; s.querySelector('#lvDs').oninput = ck;
+  if (pre){ s.querySelector('#lvDs').value = preDs; ck(); }   /* Ver12.13.0：カレンダーで選んだ日 */
+  s.querySelectorAll('[data-lvp]').forEach(b => b.onclick = () => { lvPart = b.dataset.lvp; s.querySelectorAll('[data-lvp]').forEach(x => x.classList.toggle('on', x === b)); ck(); });
+  s.querySelector('#lvGo').onclick = () => { const ds = s.querySelector('#lvDs').value;
+    const hit = lvHit(ds, lvPart); if (hit){ alert(md(ds)+'は、'+hit+'の当番が入っています。\n\n休みを申請する前に、当番表で当番を交代してください。交代が決まってから、もう一度申請してください。'); return; }
+    closeSheet(); lvRun('leaveAsk', [ds, lvPart], md(ds)+'（'+LV_PART[lvPart]+'）の休みを申請しました。許可を待ってください。'); };
+}
+function lvSetSheet(){
+  const L = DM.leave, td = DM.today, P = (L.people || []).slice().sort((a,b) => a.grp === b.grp ? 0 : a.grp === 'n' ? -1 : 1);
+  lvPart = 'all'; lvType = 'paid';
+  const s = sheet('<button class="lvx" data-close aria-label="閉じる">×</button><h3>休みを登録する</h3><div class="sub">院長が登録した休みは、締め切りに関係なく、すぐ受理されます。</div>'
+    + '<select class="lvin" id="lvWho"><option value="">人を選ぶ</option>'+P.map(p => '<option value="'+p.grp+':'+esc(p.id)+'">'+(p.grp === 'j' ? '事務　' : '看護師　')+esc(p.name)+(p.test ? '（テスト用）' : '')+'</option>').join('')+'</select>'
+    + '<input type="date" class="lvin" id="lvDs" style="margin-top:8px" value="'+td+'" min="'+addD(td, -62)+'" max="'+addD(td, 200)+'">'
+    + '<div class="lvp">'+Object.keys(LV_PART).map(k => '<button data-lvp="'+k+'" class="'+(k===lvPart?'on':'')+'">'+LV_PART[k]+'</button>').join('')+'</div>'
+    + '<div class="lvp">'+Object.keys(LV_TYPE).map(k => '<button data-lvt="'+k+'" class="'+(k===lvType?'on':'')+'">'+LV_TYPE[k]+'</button>').join('')+'</div>'
+    + '<div class="lvrow"><button class="back" data-close>やめる</button><button class="go" id="lvGo">登録する</button></div>');
+  s.querySelectorAll('[data-lvp]').forEach(b => b.onclick = () => { lvPart = b.dataset.lvp; s.querySelectorAll('[data-lvp]').forEach(x => x.classList.toggle('on', x === b)); });
+  s.querySelectorAll('[data-lvt]').forEach(b => b.onclick = () => { lvType = b.dataset.lvt; s.querySelectorAll('[data-lvt]').forEach(x => x.classList.toggle('on', x === b)); });
+  s.querySelector('#lvGo').onclick = () => {
+    const w = s.querySelector('#lvWho').value, ds = s.querySelector('#lvDs').value;
+    if (!w) return toast('人を選んでください。');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds)) return toast('日にちを選んでください。');
+    const i = w.indexOf(':'), grp = w.slice(0, i), pid = w.slice(i+1), hits = lvBossHits(grp, pid, ds, lvPart); closeSheet();
+    if (hits.length){ lvSwapSheet(grp, pid, ds, lvPart, lvType, hits); return; }   /* Ver12.21.0：当番が入っていたら、交代の人をえらぶ画面へ */
+    lvRun('leaveSetByBoss', [{grp:grp, pid:pid, ds:ds, part:lvPart, type:lvType}], '休みを登録しました。');
+  };
+}
+/* Ver12.21.0：院長が休みを登録するとき、その人の当番と重なる所（全日＝全部、午前＝早出とCS〈事務は早出。半日の日は会計も〉、午後＝CS〈事務は会計〉） */
+function lvBossHits(grp, pid, ds, part){
+  const R = grp === 'j' ? ((DM.other && DM.other.roster) || []) : (DM.roster || []), m = R.find(x => x.ym === ds.slice(0,7)), d = m && m.data && m.data.days && m.data.days[ds];
+  if (!d) return [];
+  const half = [3,6].indexOf(pd(ds).getDay()) >= 0 || ((DM.leave && DM.leave.half) || []).indexOf(ds) >= 0;
+  const S = grp === 'j' ? [['E','eId','early','早出'],['C','lId','late','会計']] : [['E','eId','early','早出'],['C','cId','cs','CS'],['C2','c2Id','cs2','CS']];
+  const use = grp === 'j' ? (part === 'all' ? ['E','C'] : part === 'am' ? (half ? ['E','C'] : ['E']) : ['C']) : (part === 'pm' ? ['C','C2'] : ['E','C','C2']);
+  return S.filter(x => use.indexOf(x[0]) >= 0 && d[x[1]] === pid).map(x => ({slot:x[0], label:x[3], cal:grp === 'n' && !!m.data.cal, day:d, S:S}));
+}
+/* 交代の人をえらぶ画面。「あとで決める」は当番をそのままにする（「交代が必要な当番」に出る） */
+function lvSwapSheet(grp, pid, ds, part, type, hits){
+  const ppl = (grp === 'j' ? (DM.other && DM.other.nurses) : DM.nurses) || [], me = ppl.find(n => n.id === pid) || {name:''};
+  const offIds = lvOk(grp).concat(lvPend(grp)).filter(o => o.ds === ds).map(o => o.pid);
+  const cand = h => ppl.filter(n => n.id !== pid && offIds.indexOf(n.id) < 0 && (!!n.test === !!me.test) && (grp === 'j' || (h.slot === 'E' ? n.canE !== false : n.canC !== false))
+    && !h.S.some(x => x[0] !== h.slot && (x[0] === 'E') === (h.slot === 'E') && h.day[x[1]] === n.id));
+  const s = sheet('<button class="lvx" data-close aria-label="閉じる">×</button><h3>'+md(ds)+'　'+esc(me.name)+'さんの当番</h3>'
+    + '<div class="sub">'+esc(me.name)+'さんは、この日に当番が入っています。代わりの人をえらんでください。</div>'
+    + hits.map((h, k) => '<div style="margin-top:10px"><div style="font-size:calc(13px*var(--fs,1));font-weight:700;color:#64748B;margin-bottom:4px">'+h.label+'（'+esc(me.name)+'さんの代わり）</div>'
+      + (h.cal ? '<div class="lvdl ng">この月の看護師の当番は、内視鏡カレンダーで入れ替えてください。</div>'
+        : '<select class="lvin" data-swk="'+k+'"><option value="">あとで決める（当番はそのまま）</option>'+cand(h).map(n => '<option value="'+esc(n.id)+'">'+esc(n.name)+'</option>').join('')+'</select>') + '</div>').join('')
+    + '<div class="lvrow"><button class="back" data-close>やめる</button><button class="go" id="lvSwGo">交代して休みを登録する</button></div>');
+  s.querySelector('#lvSwGo').onclick = async () => {
+    const pick = hits.map((h, k) => { const e = s.querySelector('[data-swk="'+k+'"]'); return {h, id:e ? e.value : ''}; }).filter(x => x.id);
+    closeSheet(); if (busy) return; busy = true;
+    const call = (fn, args) => new Promise(res => google.script.run.withSuccessHandler(r => res(r || {ok:false})).withFailureHandler(() => res({ok:false, error:'送れませんでした。電波のよいところで、もう一度。'}))[fn].apply(null, [KEY].concat(args)));
+    const ng = [];
+    for (const x of pick){
+      const r = grp === 'j' ? await call('setClerkDuty', [ds, x.h.slot === 'E' ? 'E' : 'L', x.id]) : await call('setDutyByBoss', [ds, x.h.slot, x.id]);
+      if (!r.ok) ng.push(x.h.label+'：'+(r.error || '変えられませんでした'));
+    }
+    const r = await call('leaveSetByBoss', [{grp:grp, pid:pid, ds:ds, part:part, type:type}]);
+    busy = false;
+    toast(!r.ok ? (r.error || '休みを登録できませんでした') : ng.length ? '休みを登録しました。交代できなかった当番があります（'+ng.join('、')+'）' : pick.length ? '交代して、休みを登録しました。' : '休みを登録しました。');
+    load(false);
+  };
+}
+function lvRun(fn, args, ok){
+  if (busy) return; busy = true;
+  google.script.run.withSuccessHandler(r => {
+    busy = false;
+    if (!r || !r.ok){ toast(r && r.error || '送れませんでした'); load(false); return; }
+    toast(ok); load(false);
+  }).withFailureHandler(() => { busy = false; toast('送れませんでした。電波のよいところで、もう一度。'); })[fn].apply(null, [KEY].concat(args));
+}
+function lvBind(){
+  const $ = id => document.getElementById(id);
+  document.querySelectorAll('[data-lvday]').forEach(b => b.onclick = () => lvAskSheet(b.dataset.lvday));   /* Ver12.13.0 */
+  document.querySelectorAll('[data-lvcal]').forEach(b => b.onclick = () => { const p = lvCalYm.split('-').map(Number), d = new Date(p[0], p[1]-1+(+b.dataset.lvcal), 1); lvCalYm = d.getFullYear()+'-'+pad(d.getMonth()+1); render(); });
+  if ($('lvSet')) $('lvSet').onclick = lvSetSheet;
+  document.querySelectorAll('[data-lvd]').forEach(b => b.onclick = () => { const yes = b.dataset.yes === '1';
+    if (!yes && !confirm('この申請を「許可しない」にしますか？')) return;
+    const cx = !!b.closest('.req').querySelector('.tp[style*="B3261E"]');
+    lvRun('leaveDecide', [b.dataset.lvd, yes], yes ? (cx ? '取り消しを許可しました。' : '許可しました。当番表とカレンダーに入ります。') : '許可しないことにしました。'); });
+  document.querySelectorAll('[data-lvc]').forEach(b => b.onclick = () => { const cx = b.dataset.cx === '1';
+    if (cx && !confirm('この休みの取り消しを申請しますか？（リーダーか院長が許可すると取り消しになります）')) return;
+    lvRun('leaveCancel', [b.dataset.lvc], cx ? '取り消しを申請しました。許可を待ってください。' : '取り消しました。'); });
+  document.querySelectorAll('[data-lvdel]').forEach(b => b.onclick = () => { if (confirm('この休みを消しますか？')) lvRun('leaveDelByBoss', [b.dataset.lvdel], '消しました。'); });
+}
 start();
 
 window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null; side = 0; sel = null; showPast = false; onlyMe = false; busy = false; start(); }};
@@ -2531,7 +3410,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '11.24.0';
+const APP_VER = '12.22.1';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -2589,7 +3468,7 @@ function used(kind, months, year){
 }
 
 function render(){
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.name)+'</b> さん'+(D.pv ? '<span class="tst">見るだけ</span>' : '')+'</span></div>';
+  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.name)+'</b>'+(D.pv ? '<span class="tst">見るだけ</span>' : ' さん<span class="role">（看護師）</span>')+'</span><button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button></div>';
   h += tab === 'wish' ? wishView() : tab === 'roster' ? rosterView() : surveyView();
   document.getElementById('wApp').innerHTML = h + '<div class="ver">Ver '+APP_VER+'</div>';
 }
