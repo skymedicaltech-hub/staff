@@ -890,9 +890,12 @@ button,#nav button,[data-go],.an,.sl,[data-lvday]{touch-action:manipulation}
 #rWrap .head.stk .month{height:34px;min-height:34px}
 #rWrap .head.stk .vrow{min-height:36px}
 #rWrap .head.stk .hello{min-height:1.8rem}
+/* ---- Ver12.38.0：入口アプリから開いたときの「← スタッフアプリ」（左上。いちばん下の版数の文字と同じ色・太さ） ---- */
+#rWrap .head.bk .hello::before,#wWrap .head.bk .hello::before{display:none}
+.toPortal{position:absolute;top:2px;left:10px;z-index:2;padding:3px 6px;font-size:calc(11px*var(--fs,1));font-weight:400;color:var(--faint);text-decoration:none;line-height:1.2}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.37.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.38.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -951,7 +954,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.37.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.38.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -2283,6 +2286,9 @@ function leaveForCal_(from){
 /* ===== GASとのやりとり（GitHub Pages から Apps Script を呼ぶ） =====
    QRコードのアドレス：…/toban.html?k=合言葉&s=GASの番号。次からは覚えておく */
 const QS = new URLSearchParams(location.search);
+/* Ver12.38.0：入口アプリ（スタッフアプリ）の中で開いたときだけ、左上に「← スタッフアプリ」（入口アプリ Ver3.8.0 の依頼。何も渡さない） */
+const BK = (() => { try { return ((window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true) && history.length > 1; } catch(e){ return false; } })();
+function bkHtml(){ return BK ? '<a class="toPortal" href="portal.html">← スタッフアプリ</a>' : ''; }
 function mem(k, v){ try { if (v) localStorage.setItem('toban_'+k, v); return localStorage.getItem('toban_'+k) || ''; } catch(e){ return v || ''; } }
 /* 画面を閉じるまでの一時的な保存（使えない環境では、この画面の中だけで覚える） */
 const MEMS = {};
@@ -2598,7 +2604,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.37.0';
+const APP_VER = '12.38.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -2760,7 +2766,7 @@ function render(){
   const nIn = waitIn().length;
   /* Ver12.19.0：名前のあとに職種（看護師・事務）。院長・アプリ管理者は名前だけ。「更新する」のボタンはなくし、下に引っぱって更新する（院長が決めた） */
   const boss = D.me.pv || D.me.viewer, role = (DM && DM.clerk) ? '事務' : '看護師';   /* Ver12.19.1：院長・アプリ管理者のQRは、どの画面でも名前だけ */
-  let h = '<div class="head'+(tab === 'roster' ? ' stk' : '')+'"><div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
+  let h = '<div class="head'+(tab === 'roster' ? ' stk' : '')+(typeof BK !== 'undefined' && BK ? ' bk' : '')+'">'+(typeof bkHtml === 'function' ? bkHtml() : '')+'<div class="hello"><span><b>'+esc(boss ? (D.me.adm ? 'アプリ管理者' : '院長') : D.me.name)+'</b>'+(boss ? '' : ' さん<span class="role">（'+role+'）</span>')+(D.me.test && !boss ? '<span class="tst">テスト用</span>' : '')+'</span>'+(tab === 'roster' && !tdOn() ? sideHtml() : '')+(typeof fsOpen === 'function' ? '<button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button>' : '')+'</div>';   /* Ver12.20.0：文字の大きさ「ぁあ」を見出しの右に */
   if (DM.stale) h += '<div class="stale" style="margin:10px 4px 0;padding:8px 11px;border-radius:10px;background:#FFF6DD;color:#7A5B00;font-size:calc(12.5px*var(--fs,1));line-height:1.6">'+(DM.staleFail ? 'つながりませんでした。前に見た当番表（'+esc(rcWhen(DM.stale))+'）を出しています。「更新する」を押してください。' : '更新中…')+'</div>';
   if (DM.viewer){
     /* Ver11.15.1：院長・アプリ管理者のQRの最初の画面は、「希望の受付のようす」だけにする。
@@ -3534,7 +3540,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.37.0';
+const APP_VER = '12.38.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -3592,7 +3598,7 @@ function used(kind, months, year){
 }
 
 function render(){
-  let h = '<div class="head"><div class="hello"><span><b>'+esc(D.name)+'</b>'+(D.pv ? '<span class="tst">見るだけ</span>' : ' さん<span class="role">（看護師）</span>')+'</span><button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button></div>';
+  let h = '<div class="head'+(BK ? ' bk' : '')+'">'+bkHtml()+'<div class="hello"><span><b>'+esc(D.name)+'</b>'+(D.pv ? '<span class="tst">見るだけ</span>' : ' さん<span class="role">（看護師）</span>')+'</span><button class="fsTop" aria-label="文字の大きさ" onclick="fsOpen()"><span class="s">あ</span><span class="b">あ</span></button></div>';
   h += tab === 'wish' ? wishView() : tab === 'roster' ? rosterView() : surveyView();
   document.getElementById('wApp').innerHTML = h + '<div class="ver">Ver '+APP_VER+'</div>';
 }
