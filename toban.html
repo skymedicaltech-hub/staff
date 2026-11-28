@@ -1087,7 +1087,7 @@ html.zoomed #rWrap{touch-action:auto}
 #rWrap .tdg .sl.dE.empty .k,#rWrap .tdg .sl.dC.empty .k{opacity:.8}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.99.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.100.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -1146,7 +1146,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.99.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.100.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -1176,17 +1176,17 @@ function sh(name){ return {
     clearContent(){ const d=load(); const a=d[name]||[]; a.splice(r-1,nr); d[name]=a; save(d); return this; },
     setNumberFormat(){ return this; } }; } }; }
 const SpreadsheetApp={getActiveSpreadsheet(){ return { getSheetByName(n){ return load()[n]?sh(n):null; }, insertSheet(n){ const d=load(); d[n]=[]; save(d); return sh(n); } }; }};
-const PropertiesService={getScriptProperties(){ return { getProperty(k){ return SS.get('toban_demo_'+k); }, setProperty(k,v){ SS.set('toban_demo_'+k,v); }, deleteProperty(k){ localStorage.removeItem('prop_'+k); } }; }};
+const PropertiesService={getScriptProperties(){ return { getProperty(k){ return SS.get('toban_demo_'+k); }, setProperty(k,v){ SS.set('toban_demo_'+k,v); }, deleteProperty(k){ SS.del('toban_demo_'+k); } }; }};
 const LockService={getScriptLock(){ return {waitLock(){}, releaseLock(){}}; }};
 const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); return f==='yyyy-MM-dd'?ds:ds+' '+p(d.getHours())+':'+p(d.getMinutes()); }};
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver12.81.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver12.100.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '12.81.0';
+const VER = '12.100.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', jchg:'事務の当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表', leave:'休み', calreq:'カレンダーからの申請'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）','リーダー（休みの許可）'],
@@ -1749,17 +1749,18 @@ function saveNurses_(list){
    院内のPCの台数分、同じ内容が重なって届いてもよい作り */
 function isoNow_(){ return Utilities.formatDate(new Date(), 'Asia/Tokyo', "yyyy-MM-dd'T'HH:mm:ssXXX"); }
 function endoscSync_(b){
-  /* 合言葉：保存されていれば必ず確かめる（まだ保存されていない間だけ、合言葉なしでも受け付ける） */
+  /* 合言葉：必ず確かめる。Ver12.100.0：まだ保存されていない間は、何も受け取らず・何も返さない
+     （前は、保存されるまで合言葉なしでも受け付けていた＝GASのアドレスを知っていれば名簿と当番表を読めた） */
   /* Ver11.3.0：プロパティは1回でまとめて読む（1分ごとの読み直しで、Googleの1日の上限に近づかないように） */
   const P0 = PropertiesService.getScriptProperties();
   const pr = typeof P0.getProperties === 'function' ? P0.getProperties() : {ENDOSC_KEY:P0.getProperty('ENDOSC_KEY'), J_VER:P0.getProperty('J_VER')};
   const want = pr.ENDOSC_KEY || '', jv = pr.J_VER || '0';
-  if (want && String(b.key || '') !== want) return {ok:false, error:'合言葉が違います'};
+  if (!want) return {ok:false, clerkState:'nokey', error:'内視鏡カレンダーの合言葉が、まだ当番アプリ（Google側）に保存されていません。当番管理（院長のPC）の「設定→カレンダーの合言葉」に貼って「Googleに保存」してください。'};
+  if (String(b.key || '') !== want) return {ok:false, error:'合言葉が違います'};
   /* Ver11.2.0：事務の当番だけの軽い読み直し（"clerkOnly":true）。枠・担当者・看護師の当番は扱わない。
      送る入力がなく、前に受け取った番号（clerkVer）から変わっていなければ、シートを読まずに「同じ」とだけ返す */
   if (b.clerkOnly === true){
     const base = {ok:true, ver:1, kind:'当番連携', clerkOnly:true};
-    if (!want){ base.clerkState = 'nokey'; return base; }   /* 合言葉が未保存の間は、事務の当番は扱わない（Ver11.3.0：理由を返す） */
     const has = Array.isArray(b.clerkEdits) && b.clerkEdits.length > 0;
     const cq = (Array.isArray(b.calReqs) && b.calReqs.length) || (Array.isArray(b.calLeave) && b.calLeave.length);   /* Ver12.57.0 */
     if (!has && !cq && !b.clerkFrom && String(b.clerkVer || '') === jv){ base.clerkVer = jv; base.same = true; if (b.calAsk === true) calReqIn_({}, base); return base; }   /* Ver12.58.0：ようすだけ聞くとき（calAsk）は、変わりがなくても calReqState を返す（重い読み直しはしない） */
@@ -1770,6 +1771,7 @@ function endoscSync_(b){
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
+    saveStartYM_(b.startYM);   /* Ver12.100.0：カレンダーの設定「当番アプリから入れるのは○月から」（文字でなければ何もしない＝前の版のカレンダー） */
     (Array.isArray(b.slots) ? b.slots : []).slice(0, 6).forEach(m => {
       if (!m || !/^\d{4}-\d{2}$/.test(m.month) || !m.days || typeof m.days !== 'object') return;
       const days = {};
@@ -1790,21 +1792,36 @@ function endoscSync_(b){
       const old = read_('calstaff').find(r => r[0] === m.month);
       const t = Date.parse(m.updatedAt), to = old ? Date.parse(old[1]) : NaN;
       if (old && !isNaN(to) && !isNaN(t) && t < to) return;
-      upsert_('calstaff', m.month, [m.month, String(m.updatedAt || ''), JSON.stringify({month:m.month, updatedAt:m.updatedAt || '', days:m.days})]);
-      calApply_(m);
+      const cm = {month:m.month, updatedAt:String(m.updatedAt || '').slice(0, 40), days:calStaffDays_(m)};   /* Ver12.100.0 */
+      upsert_('calstaff', m.month, [m.month, cm.updatedAt, JSON.stringify(cm)]);
+      calApply_(cm);
     });
     const st = PropertiesService.getScriptProperties().getProperty('STAFF');
     const from = /^\d{4}-\d{2}$/.test(b.from) ? b.from : '';
     const duties = read_('duty').filter(r => r[0] >= from).sort((a, c) => a[0] < c[0] ? -1 : 1).map(r => { try { return JSON.parse(r[2]); } catch(e){ return null; } }).filter(Boolean);
     const res = {ok:true, ver:1, kind:'当番連携', roster: st ? JSON.parse(st) : null, duties:duties};
-    /* Ver11.0.0：事務の早出・会計（名前だけ）を、カレンダーでも見る・入れる。
-       合言葉が保存されていて、合っているときだけ（保存前は、受け取りも返事もしない） */
-    if (want){ clerkEdits_(b); clerkOut_(res, from, b.clerkFrom); calReqIn_(b, res); }   /* Ver12.57.0：カレンダーからの申請 */
-    else res.clerkState = 'nokey';   /* Ver11.3.0：事務の当番を返さない理由（カレンダーの「つながるか確認」に出す） */
+    /* Ver11.0.0：事務の早出・会計（名前だけ）を、カレンダーでも見る・入れる */
+    clerkEdits_(b); clerkOut_(res, from, b.clerkFrom); calReqIn_(b, res);   /* Ver12.57.0：カレンダーからの申請 */
     return res;
   } finally {
     lock.releaseLock();
   }
+}
+/* Ver12.100.0：カレンダーから届いた担当者のうち、使う項目だけを取り出す（想定外の項目は保存しない）。
+   名前は40字まで、コメントは60字・10個まで、印は true/false、時刻は40字まで */
+function calStaffDays_(m){
+  const out = {}, nm = v => typeof v === 'string' ? v.slice(0, 40) : '';
+  Object.keys(m.days || {}).slice(0, 31).forEach(ds => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(ds) || ds.slice(0,7) !== m.month) return;
+    const x = m.days[ds]; if (!x || typeof x !== 'object') return;
+    const man = (x.manual && typeof x.manual === 'object') ? x.manual : {}, c = (x.comments && typeof x.comments === 'object') ? x.comments : {};
+    const d = {early:nm(x.early), cs:nm(x.cs), cs2:nm(x.cs2), manual:{early:man.early === true, cs:man.cs === true, cs2:man.cs2 === true},
+      comments:{normal:(Array.isArray(c.normal) ? c.normal : []).slice(0, 10).map(y => ({text:String(y && y.text || '').slice(0, 60)})).filter(y => y.text),
+                important:(Array.isArray(c.important) ? c.important : []).slice(0, 10).map(y => ({text:String(y && y.text || '').slice(0, 60), color:CMT_COLOR[y && y.color] ? y.color : 'black'})).filter(y => y.text)}};
+    if (x.editAt && typeof x.editAt === 'object'){ const e = {}; ['early','cs','cs2'].forEach(k => { if (typeof x.editAt[k] === 'string' && !isNaN(Date.parse(x.editAt[k]))) e[k] = x.editAt[k].slice(0, 40); }); if (Object.keys(e).length) d.editAt = e; }
+    out[ds] = d;
+  });
+  return out;
 }
 /* カレンダーで交代した役割を当番表に反映する。
    同じ内容が何度届いても1回だけ反映する（役割ごとに「最後に反映したカレンダーの名前」を覚える）。
@@ -2646,7 +2663,10 @@ function leaveHourForCal_(from){
     pick({normal:[{text:'研修あり'},{text:'午前混雑'}], important:[{text:'スコープ修理中',color:'red'}]}, Math.min(now.getDate()+1, 27));
     pick({normal:[], important:[{text:'院長不在',color:'blue'}]}, Math.min(now.getDate()+3, 28));
     pick({normal:[{text:'業者点検 午後'}], important:[]}, Math.min(now.getDate()+5, 26));
-    endoscSync_({staff:[{month:cym, updatedAt:new Date().toISOString(), days:cdays}], slots:[]});
+    { const P9 = PropertiesService.getScriptProperties(), had = P9.getProperty('ENDOSC_KEY');   /* Ver12.100.0：カレンダーの窓口は合言葉が要る。見本を入れる間だけ仮の合言葉を置く */
+      if (!had) P9.setProperty('ENDOSC_KEY', 'demo-seed-key');
+      endoscSync_({key: had || 'demo-seed-key', staff:[{month:cym, updatedAt:new Date().toISOString(), days:cdays}], slots:[]});
+      if (!had) P9.deleteProperty('ENDOSC_KEY'); }
   }
   return Object.assign({endoscSync_:endoscSync_}, NURSE_FN);   /* Ver12.57.0：テストでカレンダーからの申請を試すため */
 }
@@ -2663,6 +2683,7 @@ const MEMS = {};
 const SS = {
   get(k){ try { return sessionStorage.getItem(k); } catch(e){ return k in MEMS ? MEMS[k] : null; } },
   set(k, v){ try { sessionStorage.setItem(k, v); } catch(e){ MEMS[k] = String(v); } },
+  del(k){ try { sessionStorage.removeItem(k); } catch(e){ delete MEMS[k]; } },
   clear(){ try { Object.keys(sessionStorage).filter(k => k.startsWith('toban_demo')).forEach(k => sessionStorage.removeItem(k)); } catch(e){} Object.keys(MEMS).forEach(k => delete MEMS[k]); }
 };
 /* Ver11.6.4：このスマホ（このブラウザー）が、この合言葉をはじめて見た時刻を覚える（登録ボタンを、QRを読んだ直後だけ出すため） */
@@ -3011,7 +3032,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.99.0';
+const APP_VER = '12.100.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -3549,22 +3570,6 @@ function bossCand(a, ds, t){
   if (!a || (a.ds === ds && a.t === t) || !pastOK(ds) || TY(a.t) !== TY(t)) return false;
   return (holder(a.ds, a.t) || '') !== (holder(ds, t) || '');
 }
-function bossSwap(a, b){
-  const el = document.getElementById('confirm'), bg = document.getElementById('sheetBg'), isC = !!D.clerk, none = isC ? '未定' : 'なし';
-  const close = () => { el.classList.remove('show'); bg.classList.remove('show'); };
-  const nmOf = x => holder(x.ds, x.t) ? holderName(x.ds, x.t) : none, gs = t => isC ? (t === 'E' ? 'E' : 'L') : t;
-  el.innerHTML = '<div class="ct">2つの当番を入れかえます</div>'
-    + '<div class="bossQ bossQ2"><div>'+md(a.ds)+' '+SNAME[a.t]+'　<b>'+esc(nmOf(a))+'</b> → <b>'+esc(nmOf(b))+'</b></div><div>'+md(b.ds)+' '+SNAME[b.t]+'　<b>'+esc(nmOf(b))+'</b> → <b>'+esc(nmOf(a))+'</b></div></div>'
-    + '<p class="bossN">本人の同意なしで、すぐに当番表が変わります。</p>'
-    + '<div class="btns"><button class="b-no" id="cfNo">やめる</button><button class="b-ok" id="cfOk">入れかえる</button></div>';
-  el.classList.add('show'); bg.classList.add('show'); bg.onclick = close; el.querySelector('#cfNo').onclick = close;
-  el.querySelector('#cfOk').onclick = () => {
-    close(); if (busy) return; busy = true;
-    google.script.run.withSuccessHandler(r => { busy = false; sel = null; if (!r || !r.ok){ toast(r && r.error || '入れかえられませんでした。'); load(); return; } const ym = D.roster[mi] ? D.roster[mi].ym : ''; DM = r; setSide(side, ym); toast('入れかえました'); render(); })
-      .withFailureHandler(e => { busy = false; toast('入れかえられませんでした。電波を確かめて、もう一度ためしてください。'); })
-      .swapDutyByBoss(KEY, isC ? 'c' : 'n', a.ds, gs(a.t), b.ds, gs(b.t));
-  };
-}
 function pickBoss(ds, t){
   const el = document.getElementById('confirm'), bg = document.getElementById('sheetBg'), cur = holder(ds,t) || '', curName = holderName(ds,t) || '';
   const isC = !!D.clerk, none = isC ? '未定' : 'なし';
@@ -3904,7 +3909,6 @@ function holdHas(id){ return holdLoad().indexOf(String(id)) >= 0; }
 function holdAdd(id){ try { const a = holdLoad().filter(x => x !== String(id)); a.push(String(id)); localStorage.setItem('toban_hold', JSON.stringify(a.slice(-100))); } catch(e){} }
 function seenLoad(){ try { const a = JSON.parse(localStorage.getItem('toban_seen') || 'null'); return Array.isArray(a) ? a : null; } catch(e){ return null; } }
 function seenSave(a){ try { localStorage.setItem('toban_seen', JSON.stringify(a.slice(-300))); } catch(e){} }
-const bd = x => x.r ? '<span class="badge">'+x.r+'</span>' : x.g ? '<span class="badge g">'+x.g+'</span>' : '';
 function badges(nIn){
   const z = {req:{r:nIn, g:0}, leave:{r:0, g:0}, ok:{r:0, g:0}};
   if (!DM || DM.viewer || DM.pv || DM.stale) return z;
@@ -4185,7 +4189,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.99.0';
+const APP_VER = '12.100.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -4233,13 +4237,6 @@ function pickMonth(){
 function loadEdit(){
   const m = D.months[mi]; edit = {}; dirty = false; if (!m) return;
   Object.keys(D.wishes).forEach(ds => { const v = normW(D.wishes[ds]); if (ds.slice(0,7) === m.ym && okW(v)) edit[ds] = v; });
-}
-function used(kind, months, year){
-  const m = D.months[mi]; let n = 0;
-  Object.keys(D.wishes).forEach(ds => { if (ds.slice(0,7) === m.ym || D.wishes[ds] !== kind) return;
-    if (year ? ds.slice(0,4) === year : months.indexOf(ds.slice(0,7)) >= 0) n++; });
-  Object.keys(edit).forEach(ds => { if (edit[ds] === kind) n++; });
-  return n;
 }
 
 function render(){
