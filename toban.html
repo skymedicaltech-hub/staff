@@ -1092,7 +1092,7 @@ html.zoomed #rWrap{touch-action:auto}
 #rWrap .cmrow.csel{border-color:#F08A24}
 
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.107.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.108.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -1151,7 +1151,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.107.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.108.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -1187,11 +1187,11 @@ const Utilities={formatDate(d,tz,f){ const p=n=>('0'+n).slice(-2); const ds=d.ge
 const ContentService={MimeType:{JSON:1}, createTextOutput(s){ return {setMimeType(){ return {getContent(){ return s; }}; }}; }};
 
 /**
- * 看護師当番 スマホアプリ用 GAS  Ver12.100.0（当番管理・スマホアプリ「当番」と同じ版数）
+ * 看護師当番 スマホアプリ用 GAS  Ver12.108.0（当番管理・スマホアプリ「当番」と同じ版数）
  * スプレッドシートの「拡張機能 → Apps Script」に貼り付けて使います。
  * ファイルはこのコード（コード.gs）だけです。看護師さんのスマホアプリ「当番」は GitHub Pages（toban.html）に置き、ここを呼びます。
  */
-const VER = '12.100.0';
+const VER = '12.108.0';
 const SH = {nurses:'看護師', wishes:'希望', months:'受付', roster:'当番表', survey:'アンケート', changes:'当番の変更', jchg:'事務の当番の変更', frames:'カレンダーの枠', duty:'カレンダー用当番表', calstaff:'カレンダーの担当者', clerks:'事務', jroster:'事務の当番表', leave:'休み', calreq:'カレンダーからの申請'};
 const HEAD = {
   nurses: ['id','名前','合言葉','有効','早出','CS','入れない曜日（早出）','特別に入れる日','入れない曜日（CS）','リーダー（休みの許可）'],
@@ -1207,7 +1207,7 @@ const HEAD = {
   calstaff: ['月','更新日時','中身（担当者_YYYY-MM.json と同じ形）'],
   duty: ['月','確定日時','中身（当番表_YYYY-MM.json と同じ形）'],
   changes: ['番号','月','種類','申し込んだ人id','申し込んだ人','相手id','相手','日付','枠','相手の日付','相手の枠','ひとこと','状態','申し込んだ日時','返事の日時','理由'],
-  survey: ['看護師id','名前','入りたくない早出（1位から）','入りたくないCS（1位から）','早出とCS','答えた日時','そのほか（自由記入）','連日の当番']
+  survey: ['看護師id','名前','入りたくない早出（1位から）','入りたくないCS（1位から）','早出とCS','答えた日時','そのほか（自由記入）','連日の当番','入りたい早出（1位から）','入りたいCS（1位から）']
 };
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし）。例 'n-'＝早出に入れない。
    前の版の 'avoid'／'no' は両方の枠とみなす */
@@ -1268,7 +1268,7 @@ const SV_ROW = {no:'やめてほしい', few:'少しならいい', any:'気に�
 const SV_DOW = ['', '月', '火', '水', '木', '金', '土'];
 const svList_ = t => (!t || t === 'なし') ? [] : String(t).split(/[・,、]/).map(x => String(SV_DOW.indexOf(x.trim()))).filter(x => /^[1-6]$/.test(x));
 const svText_ = a => a.length ? a.map(w => SV_DOW[+w]).join('・') : 'なし';
-function surveyRow_(r){ return {early:svList_(r[2]), cs:svList_(r[3]), pair:Object.keys(SV_PAIR).find(k => SV_PAIR[k] === r[4]) || '', at:r[5], note:r[6] || '', row:Object.keys(SV_ROW).find(k => SV_ROW[k] === r[7]) || ''}; }
+function surveyRow_(r){ return {early:svList_(r[2]), cs:svList_(r[3]), pair:Object.keys(SV_PAIR).find(k => SV_PAIR[k] === r[4]) || '', at:r[5], note:r[6] || '', row:Object.keys(SV_ROW).find(k => SV_ROW[k] === r[7]) || '', wantE:svList_(r[8]), wantC:svList_(r[9])}; }   /* Ver12.108.0：入りたい曜日（院長了承） */
 function surveyOf_(id){ const r = read_('survey').find(x => x[0] === id); return r ? surveyRow_(r) : null; }
 /* Ver11.5.0：「テスト用」の人。「有効」の列が 'T'（'1'＝有効、'0'＝無効、'T'＝テスト用）。
    自分のQRでスマホアプリは開けるが、名簿（ほかの人のスマホ・カレンダー・名前を選ぶ欄）には出ない＝ '1' の人だけを見る所はそのまま。
@@ -1568,10 +1568,12 @@ function saveSurvey(k, a){
     a = a || {};
     const okL = v => Array.isArray(v) && v.length <= 3 && v.every(x => /^[1-6]$/.test(String(x))) && new Set(v.map(String)).size === v.length;
     if (!okL(a.early) || !okL(a.cs) || !SV_PAIR[a.pair] || !SV_ROW[a.row]) return {ok:false, error:'答えをえらんでください。'};
+    const wE = a.wantE == null ? [] : a.wantE, wC = a.wantC == null ? [] : a.wantC;   /* Ver12.108.0：入りたい曜日（前の版のスマホは送らない＝なし） */
+    if (!okL(wE) || !okL(wC) || wE.some(x => a.early.map(String).indexOf(String(x)) >= 0) || wC.some(x => a.cs.map(String).indexOf(String(x)) >= 0)) return {ok:false, error:'入りたい曜日と入りたくない曜日が重なっています。'};
     const note = String(a.note || '').replace(/\r/g,'').trim().slice(0, 500);   /* 自由記入は500字まで */
     const rows = read_('survey').filter(r => r[0] !== n.id);
     const t = now_();
-    rows.push([n.id, n.name, svText_(a.early.map(String)), svText_(a.cs.map(String)), SV_PAIR[a.pair], t, note, SV_ROW[a.row]]);
+    rows.push([n.id, n.name, svText_(a.early.map(String)), svText_(a.cs.map(String)), SV_PAIR[a.pair], t, note, SV_ROW[a.row], svText_(wE.map(String)), svText_(wC.map(String))]);
     write_('survey', rows);
     return {ok:true, at:t};
   } finally {
@@ -3037,7 +3039,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.107.0';
+const APP_VER = '12.108.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -4197,7 +4199,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.107.0';
+const APP_VER = '12.108.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
@@ -4332,22 +4334,24 @@ function send(){
 /* ---------- 決まった当番 ---------- */
 /* ---------- アンケート ---------- */
 function surveyView(){
-  if (!svDraft) svDraft = D.survey ? {early:(D.survey.early||[]).slice(), cs:(D.survey.cs||[]).slice(), pair:D.survey.pair, row:D.survey.row||'', note:D.survey.note||''} : {note:''};
+  if (!svDraft) svDraft = D.survey ? {early:(D.survey.early||[]).slice(), cs:(D.survey.cs||[]).slice(), wantE:(D.survey.wantE||[]).slice(), wantC:(D.survey.wantC||[]).slice(), pair:D.survey.pair, row:D.survey.row||'', note:D.survey.note||''} : {note:''};
   const a = svDraft;
   /* 入りたくない順に押す（3つまで）。押した順に 1・2・3 の番号が付く。もう一度押すと外れる */
-  const dowBtns = (q) => { const L = a[q]; return '<div class="sgrid">' + [1,2,3,4,5,6].map(w => { const r = L ? L.indexOf(String(w)) : -1;
+  const dowBtns = (q, want) => { const L = a[q]; return '<div class="sgrid">' + [1,2,3,4,5,6].map(w => { const r = L ? L.indexOf(String(w)) : -1;
       return '<button data-q="'+q+'" data-v="'+w+'" class="'+(r>=0?'on':'')+(w===6?' s6':'')+'">'+DOW[w]+(r>=0?'<span class="rk">'+(r+1)+'</span>':'')+'</button>'; }).join('')
     + '<button data-q="'+q+'" data-v="" class="none'+(L && !L.length ? ' on' : '')+'">なし</button></div>'
-    + '<p class="shint">入りたくない順に、3つまで押してください（押した順に 1・2・3）。もう一度押すと外れます。</p>'; };
+    + '<p class="shint">'+(want ? '入りたい' : '入りたくない')+'順に、3つまで押してください（押した順に 1・2・3）。もう一度押すと外れます。</p>'; };
   const {done, same} = svState();
   let h = '</div><div class="body"><p class="pnote">院長が当番を自動で組むときに、なるべく答えに合わせます（回数の平等と、毎月の希望が先です）。いつでも答え直せます。</p>';
   h += '<div class="pair"><div class="sq"><b>1</b>入りたくない<span class="em E">早出</span>は何曜日ですか？</div>' + dowBtns('early') + '</div>';
-  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>2</b>入りたくない<span class="em C">CS</span>は何曜日ですか？</div>' + dowBtns('cs') + '</div>';
-  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>3</b>早出とCSは、同じ日にまとめたいですか？</div><div class="pseg">'
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>2</b>入りたい<span class="em E">早出</span>は何曜日ですか？</div>' + dowBtns('wantE', true) + '</div>';   /* Ver12.108.0（院長が決めた） */
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>3</b>入りたくない<span class="em C">CS</span>は何曜日ですか？</div>' + dowBtns('cs') + '</div>';
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>4</b>入りたい<span class="em C">CS</span>は何曜日ですか？</div>' + dowBtns('wantC', true) + '</div>';
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>5</b>早出とCSは、同じ日にまとめたいですか？</div><div class="pseg">'
     + ['same','split','any'].map(k => '<button data-q="pair" data-v="'+k+'" class="'+(a.pair===k?'on':'')+'">'+SV_PAIR[k]+'</button>').join('') + '</div></div>';
-  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>4</b>当番が2日続くのは、どうですか？</div><div class="pseg">'
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>6</b>当番が2日続くのは、どうですか？</div><div class="pseg">'
     + ['no','few','any'].map(k => '<button data-q="row" data-v="'+k+'" class="'+(a.row===k?'on':'')+'">'+SV_ROW[k]+'</button>').join('') + '</div></div>';
-  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>5</b>そのほか、ご意見があれば書いてください</div>'
+  h += '<div class="pair" style="margin-top:10px"><div class="sq"><b>7</b>そのほか、ご意見があれば書いてください</div>'
     + '<p class="shint" style="margin-top:4px">当番について気になることなど、自由に書いてください（なくてもかまいません）。</p><textarea id="svNote" maxlength="500" rows="4" placeholder="自由に書いてください">'+esc(a.note||'')+'</textarea></div>';
   h += '<button class="send" id="svSend" style="margin-top:16px"'+(done && !same && !svBusy ? '' : ' disabled')+'>'+(svBusy ? '送っています…' : (same ? '答えました' : '答える'))+'</button>';
   if (D.survey && D.survey.at) h += '<p class="pnote" style="text-align:center;margin-top:8px">前に答えた日時：'+esc(D.survey.at)+'</p>';
@@ -4358,7 +4362,7 @@ function svState(){
   const a = svDraft || {};
   const done = Array.isArray(a.early) && Array.isArray(a.cs) && !!a.pair && !!a.row;
   const eq = (x,y) => JSON.stringify(x||null) === JSON.stringify(y||null);
-  const same = !!D.survey && eq(D.survey.early,a.early) && eq(D.survey.cs,a.cs) && D.survey.pair===a.pair && (D.survey.row||'')===(a.row||'') && (D.survey.note||'') === (a.note||'').trim();
+  const same = !!D.survey && eq(D.survey.early,a.early) && eq(D.survey.cs,a.cs) && eq(D.survey.wantE||[],a.wantE||[]) && eq(D.survey.wantC||[],a.wantC||[]) && D.survey.pair===a.pair && (D.survey.row||'')===(a.row||'') && (D.survey.note||'') === (a.note||'').trim();
   return {done, same};
 }
 function refreshSvBtn(){
@@ -4373,8 +4377,8 @@ function sendSurvey(){
   google.script.run.withSuccessHandler(r => {
     svBusy = false;
     if (!r.ok){ render(); toast(r.error); return; }
-    D.survey = {early:svDraft.early.slice(), cs:svDraft.cs.slice(), pair:svDraft.pair, row:svDraft.row, note:(svDraft.note||'').trim(), at:r.at}; svDraft = null; render(); toast('答えを送りました。ありがとうございました');
-  }).withFailureHandler(() => { svBusy = false; render(); toast('送れませんでした。電波のよいところでもう一度押してください'); }).saveSurvey(KEY, {early:svDraft.early, cs:svDraft.cs, pair:svDraft.pair, row:svDraft.row, note:svDraft.note||''});
+    D.survey = {early:svDraft.early.slice(), cs:svDraft.cs.slice(), wantE:(svDraft.wantE||[]).slice(), wantC:(svDraft.wantC||[]).slice(), pair:svDraft.pair, row:svDraft.row, note:(svDraft.note||'').trim(), at:r.at}; svDraft = null; render(); toast('答えを送りました。ありがとうございました');
+  }).withFailureHandler(() => { svBusy = false; render(); toast('送れませんでした。電波のよいところでもう一度押してください'); }).saveSurvey(KEY, {early:svDraft.early, cs:svDraft.cs, wantE:svDraft.wantE||[], wantC:svDraft.wantC||[], pair:svDraft.pair, row:svDraft.row, note:svDraft.note||''});
 }
 
 function rosterView(){
@@ -4411,6 +4415,9 @@ document.addEventListener('click', e => {
       if (i >= 0) L.splice(i,1);
       else if (L.length >= 3){ toast('3つまでです。外したい曜日をもう一度押してください'); return; }
       else L.push(v);
+      /* Ver12.108.0：入りたい⇔入りたくないの同じ曜日は、もう片方から外す */
+      const OPP = {early:'wantE', wantE:'early', cs:'wantC', wantC:'cs'}, o = OPP[q];
+      if (i < 0 && o && Array.isArray(svDraft[o]) && svDraft[o].indexOf(v) >= 0){ svDraft[o] = svDraft[o].filter(x => x !== v); toast((q.indexOf('want') === 0 ? '「入りたくない」' : '「入りたい」')+'から外しました'); }
       svDraft[q] = L.length ? L : undefined;
       if (!L.length) delete svDraft[q];
     }
