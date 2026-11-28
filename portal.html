@@ -88,6 +88,18 @@
   .foot .reset{color:#5E7383;font-size:calc(12.5px*var(--fs,1))}
   .ver{color:#5E7383}
   .updated{font-size:calc(12.5px*var(--fs,1));color:#5E7383;text-align:center;margin-top:10px}
+  /* Ver3.9.0〜 画面を下に引っぱって最新にする(上に出る丸い印) */
+  html{overscroll-behavior-y:contain}   /* Chrome の画面ごとの読み込み直しは使わない(こちらの引っぱりだけにする) */
+  .ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top) + 6px);z-index:30;width:42px;height:42px;   /* 角はほかと同じくまっすぐ */
+       background:#fff;box-shadow:0 2px 10px rgba(0,40,80,.22);display:flex;align-items:center;justify-content:center;
+       color:#2F8FD8;font-size:24px;font-weight:700;line-height:1;transform:translate(-50%,-70px);opacity:0;pointer-events:none;
+       transition:transform .2s ease,opacity .2s ease}
+  .ptr.drag{transition:none}
+  .ptr.ready{background:#2F8FD8;color:#fff}
+  .ptr span{display:inline-block}
+  .ptr.spin span{animation:ptrspin .8s linear infinite}
+  @keyframes ptrspin{to{transform:rotate(360deg)}}
+  @media print{.ptr{display:none}}
 
   .needreg{background:rgba(255,255,255,.93);border-radius:18px;padding:26px 20px;text-align:center}
   .needreg .big{font-size:44px}
@@ -328,7 +340,7 @@
   .list.fsfix > .app{aspect-ratio:auto;gap:0;overflow:hidden}
   .list.fsfix > .app .icon{margin-bottom:-6px}
   .list.fsfix > .app .name{line-height:1.25}
-  /* Ver3.5.3〜 文字の大きさの入口は、下の列(最新にする・登録を解除)の中の小さい「ぁあ」の印だけ。
+  /* Ver3.5.3〜 文字の大きさの入口は、下の列(最新にする〈Ver3.9.0 でなくした〉・登録を解除)の中の小さい「ぁあ」の印だけ。
      押すと、下から「標準・大・特大」を選ぶ画面が出る(ふだんの画面には何も足さない。院長が選んだ形) */
   .foot .fsbtn{border:1px solid #8FA3B2;background:none;color:#5E7383;font-weight:700;padding:0 7px;line-height:1.5;
        display:inline-flex;align-items:baseline;gap:1px;cursor:pointer;touch-action:manipulation}
@@ -388,7 +400,7 @@
 /* =========================================================
    スカイ スタッフアプリ(入口アプリ)
    ========================================================= */
-const VERSION = 'Ver3.7.0';
+const VERSION = 'Ver3.9.1';
 // GASのアドレスは、同じ場所に置く portal-config.js に書きます(このファイルには書きません)。
 // portal-config.js が無い・空欄のときは、見本データで動きます。
 const GAS_URL = (typeof window.PORTAL_GAS_URL === 'string' && /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(window.PORTAL_GAS_URL.trim())) ? window.PORTAL_GAS_URL.trim() : '';
@@ -609,7 +621,7 @@ function renderList(data, note){
     h += '</div>';
   }
   h += '<div class="foot"><span class="ver">' + VERSION + '</span>'
-     +   '<button id="reload">↻ 最新にする</button>' + fsHtml()
+     +   fsHtml()   // Ver3.9.0〜「↻ 最新にする」のボタンはやめた(画面を下に引っぱって最新にする)
      +   (data.staff ? '<button class="reset" id="reset">登録を解除</button>' : '<span></span>') + '</div>';
   if (data._at) h += '<div class="updated">' + esc(data._at) + ' の内容です</div>';
   if (hasQR) h += '<a class="admlink" href="#" id="requr">個人QRを読み取り直す</a>';
@@ -663,7 +675,6 @@ function renderList(data, note){
   if (rq) rq.addEventListener('click', e => { e.preventDefault();
     if (!confirm('読み取った個人QRを、このスマホから消しますか?\n消したあと、アプリのボタンを押してもう一度読み取ります。')) return;
     ls.del(purlKey()); start(false); });
-  $('#reload').addEventListener('click', () => { badgeRefresh(); start(true); });
   if (data.staff) $('#reset').addEventListener('click', () => {
     if (!confirm('このスマホの登録を解除しますか?\nもう一度使うときは登録QRを読み取ります。')) return;
     ls.del(LS_KEY); ls.del(LS_CACHE); ls.del(LS_PURL);
@@ -992,6 +1003,44 @@ function renderNeedRegFromLink(){
 }
 
 /* ---------- 起動 ---------- */
+/* Ver3.9.0〜 画面のいちばん上で、下に引っぱってはなすと最新にする(前の「↻ 最新にする」ボタンのかわり)。
+   一覧(または読み込めなかった画面)が出ているときだけ。QRの読み取り・文字の大きさ・お知らせの板が出ているときは動かない。
+   最新にするときにすることは、前のボタンと同じ(ボタンの数字の読み直し+GASへ一覧を聞き直す) */
+(function(){
+  const ptr = document.createElement('div'); ptr.className = 'ptr'; ptr.innerHTML = '<span>↻</span>';
+  ptr.setAttribute('aria-hidden', 'true'); document.body.appendChild(ptr);
+  const TH = 70, MAX = 110;
+  let y0 = null, d = 0, busy = false;
+  const can = () => !busy && (window.scrollY || document.documentElement.scrollTop || 0) <= 0
+    && !document.querySelector('#scan.show, #sheetBg.show, #fsBg.show') && !!document.querySelector('#main .list, #main .err, #main .empty');
+  const show = v => {
+    ptr.style.transform = 'translate(-50%,' + (v - 60) + 'px)';
+    ptr.firstChild.style.transform = ptr.classList.contains('spin') ? '' : 'rotate(' + Math.round(v * 3) + 'deg)';   // 回すのは中の矢印だけ(四角い印はまっすぐのまま)
+    ptr.style.opacity = String(Math.min(1, v / TH));
+    ptr.classList.toggle('ready', v >= TH);
+  };
+  const hide = () => { ptr.classList.remove('drag', 'ready', 'spin'); ptr.style.transform = ''; ptr.style.opacity = ''; };
+  addEventListener('touchstart', e => {
+    if (e.touches.length !== 1 || !can()) { y0 = null; return; }
+    y0 = e.touches[0].clientY; d = 0;
+  }, { passive:true });
+  addEventListener('touchmove', e => {
+    if (y0 === null) return;
+    const dy = e.touches[0].clientY - y0;
+    if (dy <= 0 || (window.scrollY || 0) > 0){ d = 0; hide(); return; }
+    d = Math.min(MAX, dy * 0.5); ptr.classList.add('drag'); show(d);
+  }, { passive:true });
+  addEventListener('touchend', () => {
+    if (y0 === null) return;
+    y0 = null; ptr.classList.remove('drag');
+    if (d < TH){ hide(); return; }
+    busy = true; ptr.classList.add('spin'); show(TH);
+    badgeRefresh();
+    Promise.resolve(start(true)).catch(() => {}).then(() => { busy = false; hide(); });
+  });
+  addEventListener('touchcancel', () => { y0 = null; hide(); });
+})();
+
 async function start(force){
   const key = DEMO ? (demoView === 'me' ? 'demo' : demoView === 'boss' ? 'boss' : '') : getKey();
   const role = '';
@@ -1035,9 +1084,8 @@ async function start(force){
     }
     else if (cache && cache.id === cacheId) renderList(cache.data, 'いま通信できないため、前回の内容を出しています(アプリは開けます)。');
     else {
-      $('#main').innerHTML = '<div class="err">読み込めませんでした。電波のよいところで「最新にする」を押してください。</div>'
-         + '<div class="foot"><span class="ver">' + VERSION + '</span><button id="reload">↻ 最新にする</button></div>';
-      $('#reload').addEventListener('click', () => start(true));
+      $('#main').innerHTML = '<div class="err">読み込めませんでした。電波のよいところで、画面を下に引っぱって最新にしてください。</div>'
+         + '<div class="foot"><span class="ver">' + VERSION + '</span></div>';
     }
   }
 }
