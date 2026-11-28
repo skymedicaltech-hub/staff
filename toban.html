@@ -141,6 +141,7 @@ button{font-family:inherit;color:inherit;cursor:pointer}
 #rWrap .sl .ch{font-size:calc(11px*var(--fs,1));color:var(--ok);font-weight:700}
 #rWrap .sl.empty{color:var(--faint)}
 #rWrap .sl:disabled{cursor:default}
+#rWrap .sl[data-nt]{cursor:pointer}
 #rWrap .hint{font-size:calc(12px*var(--fs,1));color:var(--sub);text-align:center;margin:4px 20px 0;line-height:1.7}
 #rWrap .calnote{margin:8px 4px 4px;padding:8px 11px;border-radius:10px;background:#EEF4FB;color:#2F5D80;font-size:calc(12.5px*var(--fs,1));line-height:1.6}
 
@@ -1086,8 +1087,11 @@ html.zoomed #rWrap{touch-action:auto}
 #rWrap .tdg .sl.dC .k{background:transparent;color:#217DAD}
 #rWrap .tdg .sl.dE.empty .k,#rWrap .tdg .sl.dC.empty .k{opacity:.8}
 
+/* Ver12.101.0：月の「この月のコメント」の、選んだ日の行（院長が決めた）。Ver12.102.0：枠だけ（文字の色・背景は変えない）。Ver12.103.0：青い枠 */
+#rWrap .cmrow.csel{border:2px solid #287FB8;border-radius:6px;padding:6px 7px;margin:3px -9px}
+
 /* 右上の版数 */
-#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.100.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
+#rWrap .hello::after,#wWrap .hello::after{content:"Ver 12.104.0";position:absolute;top:6px;right:20px;font-family:"Outfit",sans-serif;font-size:10px;font-weight:600;letter-spacing:.06em;color:#538AAE;pointer-events:none}
 
 /* ---------- 文字の大きさ（Ver11.11.0）。変えるのは文字だけ。枠・ボタン・並びは標準のまま ---------- */
 html[data-fs="l"]{--fs:1.3}
@@ -1146,7 +1150,7 @@ html[data-fs] #rWrap .month .arrows{flex:none}
 </style>
 </head>
 <body>
-<!-- 看護師当番 スマホアプリ「当番」 Ver12.100.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
+<!-- 看護師当番 スマホアプリ「当番」 Ver12.104.0（当番表・申し込み・希望・アンケート）。GitHub Pages に toban.html として置きます -->
 <div id="rWrap"><div id="rApp"><div class="msg">読み込んでいます…</div></div><div class="sheet-bg" id="sheetBg"></div><div class="sheet" id="sheet"></div><div class="confirm" id="confirm"></div></div>
 <div id="wWrap" style="display:none"><div id="wApp"><div class="msg">読み込んでいます…</div></div></div>
 <div id="regBar" style="display:none"><button onclick="regPortal()">スタッフアプリ（入口アプリ）に登録する</button><br>スマホのカメラでQRコードを読んだ人用です。<br>押したあと、スタッフアプリで「QRコードを読んでください」と出るときは、<br>スタッフアプリを開き、その中のカメラでQRカードを読み取ってください<br><a href="#" onclick="regDone();return false">スタッフアプリから開けるようになった人は、ここを押すとこのボタンが消えます</a><br>（このボタンは、QRコードをはじめて読んでから10分たつと出なくなります）</div>
@@ -3032,7 +3036,7 @@ demoBar(); regBar();
 /* ===== 当番表・申し込み ===== */
 (function(){
 
-const APP_VER = '12.100.0';
+const APP_VER = '12.104.0';
 const DOW = ['日','月','火','水','木','金','土'];
 const SL = ['E','C','C2'];
 const KEYS = {E:['eId','early'], C:['cId','cs'], C2:['c2Id','cs2']};
@@ -3332,7 +3336,7 @@ function rosterBody(){
       const id = holder(ds,t), nm = holderName(ds,t), me = id === D.me.id, tap = !calM(ds) && (DM.boss ? pastOK(ds) : (!D.ro && !past && (D.clerk || !!id)));   /* Ver11.23.0：カレンダーで入れた月は押せない */
       const isSel = sel && sel.ds === ds && sel.t === t, cand = sel && !isSel && (DM.boss ? bossCand(sel, ds, t) : !!pairOf(sel, ds, t));
       const pr = pendRel(ds, t);   /* Ver12.90.0：申請中は赤い字（本人と頼まれた人だけ） */
-      return '<button class="sl'+(me?' mine':'')+(pr?' pnd':'')+(isSel?' sel':'')+(cand?' cand':'')+(sel && !isSel && !cand?' dim':'')+(id?'':' empty')+'" '+(tap?'data-ds="'+ds+'" data-t="'+t+'"':'disabled')+'><span class="k '+TY(t)+'">'+SNAME[t]+'</span><span class="nm">'+(id?esc(nm):'未設定')+'</span>'
+      return '<button class="sl'+(me?' mine':'')+(pr?' pnd':'')+(isSel?' sel':'')+(cand?' cand':'')+(sel && !isSel && !cand?' dim':'')+(id?'':' empty')+'" '+(tap?'data-ds="'+ds+'" data-t="'+t+'"':'data-nt="1" aria-disabled="true"')+'><span class="k '+TY(t)+'">'+SNAME[t]+'</span><span class="nm">'+(id?esc(nm):'未設定')+'</span>'
         + (pr ? '' : changedSlot(ds,t) ? '<span class="ch">⇄</span>' : '') + '</button>';
     };
     const gE = slots.filter(t => t === 'E'), gC = slots.filter(t => t !== 'E');
@@ -3347,6 +3351,7 @@ function rosterBody(){
   h += selMini();
   return h;
 }
+/* Ver12.101.0：月の「この月のコメント」は、選んだ日（窓を開いた日）の行をだいだいの枠で囲む（.csel。院長が決めた） */
 /* Ver11.12.0：「月」＝全員の当番をカレンダーで見せる。ますの中に、その日の当番の人の名前（左の線の色：早出＝茶、CS・会計＝青。自分は黄色）。日を押すと、その週を出す */
 function allCalBody(){
   const ym = month().ym, y = +ym.slice(0,4), m = +ym.slice(5,7), last = new Date(y, m, 0).getDate();
@@ -3368,7 +3373,7 @@ function allCalBody(){
   }
   h += '</div></div>';
   const cds = Object.keys(D.comments || {}).filter(ds => ds.slice(0,7) === ym).sort();
-  if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
+  if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow'+(ds === (popDs || selDay) ? ' csel' : '')+'"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
   const lds = [...new Set(lvOk(D.clerk ? 'j' : 'n').concat(lvPend(D.clerk ? 'j' : 'n')).filter(o => o.ds.slice(0,7) === ym).map(o => o.ds))].sort();   /* Ver12.0.0（12.3.0：申請中も） */
   if (lds.length) h += '<div class="h2">この月の休み</div><div class="box">' + lds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+lvHtml(ds)+'</div>').join('') + '</div>';
   h += '<p class="hint">'+(D.ro ? '日のますを押すと、その日の当番が大きく出ます。' : '当番を変えるときは、日のますを押すと出る窓で、名前を押します。')+'</p>'+selBar() + selMini()+'</div>';   /* Ver12.52.0 */
@@ -3391,7 +3396,7 @@ function calBody(){
   h += '</div></div>';
   if (!n) h += '<div class="none" style="margin-top:10px">この月は、あなたの当番はありません。</div>';
   const cds = Object.keys(D.comments || {}).filter(ds => ds.slice(0,7) === ym).sort();
-  if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
+  if (cds.length) h += '<div class="h2">この月のコメント</div><div class="box">' + cds.map(ds => '<div class="cmrow'+(ds === (popDs || selDay) ? ' csel' : '')+'"><span class="cmd">'+md(ds)+'</span>'+cmtHtml(ds)+'</div>').join('') + '</div>';
   h += (D.clerk ? '' : '<p class="hint">交換や代わりをするときは、「自分だけ」を切って、週の表示から押してください。</p>')+'</div>';
   return h;
 }
@@ -3514,7 +3519,7 @@ function bind(){
   /* Ver12.60.0：週・月で日にちを1回押すと、画面は週・月のまま、その日の中身を窓で出す（院長が決めた。週は名前以外のところ、月はますのどこでも）。2回つづけて押す・長押しはやめた */
   if (tab === 'roster') document.querySelectorAll('#rWrap [data-lp]').forEach(c => c.onclick = e => {
     const mon = c.classList.contains('ac'), ds = c.dataset.lp;
-    if (!mon && e.target.closest('.an,.sl,button,a,.dcm')) return;
+    if (!mon && e.target.closest('.an,.sl:not([data-nt]),button:not([data-nt]),a,.dcm')) return;   /* Ver12.104.0：週の押せない名前（過ぎた日・空き・見るだけなど）を押しても、その日の窓を出す（院長が決めた） */
     selDay = ds; popDs = ds; popTab = tab; render(); });   /* Ver12.61.0：えらんだ当番（sel）は消さない＝別の日の窓で相手を押して交換できる。窓を閉じたあと「今日」「週」を押すと、その日・その週 */
   if ($('onlyMe')) $('onlyMe').onclick = () => { onlyMe = !onlyMe; render(); };
   if ($('showPast')) $('showPast').onclick = () => { showPast = true; render(); };
@@ -4189,7 +4194,7 @@ window.R = {show(t){ tab = t; if (D) render(); }, restart(){ D = null; DM = null
 /* ===== 希望・アンケート ===== */
 (function(){
 
-const APP_VER = '12.100.0';
+const APP_VER = '12.104.0';
 const DOW = ['日','月','火','水','木','金','土'];
 /* 希望は日ごとに2文字：[早出][CS]（'a'＝避けたい、'n'＝入れない、'-'＝なし） */
 const PENS = [['aE','早出を避けたい'],['aC','CSを避けたい'],['nE','早出に入れない'],['nC','CSに入れない']];
